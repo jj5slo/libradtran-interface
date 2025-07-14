@@ -41,7 +41,7 @@ last update: 2025/07/14
 	太陽方向とかをPMCのプログラムで計算して、それを地表から見た天頂角とかに変換する。
 	LookingDirection.cpp
 	Geocoordinate.cpp
-		流用して改修しながらすする
+		改修流用
 	across_point_atmosphere.cpp
 		改修流用
 	cross_point_at_altitude.cpp
