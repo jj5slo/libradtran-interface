@@ -32,13 +32,12 @@ last update: 2025/07/14
 
 ファイル作成系(interface.h)
 	interface-stdin.cpp	libRadtranの入力ファイルを作る
-	interface-atmosphere.cpp	libRadtranの大気プロファイル設定ファイルを作る
+	interface-atmosphere.cpp	libRadtranの大気プロファイル設定ファイルを作る(TODO)
 
 座標変換系(coordinate.h, solar_direction.h)
 	translate-coordinate.cpp
 		一般的な座標変換
 
-	太陽方向とかをPMCのプログラムで計算して、それを地表から見た天頂角とかに変換する。
 	LookingDirection.cpp
 	Geocoordinate.cpp
 		改修流用
@@ -52,6 +51,11 @@ last update: 2025/07/14
 	sensor_direction.cpp
 		ある点を衛星からみたときの視線方向の（衛星から点向きの）水平からの角度と方位角を出す
 
+libRadtran実行系(execute.h)
+	execute.cpp
+		uvspecを実行する
+	read.cpp
+		結果を読み出す
 
 地球・衛星軌道の情報クラス(FixedParams.h)
 	FixedParams.h
@@ -59,8 +63,9 @@ last update: 2025/07/14
 		SatelliteParam 半径など
 	
 	
-大気クラス
-	layered-atmosphere.h
+大気クラス(layered-atmosphere.h)
+	layered-atmosphere.cpp
+		TODO
 
 
 
