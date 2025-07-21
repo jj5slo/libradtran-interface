@@ -38,8 +38,8 @@ int main(void){
 	pstdin.wavelength = 470.0;
 	
 	for(int i=0; i<120; i++){
-	
-		LookingDirection ld( i/m2km, 30 );/* 見る場所決め */
+		
+		LookingDirection ld( 30, i/m2km );/* 見る場所決め */
 		Geocoordinate tp = ld.tangential_point( earth, himawari );/* 見る場所が実際どの座標なのか？ */
 		std::cout << "Tangential point:\n";
 		std::cout << "\tlat:" << tp.latitude() << "\n\tlon:" << tp.longitude() << "\nt\taltitude:" << tp.altitude() << "\n\talpha:" << tp.alpha(himawari)*Rad2deg << std::endl;

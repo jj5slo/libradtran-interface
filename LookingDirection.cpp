@@ -6,11 +6,11 @@
 
 #include"coordinate.h"
 
-LookingDirection::LookingDirection(const double Alt, const double Alpha){
-	set(Alt, Alpha);
+LookingDirection::LookingDirection(const double Alpha, const double Alt){
+	set(Alpha, Alt);
 }
 
-void LookingDirection::set(const double Alt, const double Alpha){
+void LookingDirection::set(const double Alpha, const double Alt){
 	pAltitude = Alt;
 	pAlpha = Alpha;
 }
