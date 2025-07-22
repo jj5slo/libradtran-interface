@@ -10,6 +10,23 @@ constexpr int NLINES = 3;
 
 int main(void){
 	
+	std::string path_obs = "../h08_b01_s01s02_20220501_171000.txt";
+	int Nobs = 0;
+	int obs_index = 50;
+	Observed *obsds = read_obs( &Nobs, path_obs);
+	std::cout << Nobs << "points" << std::endl;
+
+	double *heights = obsds[obs_index].Heights();
+	std::cout << "lat" << obsds[obs_index].Latitude() << " "  << "lon" << obsds[obs_index].Longitude() << " " << obsds[obs_index].Nheights() << "heights" << std::endl;
+	for(int i=0; i<obsds[obs_index].Nheights(); i++){
+		std::cout << heights[i] << " " << obsds[obs_index].Data(heights[i]) << "\n";
+	}
+	std::cout << std::endl;
+	
+	return 0;
+
+
+
 	auto earth = PlanetParam( 6370.e3 );
 	auto himawari = SatelliteParam( 35790.e3 + earth.radius(), 0.0, 140.7 );
 
@@ -37,9 +54,14 @@ int main(void){
 
 	pstdin.wavelength = 470.0;
 	
+//	Geocoordinate on_ground( earth, himawari, obs_lat, obs_lon, 0.0);/* 観測データにある緯度経度の高度0km 地点のGeocoordinate */
+//	double ld_alpha = on_ground.alpha();
+	
+//	std::cout << "ld_alpha : " <<  ld_alpha << std::endl;
+	return 0;
+	double ld_alpha = 30.0;
 	for(int i=0; i<120; i++){
-		
-		LookingDirection ld( 30, i/m2km );/* 見る場所決め */
+		LookingDirection ld( ld_alpha, i/m2km );/* 見る場所決め */
 		Geocoordinate tp = ld.tangential_point( earth, himawari );/* 見る場所が実際どの座標なのか？ */
 		std::cout << "Tangential point:\n";
 		std::cout << "\tlat:" << tp.latitude() << "\n\tlon:" << tp.longitude() << "\nt\taltitude:" << tp.altitude() << "\n\talpha:" << tp.alpha(himawari)*Rad2deg << std::endl;
@@ -74,7 +96,8 @@ int main(void){
 	for(int i=0; i<120; i++){
 		std::cout << i << " " << radiance[i] << std::endl;
 	}
-
+	
+	delete[] radiance;
 	return 0;
 }
 

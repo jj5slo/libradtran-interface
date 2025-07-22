@@ -90,7 +90,7 @@ public:
 
 
 	deleteall(){
-		// TODO
+		// TODO デストラクタ？
 	}
 
 }

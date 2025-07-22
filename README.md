@@ -50,11 +50,18 @@ last update: 2025/07/14
 - sensor_direction.cpp
 	- ある点を衛星からみたときの視線方向の（衛星から点向きの）水平からの角度と方位角を出す
 
-### libRadtran実行系(execute.h)
+### libRadtran実行, ファイル読出し系(execute.h)
 - execute.cpp
 	- uvspecを実行する
 - read.cpp
 	- 結果を読み出す
+
+### 日付時刻クラス(obsDateTime.h)
+- obsDateTime.cpp
+	- 計算用
+
+### 観測データ格納クラス(Observated.h)
+- Observated.cpp
 
 ### 地球・衛星軌道の情報クラス(FixedParams.h)
 - FixedParams.h
