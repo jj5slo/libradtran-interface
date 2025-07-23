@@ -22,7 +22,7 @@ int save_stdin(std::string path, ParamStdin param){
 	ofs << "source solar    ../data/solar_flux/atlas_plus_modtran\n\n";
 	ofs << "rte_solver " << param.solver <<"\n";
 	if(param.solver == "mystic"){
-		//ofs << "mc_spherical 1D\n";
+		ofs << "mc_spherical 1D\n";
 		ofs << "mc_photons " << param.mc_photons << "\n";
 		ofs << "mc_backward\n";
 		ofs << "#mc_backward_output eup\n#mc_escape off\n\n";
