@@ -1,4 +1,5 @@
 #include<iostream>
+#include<cstdlib>
 #include<algorithm>/* 最大最小とか用 */
 
 #include"solar_direction.h"
@@ -9,9 +10,18 @@
 
 constexpr int NLINES = 3;
 
-int main(void){
+int main(int argc, char *argv[]){
 	
-	std::string path_obs = "../h08_b01_s01s02_20220501_171000.txt";
+	if(argc != 4){
+		std::cerr << "Usage: ./main YEAR MONTH DAY\n";
+		return 0;
+	}
+	const int YEAR = atoi(argv[1]);
+	const int MONTH = atoi(argv[2]);
+	const int DAY = atoi(argv[3]);
+	
+	obsDateTime dt(YEAR, MONTH, DAY);
+	std::string path_obs = obs_path("../", dt);//"../h08_b01_s01s02_20220501_171000.txt";
 	int Nobs = 0;
 	int obs_index = 50;
 	Observed *obsds = read_obs( &Nobs, path_obs );
@@ -36,7 +46,7 @@ int main(void){
 	double *phi = new double;
 	*/
 	ParamStdin pstdin;
-	pstdin.mc_photons = 600000;
+	pstdin.mc_photons = 300000;/* default is 300000 */
 	pstdin.solver = "mystic";
 	pstdin.additional = "output_user uu";//\npseudospherical";
 /*
@@ -49,6 +59,7 @@ int main(void){
 	
 	std::string path_stdin = "in";
 	std::string path_stdout = "out";
+	std::string path_result = "result.txt";
 
 	pstdin.wavelength = 470.0;
 	
@@ -92,30 +103,9 @@ for(int i=0; i<Nheights; i++){
 	}
 
 
-	/* fitting */
-	std::pair<double*, double*> rad_minmax = std::minmax_element(radiance, radiance+Nheights);
-	double* rad_min = rad_minmax.first;
-	double* rad_max = rad_minmax.second;
-	int rad_min_i = rad_min - radiance;
-	int rad_max_i = rad_max - radiance;
-	double obs_rminv = obsds[obs_index].Data(heights[rad_min_i]);
-	double obs_rmaxv = obsds[obs_index].Data(heights[rad_max_i]);
+	/* fitting and save */
+	save_result(path_result, Nheights, heights, obsds[obs_index], radiance);
 
-	double scaling_factor = (obs_rmaxv - obs_rminv) / (*rad_max - *rad_min);
-
-	std::cout << "rad_min rad_max rad_min_i rad_max_i obs_rminv obs_rmaxv scaling_factor\n" << rad_min <<" "<< rad_max <<" "<< rad_min_i <<" "<< rad_max_i <<" "<< obs_rminv <<" "<< obs_rmaxv <<" "<< scaling_factor << std::endl;
-
-	double* radiance_fitted = new double[Nheights];
-	for(int i=0; i<Nheights; i++){
-		radiance_fitted[i] = radiance[i] * scaling_factor + (obs_rminv - *rad_min) ;
-	}
-		
-	std::cout << "height observed simulated simulated-fitted" << std::endl;
-
-
-	for(int i=0; i<Nheights; i++){
-		std::cout << heights[i] << " " << obsds[obs_index].Data(heights[i]) << " " << radiance[i] << " " << radiance_fitted[i] << std::endl;
-	}
 	
 	delete[] radiance;
 	return 0;

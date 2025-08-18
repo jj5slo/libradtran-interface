@@ -1,5 +1,5 @@
 libradtran-interface
-last update: 2025/07/14
+last update: 2025/07/23
 
 
 ## mainでする予定のこと
@@ -28,10 +28,11 @@ last update: 2025/07/14
 - FixedParams.h
 - execute.h
 - layered_atmosphere.h
+- save.h
 
 ### ファイル作成系(interface.h)
-- interface-stdin.cpp	libRadtranの入力ファイルを作る
-- interface-atmosphere.cpp	libRadtranの大気プロファイル設定ファイルを作る(TODO)
+- interface_stdin.cpp	libRadtranの入力ファイルを作る
+- interface_atmosphere.cpp	libRadtranの大気プロファイル設定ファイルを作る(TODO)
 
 ### 座標変換系(coordinate.h, solar_direction.h)
 - translate-coordinate.cpp
@@ -59,6 +60,7 @@ last update: 2025/07/14
 ### 日付時刻クラス(obsDateTime.h)
 - obsDateTime.cpp
 	- 計算用
+	- TODO
 
 ### 観測データ格納クラス(Observated.h)
 - Observated.cpp
@@ -71,5 +73,9 @@ last update: 2025/07/14
 ### 大気クラス(layered-atmosphere.h)
 - layered-atmosphere.cpp
 	- TODO
+
+### 結果のフィッティング及びファイルへの保存(save.h)
+- save.cpp
+	- fitting and save
 
 "Paramなんとか"は入出力、"なんとかParam"は諸量とする

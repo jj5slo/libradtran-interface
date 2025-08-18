@@ -13,6 +13,9 @@ void obsDateTime::set(int aY, int aM, int aD, int ah, int am, int as){
 	pMinute = am;
 	pSecond = as;
 }
+obsDateTime::obsDateTime(int aY, int aM, int aD){
+	set(aY, aM, aD, 0, 0, 0)
+}
 
 int obsDateTime::Year(){
 	return pYear;	
