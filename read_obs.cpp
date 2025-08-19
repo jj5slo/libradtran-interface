@@ -3,7 +3,7 @@
 
 std::string obs_path(std::string data_dir, obsDateTime dt){
 	std::ostringstream filename;
-	filename << "h08_b01_s01s02_" << std::setw('4') << std::setfill('0') << dt.Year() << std::setw('2') << std::setfill('0') << dt.Month() <<  std::setw('2') << std::setfill('0') << dt.Date() << "_" <<   std::setw('2') << std::setfill('0') << dt.Hour() <<  std::setw('2') << std::setfill('0') << dt.Minute() <<  std::setw('2') << std::setfill('0') << dt.Second();
+	filename << "h08_b01_s01s02_" << std::setw(4) << std::setfill('0') << dt.Year() << std::setw(2) << std::setfill('0') << dt.Month() <<  std::setw(2) << std::setfill('0') << dt.Date() << "_" <<   std::setw(2) << std::setfill('0') << dt.Hour() <<  std::setw(2) << std::setfill('0') << dt.Minute() <<  std::setw(2) << std::setfill('0') << dt.Second() << ".txt";
 	std::string path = data_dir + filename.str();
 	return path;
 }

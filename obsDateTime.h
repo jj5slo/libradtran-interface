@@ -7,6 +7,10 @@
  *
  */
 
+#ifndef __OBSDATETIME_H__
+#define __OBSDATETIME_H__
+
+
 class obsDateTime{
 private:
 /*
@@ -15,16 +19,18 @@ private:
 */
 	int pYear;
 	int pMonth;
-	int pDate;
+	int pDay;
 	int pHour;/* UTC */
 	int pMinute;
 	int pSecond;
+
+	int pLeapYearFlag;
 public:
 	/* obsDateTime.cpp */
 /* 	void set(int aMJDN, int aDS); */
 	void set(int aY, int aM, int aD, int ah, int am, int as);
 	obsDateTime(int aY, int aM, int aD);
-
+	void settime(int ah, int am, int as);
 
 	int Year();
 	int Month();
@@ -38,3 +44,6 @@ public:
 
 
 };
+
+
+#endif

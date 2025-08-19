@@ -1,5 +1,8 @@
 #include<cmath>
 
+#ifndef __OBSERVED_H__
+#define __OBSERVED_H__
+
 class Observed{/* ある方向の高度ごとのデータ */
 private:
 	double pLat;
@@ -21,3 +24,5 @@ public:
 	}
 
 };
+
+#endif

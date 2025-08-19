@@ -1,5 +1,5 @@
-OBJS = translate_coordinate.o LookingDirection.o Geocoordinate.o cross_point_at_altitude.o across_point_atmosphere.o solar_direction.o sensor_direction.o interface_stdin.o obsDateTime.o Observed.o execute.o read.o read_obs.o main.o
-HEADERS = coordinate.h interface.h solar_direction.h execute.h obsDateTime.h Observed.h
+OBJS = translate_coordinate.o LookingDirection.o Geocoordinate.o cross_point_at_altitude.o across_point_atmosphere.o solar_direction.o sensor_direction.o interface_stdin.o obsDateTime.o Observed.o execute.o read.o read_obs.o save.o main.o
+HEADERS = coordinate.h interface.h solar_direction.h execute.h obsDateTime.h Observed.h save.h
 OPTS = -Wall -O3
 
 .PHONY: all clean

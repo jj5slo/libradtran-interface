@@ -31,7 +31,7 @@ double read_mystic_rad(int NN);
 double read_stdout(std::string path_stdout, int number_of_column);
 
 /* read_obs.cpp */
-std::string obs_path(obsDateTime dt);
+std::string obs_path(std::string path, obsDateTime dt);
 Observed* read_obs(int *aNobs, std::string path_obs);/*, int Nline);*/
 
 
