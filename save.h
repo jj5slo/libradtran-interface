@@ -10,13 +10,17 @@
 #include<iomanip>
 #include<sstream>
 #include<algorithm>/* minmax用 */
+#include<cmath>
 
 #include"Observed.h"
 #include"obsDateTime.h"
+#include"coordinate.h"
 
-std::string save_path(std::string path, obsDateTime dt);
+constexpr double Rad2Deg = 180/M_PI;
 
-int save_result(std::string path, int Nheights, double* heights, Observed obsd, double* radiance);
+std::string save_path(std::string path, obsDateTime dt, double ld_alpha);
+
+int save_result(std::string path, Geocoordinate on_ground, int Nheights, double* heights, Observed obsd, double* radiance);
 
 
 #endif

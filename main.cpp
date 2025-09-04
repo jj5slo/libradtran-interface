@@ -14,12 +14,13 @@ constexpr int NLINES = 3;
 int main(int argc, char *argv[]){
 	
 	if(argc != 4){
-		std::cerr << "Usage: ./main YEAR MONTH DAY\n";
+		std::cerr << "Usage: ./main YEAR MONTH DAY OBS_INDEX\n";
 		return 0;
 	}
 	const int YEAR = atoi(argv[1]);
 	const int MONTH = atoi(argv[2]);
 	const int DAY = atoi(argv[3]);
+	const int obs_index = atoi(argv[4]);/* 観測データの何行目を読むか */
 	
 	obsDateTime dt(YEAR, MONTH, DAY);
 	
@@ -28,7 +29,6 @@ int main(int argc, char *argv[]){
 		std::string path_obs = obs_path("../testdata/", dt);//"../h08_b01_s01s02_20220501_171000.txt";
 		std::cerr << path_obs << std::endl;
 		int Nobs = 0;
-		int obs_index = 50;
 		Observed *obsds = read_obs( &Nobs, path_obs );
 		std::cout << Nobs << "points" << std::endl;
 	
@@ -69,7 +69,7 @@ int main(int argc, char *argv[]){
 		pstdin.wavelength = 470.0;
 		
 		Geocoordinate on_ground(earth, himawari, obsds[obs_index].Latitude(), obsds[obs_index].Longitude(), 0.0);/* 観測データにある緯度経度の高度0km 地点のGeocoordinate */
-		double ld_alpha = on_ground.alpha(himawari)*Rad2deg;
+		double ld_alpha = on_ground.alpha()*Rad2deg;
 		
 		std::cout << "ld_alpha : " <<  ld_alpha << std::endl;
 	
@@ -77,7 +77,7 @@ int main(int argc, char *argv[]){
 			LookingDirection ld( ld_alpha, heights[i]/m2km );/* 見る場所決め */
 			Geocoordinate tp = ld.tangential_point( earth, himawari );/* 見る場所が実際どの座標なのか？ */
 			std::cout << "Tangential point:\n";
-			std::cout << "\tlat:" << tp.latitude() << "\n\tlon:" << tp.longitude() << "\nt\taltitude:" << tp.altitude() << "\n\talpha:" << tp.alpha(himawari)*Rad2deg << std::endl;
+			std::cout << "\tlat:" << tp.latitude() << "\n\tlon:" << tp.longitude() << "\nt\taltitude:" << tp.altitude() << "\n\talpha:" << tp.alpha()*Rad2deg << std::endl;
 			
 			AndoLab::Vector3d <double> *crosspts = new AndoLab::Vector3d <double> [2];
 			crosspts = Across_point_atmosphere(earth, himawari, tp.r());
@@ -109,8 +109,8 @@ int main(int argc, char *argv[]){
 	
 	
 		/* fitting and save */
-		std::string path_result = save_path("../testdata/", dt);
-		save_result(path_result, Nheights, heights, obsds[obs_index], radiance);
+		std::string path_result = save_path("../testdata/", dt, ld_alpha);
+		save_result(path_result, on_ground, Nheights, heights, obsds[obs_index], radiance);
 	}	
 	
 //	delete[] radiance;

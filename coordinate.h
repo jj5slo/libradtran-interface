@@ -4,6 +4,9 @@
  * 座標変換系の定義
  *
  */
+#ifndef __COORDINATE_H__
+#define __COORDINATE_H__
+
 
 #include<cmath>
 #include<Vector3d.h>
@@ -37,7 +40,9 @@ public:
 	/* アクセサ */
 	LookingDirection(const double Alt, const double Alpha);
 	void set(const double Alt, const double Alpha);
-	
+	double alpha(void);
+	double altitude(void);
+
 	/* tangential point の座標を求める */
 	Geocoordinate tangential_point(PlanetParam earth, SatelliteParam satellite);
 };
@@ -52,11 +57,13 @@ private:
 	double pAltitude;  /* [m] */
 	AndoLab::Vector3d <double> pR;
 
-	AndoLab::Vector3d <double> projection_on_yz(SatelliteParam satellite);
+	SatelliteParam pSatellite;
+
+	AndoLab::Vector3d <double> projection_on_yz(void);
 
 public:
 	Geocoordinate(void):
-		pLatitude(0.0), pLongitude(0.0), pAltitude(0.0) { }
+		pLatitude(0.0), pLongitude(0.0), pAltitude(0.0), pSatellite(42164.e3,0.0,0.0)  { }
 
 	Geocoordinate(PlanetParam earth, SatelliteParam satellite, AndoLab::Vector3d <double> r);
 	Geocoordinate(PlanetParam earth, SatelliteParam satellite, const double Latitude, const double Longitude, const double Altitude);
@@ -73,7 +80,7 @@ public:
 	AndoLab::Vector3d <double> r(void){ return pR; }
 
 	/* 衛星からみた角度αに直す */
-	double alpha(SatelliteParam satellite);
+	double alpha(void);
 
 	/* LookingDirection に直す */
 	/*LookingDirection toLookingDirection(earth, satellite); TODO
@@ -99,4 +106,4 @@ void sensor_direction(
 
 
 
-
+#endif

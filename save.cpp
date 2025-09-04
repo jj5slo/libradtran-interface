@@ -4,16 +4,16 @@
 
 #include"save.h"
 
-std::string save_path(std::string data_dir, obsDateTime dt){
+std::string save_path(std::string data_dir, obsDateTime dt, double ld_alpha/* 緯度経度にすると結局高度で変わるのでここは視線方向の北からの角度としておく*/){
 	std::ostringstream filename;
-	filename << "result_" << std::setw(4) << std::setfill('0') << dt.Year() << std::setw(2) << std::setfill('0') << dt.Month() <<  std::setw(2) << std::setfill('0') << dt.Date() << "_" <<   std::setw(2) << std::setfill('0') << dt.Hour() <<  std::setw(2) << std::setfill('0') << dt.Minute() <<  std::setw(2) << std::setfill('0') << dt.Second() << ".txt";
+	filename << "result_" << std::setw(4) << std::setfill('0') << dt.Year() << std::setw(2) << std::setfill('0') << dt.Month() <<  std::setw(2) << std::setfill('0') << dt.Date() << "_" <<   std::setw(2) << std::setfill('0') << dt.Hour() <<  std::setw(2) << std::setfill('0') << dt.Minute() <<  std::setw(2) << std::setfill('0') << dt.Second() << "_a" << std::setw(3) <<std::setfill('0') << ld_alpha << ".txt";
 	std::string path = data_dir + filename.str();
 	return path;
 }
 
-int save_result(std::string path, int Nheights, double* heights, Observed obsd, double* radiance){
+int save_result(std::string path, Geocoordinate on_ground, int Nheights, double* heights, Observed obsd, double* radiance){
 	
-
+/*
 	std::pair<double*, double*> rad_minmax = std::minmax_element(radiance, radiance+Nheights);
 	double* rad_min = rad_minmax.first;
 	double* rad_max = rad_minmax.second;
@@ -31,7 +31,11 @@ int save_result(std::string path, int Nheights, double* heights, Observed obsd, 
 		radiance_fitted[i] = radiance[i] * scaling_factor + (obs_rminv - *rad_min) ;
 	}
 		
+*/
 
+	double ld_alpha = on_ground.alpha();
+	double longitude = on_ground.longitude();
+	double latitude = on_ground.latitude();
 
 	std::ofstream ofs(path);
 
@@ -39,11 +43,14 @@ int save_result(std::string path, int Nheights, double* heights, Observed obsd, 
 		std::cerr << "Failed to open file '" << path << "'" << std::endl;
 		return 1;
 	}
-	ofs << "#rad_min rad_max rad_min_i rad_max_i obs_rminv obs_rmaxv scaling_factor\n#" << rad_min <<" "<< rad_max <<" "<< rad_min_i <<" "<< rad_max_i <<" "<< obs_rminv <<" "<< obs_rmaxv <<" "<< scaling_factor << "\n";
-	ofs << "#height observed simulated simulated-fitted\n";
+	/* ofs << "#rad_min rad_max rad_min_i rad_max_i obs_rminv obs_rmaxv scaling_factor\n#" << rad_min <<" "<< rad_max <<" "<< rad_min_i <<" "<< rad_max_i <<" "<< obs_rminv <<" "<< obs_rmaxv <<" "<< scaling_factor << "\n"; */
+	ofs << "# longitude: " << longitude << "\n";
+	ofs << "# latitude: " << latitude << "\n";
+	ofs << "# ld_alpha: " << ld_alpha << "[rad] = " << ld_alpha*Rad2Deg << "deg" << "\n";
+	ofs << "#height observed simulated\n";
 
 	for(int i=0; i<Nheights; i++){
-		ofs << heights[i] << " " << obsd.Data(heights[i]) << " " << radiance[i] << " " << radiance_fitted[i] << "\n";
+		ofs << heights[i] << " " << obsd.Data(heights[i]) << " " << radiance[i] << "\n";
 	}
 
 	return 0;

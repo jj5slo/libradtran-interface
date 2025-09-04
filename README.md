@@ -29,6 +29,7 @@ last update: 2025/07/23
 - execute.h
 - layered_atmosphere.h
 - save.h
+- fit.h
 
 ### ファイル作成系(interface.h)
 - interface_stdin.cpp	libRadtranの入力ファイルを作る
@@ -74,8 +75,13 @@ last update: 2025/07/23
 - layered-atmosphere.cpp
 	- TODO
 
-### 結果のフィッティング及びファイルへの保存(save.h)
+### 結果のファイルへの保存(save.h)
 - save.cpp
-	- fitting and save
+	- save
+
+### 結果のフィッティング(fit.h)
+- fit.cpp
+	- saveで保存した結果（複数）から、フィッティング係数を一つ決めて全てに適用する
+	- 最適化で回すときには使わない（係数を決めておく）ほうが良い？
 
 "Paramなんとか"は入出力、"なんとかParam"は諸量とする

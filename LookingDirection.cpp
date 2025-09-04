@@ -15,6 +15,12 @@ void LookingDirection::set(const double Alpha, const double Alt){
 	pAlpha = Alpha;
 }
 
+double LookingDirection::alpha(void){
+	return pAlpha;
+}
+double LookingDirection::altitude(void){
+	return pAltitude;
+}
 
 Geocoordinate LookingDirection::tangential_point(PlanetParam earth, SatelliteParam satellite){
 	double R = earth.radius() + pAltitude;

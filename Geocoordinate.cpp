@@ -3,6 +3,7 @@
 
 #include "coordinate.h"
 /* TODO satellite.latitude() も反映するようにする */
+/* TODO satelliteをx軸にとるのをやめる、または内部に衛星情報を持ってgeocoord.convert(satellite2)とかで変換できるようにする（こちらのほうが現実的）（途中で使う衛星を変えられるようにする） */
 Geocoordinate::Geocoordinate(
 		PlanetParam earth, SatelliteParam satellite, AndoLab::Vector3d <double> r){
 	set(earth, satellite, r);
@@ -14,6 +15,7 @@ Geocoordinate::Geocoordinate(
 }
 
 void Geocoordinate::set(PlanetParam earth, SatelliteParam satellite, AndoLab::Vector3d <double> r){
+	pSatellite = satellite;
 	pR = r;
 
 	pAltitude = r.r() - earth.radius();
@@ -26,10 +28,12 @@ void Geocoordinate::set(PlanetParam earth, SatelliteParam satellite, AndoLab::Ve
 	pLongitude = Phi * Rad2deg;
 
 	pLatitude = ( M_PI/2.0 - r.theta() ) * Rad2deg;
+
 }
 
 void Geocoordinate::set(
 		PlanetParam earth, SatelliteParam satellite, const double Lat, const double Long, const double Alt){
+	pSatellite = satellite;
 
 	pLatitude = Lat;
 	pLongitude = Long;
@@ -46,9 +50,9 @@ void Geocoordinate::set(
 }
 
 /* pRの点を、衛星(x軸上)から見て、yz平面へ !! 視線方向へ !! 射影した点 */
-AndoLab::Vector3d <double> Geocoordinate::projection_on_yz(SatelliteParam satellite){
+AndoLab::Vector3d <double> Geocoordinate::projection_on_yz(void){
 
-	AndoLab::Vector3d <double> r_geo { satellite.radius(), 0.0, 0.0 }; /* ひまわりの位置 */
+	AndoLab::Vector3d <double> r_geo { pSatellite.radius(), 0.0, 0.0 }; /* ひまわりの位置 */
 
 	/* r0 = R r^(θ, φ)
 	 * d^ = (r0 - Rgeo)/|r0 - Rgeo|
@@ -63,7 +67,7 @@ AndoLab::Vector3d <double> Geocoordinate::projection_on_yz(SatelliteParam satell
 }
 
 
-double Geocoordinate::alpha(SatelliteParam satellite){
+double Geocoordinate::alpha(void){
 	/* ひまわりから見てyz軸上へ射影した点の、z軸からの角度α
 	 * -y方向(ヨーロッパ側)がαが正、y方向(アメリカ側)がαは負
 	 * 　　ｚ
@@ -71,7 +75,7 @@ double Geocoordinate::alpha(SatelliteParam satellite){
 	 * 　＼│
 	 * ──┴─→y
 	 */
-	AndoLab::Vector3d <double> yz_pts = projection_on_yz(satellite);
+	AndoLab::Vector3d <double> yz_pts = projection_on_yz();
 	return std::atan2( -yz_pts.y(), yz_pts.z() );
 }
 
