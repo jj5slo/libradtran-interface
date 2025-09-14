@@ -4,14 +4,14 @@
 
 #include"save.h"
 
-std::string save_path(std::string data_dir, obsDateTime dt, double ld_alpha/* 緯度経度にすると結局高度で変わるのでここは視線方向の北からの角度としておく*/){
+std::string save_path(std::string data_dir, std::string secid, obsDateTime dt, double ld_alpha/* 緯度経度にすると結局高度で変わるのでここは視線方向の北からの角度としておく*/){
 	std::ostringstream filename;
-	filename << "result_" << std::setw(4) << std::setfill('0') << dt.Year() << std::setw(2) << std::setfill('0') << dt.Month() <<  std::setw(2) << std::setfill('0') << dt.Date() << "_" <<   std::setw(2) << std::setfill('0') << dt.Hour() <<  std::setw(2) << std::setfill('0') << dt.Minute() <<  std::setw(2) << std::setfill('0') << dt.Second() << "_a" << std::setw(3) <<std::setfill('0') << ld_alpha << ".txt";
-	std::string path = data_dir + filename.str();
+	filename << "result_" << std::setw(4) << std::setfill('0') << dt.Year() << std::setw(2) << std::setfill('0') << dt.Month() <<  std::setw(2) << std::setfill('0') << dt.Date() << "_" <<   std::setw(2) << std::setfill('0') << dt.Hour() <<  std::setw(2) << std::setfill('0') << dt.Minute() <<  std::setw(2) << std::setfill('0') << dt.Second() << "_a" << std::setw(5) << std::fixed << std::setprecision(1) << std::setfill('0') << ld_alpha << "_id" << secid << ".txt";
+	std::string path = data_dir + "/" + filename.str();
 	return path;
 }
 
-int save_result(std::string path, Geocoordinate on_ground, int Nheights, double* heights, Observed obsd, double* radiance){
+int save_result(std::string path, std::string secid, Geocoordinate on_ground, int Nheights, double* heights, Observed obsd, double* radiance){
 	
 /*
 	std::pair<double*, double*> rad_minmax = std::minmax_element(radiance, radiance+Nheights);
@@ -44,6 +44,7 @@ int save_result(std::string path, Geocoordinate on_ground, int Nheights, double*
 		return 1;
 	}
 	/* ofs << "#rad_min rad_max rad_min_i rad_max_i obs_rminv obs_rmaxv scaling_factor\n#" << rad_min <<" "<< rad_max <<" "<< rad_min_i <<" "<< rad_max_i <<" "<< obs_rminv <<" "<< obs_rmaxv <<" "<< scaling_factor << "\n"; */
+	ofs << "# secid: " << secid << "\n";
 	ofs << "# longitude: " << longitude << "\n";
 	ofs << "# latitude: " << latitude << "\n";
 	ofs << "# ld_alpha: " << ld_alpha << "[rad] = " << ld_alpha*Rad2Deg << "deg" << "\n";
@@ -56,3 +57,18 @@ int save_result(std::string path, Geocoordinate on_ground, int Nheights, double*
 	return 0;
 
 }
+
+
+
+int save_params(std::string dir, std::string secid, std::string path_stdin){
+	std::string dest = dir + "/" + secid + "_stdin.txt";
+	try {
+		std::filesystem::copy(path_stdin, dest, std::filesystem::copy_options::overwrite_existing);
+		std::cout << "File copied successfully." << std::endl;
+	} catch (const std::filesystem::filesystem_error& ex) {
+		std::cerr << "Error: " << ex.what() << std::endl;
+		return 1;
+	}
+	return 0;
+}
+

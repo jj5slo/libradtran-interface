@@ -10,6 +10,7 @@ public:
 	double phi0 {0.0};
 	double umu {0.0};
 	double phi {0.0};
+	double albedo{0.0};
 
 	int mc_photons {1000000};
 

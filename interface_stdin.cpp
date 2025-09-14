@@ -28,6 +28,10 @@ int save_stdin(std::string path, ParamStdin param){
 		ofs << "#mc_backward_output eup\n#mc_escape off\n\n";
 	}
 	ofs << "wavelength " << param.wavelength << "\n\n";
+
+/*	ofs << "albedo " << param.albedo << "\n\n"; */
+	ofs << "brdf_cam u10 1\n\n";
+
 	ofs << "zout TOA\n";/* fixed */
 	ofs << "sza " << param.sza << "\n";
 	ofs << "phi0 " << param.phi0 << "\n\n";

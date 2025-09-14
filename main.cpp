@@ -1,6 +1,8 @@
 #include<iostream>
 #include<cstdlib>
 #include<algorithm>/* 最大最小とか用 */
+#include<chrono>
+#include<filesystem>
 
 #include"solar_direction.h"
 
@@ -23,7 +25,20 @@ int main(int argc, char *argv[]){
 	const int obs_index = atoi(argv[4]);/* 観測データの何行目を読むか */
 	
 	obsDateTime dt(YEAR, MONTH, DAY);
-	
+
+	/* 現在時刻（シミュレーション開始時刻）を取得、保持 */
+	auto now = std::chrono::system_clock::now();
+	auto nowsec = std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count();
+	std::string secid = std::to_string(nowsec);
+	/* secid を結果につけることでパラメータを保存 */
+
+	std::string dir_result = "../testresult/" + secid;/* ここに保存 */
+	std::filesystem::create_directory(dir_result);
+
+	std::string path_stdin = "in";
+	std::string path_stdout = "out";
+//	std::string path_result = "result.txt";
+	/* 観測データ読み込み */
 	for(int HOUR = 0; HOUR < 24; HOUR++){
 		dt.settime(HOUR, 0, 0);
 		std::string path_obs = obs_path("../testdata/", dt);//"../h08_b01_s01s02_20220501_171000.txt";
@@ -60,13 +75,10 @@ int main(int argc, char *argv[]){
 	*/
 		
 		double sensor_theta;
-		double *radiance = new double [Nheights];
-		
-		std::string path_stdin = "in";
-		std::string path_stdout = "out";
-//		std::string path_result = "result.txt";
+		double *radiance = new double [Nheights];		
 	
 		pstdin.wavelength = 470.0;
+		pstdin.albedo = 0.3;/* 地球平均 */
 		
 		Geocoordinate on_ground(earth, himawari, obsds[obs_index].Latitude(), obsds[obs_index].Longitude(), 0.0);/* 観測データにある緯度経度の高度0km 地点のGeocoordinate */
 		double ld_alpha = on_ground.alpha()*Rad2deg;
@@ -109,9 +121,11 @@ int main(int argc, char *argv[]){
 	
 	
 		/* fitting and save */
-		std::string path_result = save_path("../testdata/", dt, ld_alpha);
-		save_result(path_result, on_ground, Nheights, heights, obsds[obs_index], radiance);
+		std::string path_result = save_path(dir_result, secid, dt, ld_alpha);
+		save_result(path_result, secid, on_ground, Nheights, heights, obsds[obs_index], radiance);
 	}	
+	/* 最後だけパラメータ保存 */
+	save_params(dir_result, secid, path_stdin);
 	
 //	delete[] radiance;
 	return 0;
