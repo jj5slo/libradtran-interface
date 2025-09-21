@@ -18,7 +18,8 @@ int save_stdin(std::string path, ParamStdin param){
 		return 1;
 	}
 		
-	ofs << "atmosphere_file ../data/atmmod/afglus.dat\n";
+	ofs << "atmosphere_file " << param.atmosphere_file << "\n";
+
 	ofs << "source solar    ../data/solar_flux/atlas_plus_modtran\n\n";
 	ofs << "rte_solver " << param.solver <<"\n";
 	if(param.solver == "mystic"){
@@ -30,7 +31,7 @@ int save_stdin(std::string path, ParamStdin param){
 	ofs << "wavelength " << param.wavelength << "\n\n";
 
 /*	ofs << "albedo " << param.albedo << "\n\n"; */
-	ofs << "brdf_cam u10 1\n\n";
+	ofs << "brdf_cam u10 " << param.brdf_cam_u10 << "\n\n";
 
 	ofs << "zout TOA\n";/* fixed */
 	ofs << "sza " << param.sza << "\n";

@@ -12,6 +12,7 @@
 #include"save.h"
 
 constexpr int NLINES = 3;
+constexpr double BOLTZMANN_CONSTANT = 1.380649e-23;
 
 int main(int argc, char *argv[]){
 	
@@ -73,7 +74,12 @@ int main(int argc, char *argv[]){
 		std::cout << &pstdin << " " << &pstdin.sza << std::endl;
 		return 0;
 	*/
-		
+		std::string path_atmosphere = "/home/sano/SANO/research/estimate-profile/atmmod-temporary/afglus-modN.dat";
+		path_atmosphere = "/home/sano/SANO/research/LIBRARIES/libradtran/libRadtran-2.0.6/data/atmmod/afglus.dat";
+
+		pstdin.atmosphere_file = path_atmosphere;
+		pstdin.brdf_cam_u10 = 15;
+
 		double sensor_theta;
 		double *radiance = new double [Nheights];		
 	
@@ -91,6 +97,52 @@ int main(int argc, char *argv[]){
 			std::cout << "Tangential point:\n";
 			std::cout << "\tlat:" << tp.latitude() << "\n\tlon:" << tp.longitude() << "\nt\taltitude:" << tp.altitude() << "\n\talpha:" << tp.alpha()*Rad2deg << std::endl;
 			
+//			/* TEST */
+//			int NpAtom = 11;
+//			ParamAtmosphere *pAtom = new ParamAtmosphere [NpAtom];/* 10分割した大気 */
+//			pAtom[0].z = 0.0;
+//			pAtom[0].T = 300.0;
+//			pAtom[0].Nair = 2.545818e+19;
+//			pAtom[1].z = 12.0;
+//			pAtom[1].T = 300.0;
+//			pAtom[1].Nair = 2.545818e+18;
+//			pAtom[2].z = 24.0;
+//			pAtom[2].T = 300.0;
+//			pAtom[2].Nair = 2.545818e+17;
+//			pAtom[3].z = 36.0;
+//			pAtom[3].T = 300.0;
+//			pAtom[3].Nair = 2.545818e+16;
+//			pAtom[4].z = 48.0;
+//			pAtom[4].T = 310.0;
+//			pAtom[4].Nair = 2.545818e+15;
+//			pAtom[5].z = 60.0;
+//			pAtom[5].T = 320.0;
+//			pAtom[5].Nair = 2.545818e+14;
+//			pAtom[6].z = 72.0;
+//			pAtom[6].T = 330.0;
+//			pAtom[6].Nair = 2.545818e+13;
+//			pAtom[7].z = 84.0;
+//			pAtom[7].T = 340.0;
+//			pAtom[7].Nair = 2.545818e+11;
+//			pAtom[8].z = 96.0;
+//			pAtom[8].T = 350.0;
+//			pAtom[8].Nair = 2.545818e+11;
+//			pAtom[9].z = 108.0;
+//			pAtom[9].T = 360.0;
+//			pAtom[9].Nair = 2.545818e+19;
+//			pAtom[10].z = 120.0;
+//			pAtom[10].T = 600.0;
+//			pAtom[10].Nair = 1.0e+3;
+//			for(int i = 0; i<NpAtom; i++){
+//				pAtom[i].p = pAtom[i].Nair * 100*100 /* *100/100 */ * BOLTZMANN_CONSTANT * pAtom[i].T;
+//				std::cout << pAtom[i].p << std::endl;
+//			}
+////			return 0;
+//			
+//			/* なんの意味もない数字 */
+//			saveParamAtmosphere(path_atmosphere, pAtom, NpAtom, 7);
+////			return 0;
+
 			AndoLab::Vector3d <double> *crosspts = new AndoLab::Vector3d <double> [2];
 			crosspts = Across_point_atmosphere(earth, himawari, tp.r());
 			Geocoordinate crosspt(earth, himawari, crosspts[0]);/* TOAと視線の交点を求める */
@@ -98,7 +150,6 @@ int main(int argc, char *argv[]){
 			
 			AndoLab::solar_direction(crosspt.latitude(), crosspt.longitude(), doy, dt.Hour(), &pstdin.sza, &pstdin.phi0);/* tangential point での太陽方向を求める */
 			std::cout << "sza:" << pstdin.sza << " phi0:" << pstdin.phi0 << std::endl;
-		
 			sensor_direction(himawari, crosspt.r(), &pstdin.umu, &pstdin.phi);/* crosspt からみた衛星方向を元に、視線方向の局所鉛直からの角（オフナディア角）を求める */
 			sensor_theta = acos(pstdin.umu) * Rad2deg;
 			std::cout << "sonsor_direction:\n\tsensor_theta:" << sensor_theta <<"\n\tphi:" << pstdin.phi << std::endl;

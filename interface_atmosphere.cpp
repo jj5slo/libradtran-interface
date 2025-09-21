@@ -15,7 +15,7 @@
 
 //constexpr int PREC {6};
 
-void saveParams(std::string filename, ParamlibRadtran *params, int Nlines, int Ndecimal){/* ParamlibRadtran からファイルを作る関数 */
+void saveParamAtmosphere(std::string filename, ParamAtmosphere *params, int Nlines, int Ndecimal){/* ParamlibRadtran からファイルを作る関数 */
 	int NoPs = params[0].NoPs();
 	double** data = AndoLab::allocate_memory2d(Nlines, NoPs, 0.0);
 	for(int i=0; i<Nlines; i++){
@@ -24,13 +24,13 @@ void saveParams(std::string filename, ParamlibRadtran *params, int Nlines, int N
 //	std::ostringstream oss; buffer
 	std::ofstream ofs(filename);
 	if(!ofs.is_open()){
-		std::cerr<< "radtran-interface::saveParams: file could not open.\n";
+		std::cerr<< "radtran-interface::saveParamAtmosphere: file could not open.\n";
 	}
-	ofs << "z[km] p[hPa] T[K] Nair[cm-3] No3[cm-3] No2[cm-3] Nh2o[cm-3] Nco2[cm-3] Nno2[cm-3]\n";
+	ofs << "# z[km] p[hPa] T[K] Nair[cm-3] No3[cm-3] No2[cm-3] Nh2o[cm-3] Nco2[cm-3] Nno2[cm-3]\n";
 	ofs << std::setprecision(Ndecimal) << std::scientific;
 	for(int i=0; i<Nlines; i++){
 		for(int j=0; j<NoPs; j++){
-			ofs << data[i][j] << " ";
+			ofs << data[Nlines-1-i][j] << " ";
 		}
 		ofs << "\n";
 	}
@@ -41,7 +41,7 @@ void saveParams(std::string filename, ParamlibRadtran *params, int Nlines, int N
 	
  
 
-double* ParamlibRadtran::returnvector(void){
+double* ParamAtmosphere::returnvector(void){
 	double *linevector = new double [p_NoPs];
 	linevector[0] = z;
 	linevector[1] = p;

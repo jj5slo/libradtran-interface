@@ -5,6 +5,8 @@ class ParamStdin{/* stdin に渡すパラメタをまとめたクラス（後で
 private:
 public:
 //	enum solver {mystic_spherical};
+	std::string atmosphere_file = "../data/atmmod/afglus.dat";
+
 	double wavelength {400.0};
 	double sza {0.0};
 	double phi0 {0.0};
@@ -12,6 +14,7 @@ public:
 	double phi {0.0};
 	double albedo{0.0};
 
+	int brdf_cam_u10{15};
 	int mc_photons {1000000};
 
 	std::string solver = "mystic";
@@ -41,7 +44,7 @@ public:
 		return p_NoPs;
 	}
 };
-/* TODO 標準的な値を出す関数を作る（ファイル参照でもなんでもいいので） */
+/* TODO 標準的な値を出す関数を作る（ファイル参照でもなんでもいいので）  -> MSIS*/
 
 
 /* interface_stdin.cpp */
@@ -50,7 +53,7 @@ int save_stdin(std::string path_stdin, ParamStdin param);
 
 
 /* interface-atmosphere.cpp */
-void saveParams(std::string filename, ParamAtmosphere *params, int Nlines, int Ndecimal = 6);
+void saveParamAtmosphere(std::string filename, ParamAtmosphere *params, int Nlines, int Ndecimal = 6);/* 保存先、パラメータの配列、高度の総数、有効数字 */
 
 #endif /* __INTERFACE_H__ */
 
