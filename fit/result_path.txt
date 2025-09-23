@@ -1,5 +1,4 @@
 ../../testresult/6gatu-and-9gatu/merged/result_20220601_000000_a-28.8_id1758346931.txt
-../../testresult/6gatu-and-9gatu/merged/result_20220601_000000_a-28.8_id1758346931.txt.fitted
 ../../testresult/6gatu-and-9gatu/merged/result_20220601_000000_a-31.9_id1758339532.txt
 ../../testresult/6gatu-and-9gatu/merged/result_20220601_000000_a-49.4_id1758347638.txt
 ../../testresult/6gatu-and-9gatu/merged/result_20220601_000000_a0-4.8_id1758338809.txt

@@ -3,7 +3,7 @@
  */
 
 #include"fit.h"
-
+double fitted_above = 15.0;
 int main(int argc, char *argv[]){
 //	std::string paths;
 //	std::string path;
@@ -96,33 +96,63 @@ int fitting_result(std::string path){ /*saveで作ったファイルから読み
 		else comment += line + "\n";
 	}
 
-	std::pair<double*, double*> y_minmax = std::minmax_element(y, y+Ndatas);
-	double* y_min = y_minmax.first;
-	double* y_max = y_minmax.second;
-	int y_min_i = y_min - y;
-	int y_max_i = y_max - y;
-	double x_rminv = x[y_min_i];
-	double x_rmaxv = x[y_max_i];
+//	std::pair<double*, double*> y_minmax = std::minmax_element(y, y+Ndatas);
+	double y_min;// = y_minmax.first;
+	double y_max;// = y_minmax.second;
+	int y_min_i;// = y_min - y;
+	int y_max_i;// = y_max - y;
+	int minmax_init_flag = 0;
+	for(int i=1; i<Ndatas; i++){
+		if( 19.5 <= h[i] && h[i] <= 20.5 ){
+			y_max_i = i;
+			y_max = y[i];
+		}
+		if( 94.5 <= h[i] && 95.5 <= h[i]){
+			y_min_i = i;
+			y_min = y[i];
+		}
+//		if(h[i] > fitted_above){
+//			if(!minmax_init_flag){
+//				y_min_i = i;
+//				y_max_i = i;
+//				y_min = y[i];
+//				y_max = y[i];
+//				minmax_init_flag = 1;
+//			}
+//			if(y_max < y[i]){
+//				y_max = y[i];
+//				y_max_i = i;
+//				}
+//			if(y[i] < y_min){
+//				y_min = y[i];
+//				y_min_i = i;
+//				}
+//			}
+		}
 
-	double scaling_factor = (x_rmaxv - x_rminv) / (*y_max - *y_min);
+	double x_ymin = x[y_min_i];
+	double x_ymax = x[y_max_i];
 
-	std::cout << "y_min y_max y_min_i y_max_i x_rminv x_rmaxv scaling_factor\n" << y_min <<" "<< y_max <<" "<< y_min_i <<" "<< y_max_i <<" "<< x_rminv <<" "<< x_rmaxv <<" "<< scaling_factor << std::endl;
+	double scaling_factor = (x_ymax - x_ymin) / (y_max - y_min);
+
+	std::cout << "y_min y_max y_min_i y_max_i x_ymin x_ymax scaling_factor\n" << y_min <<" "<< y_max <<" "<< y_min_i <<" "<< y_max_i <<" "<< x_ymin <<" "<< x_ymax <<" "<< scaling_factor << std::endl;
 
 	double* y_fitted = new double[Ndatas];
 	for(int i=0; i<Ndatas; i++){
-		y_fitted[i] = y[i] * scaling_factor + (x_rminv - *y_min) ;
+		y_fitted[i] = y[i] * scaling_factor + (x_ymin - y_min) ;
 	}
 		
 
 
-	std::ofstream ofs(path+".fitted");
+	std::ofstream ofs(path+".fitted_20_95");
 
 	if(!ofs){
 		std::cerr << "Failed to open file '" << path << "'" << std::endl;
 		return 1;
 	}
 	ofs << comment << "\n";
-	ofs << "#y_min y_max y_min_i y_max_i x_rminv x_rmaxv scaling_factor\n#" << y_min <<" "<< y_max <<" "<< y_min_i <<" "<< y_max_i <<" "<< x_rminv <<" "<< x_rmaxv <<" "<< scaling_factor << "\n";
+	ofs << "# fitted above" << fitted_above <<" [km]\n";
+	ofs << "#y_min y_max y_min_i y_max_i x_ymin x_ymax scaling_factor\n#" << y_min <<" "<< y_max <<" "<< y_min_i <<" "<< y_max_i <<" "<< x_ymin <<" "<< x_ymax <<" "<< scaling_factor << "\n";
 	ofs << "#height observed simulated simulated-fitted\n";
 
 	for(int i=0; i<Ndatas; i++){
