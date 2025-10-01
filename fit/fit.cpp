@@ -103,11 +103,11 @@ int fitting_result(std::string path){ /*saveで作ったファイルから読み
 	int y_max_i;// = y_max - y;
 	int minmax_init_flag = 0;
 	for(int i=1; i<Ndatas; i++){
-		if( 19.5 <= h[i] && h[i] <= 20.5 ){
+		if( 9.5 <= h[i] && h[i] <= 10.5 ){
 			y_max_i = i;
 			y_max = y[i];
 		}
-		if( 94.5 <= h[i] && 95.5 <= h[i]){
+		if( 94.5 <= h[i] && h[i] <= 95.5){
 			y_min_i = i;
 			y_min = y[i];
 		}
@@ -144,7 +144,7 @@ int fitting_result(std::string path){ /*saveで作ったファイルから読み
 		
 
 
-	std::ofstream ofs(path+".fitted_20_95");
+	std::ofstream ofs(path+".fitted_10_95");
 
 	if(!ofs){
 		std::cerr << "Failed to open file '" << path << "'" << std::endl;

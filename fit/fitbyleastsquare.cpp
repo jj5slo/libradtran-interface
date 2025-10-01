@@ -1,13 +1,34 @@
 // 最小二乗法でフィッティング
 
-#include<iostream>
-#include<string>
-#include<fstream>
-#include<sstream>
+#include"fit.h"
+
 
 int main(int argc, char *argv[]){
 	
-	const std::string path = argv[1];
+	if(argc != 2){
+		std::cerr << "Usage ./fit paths.txt" << std::endl;
+	}
+	std::string path = argv[1];
+
+	std::string paths = argv[1];
+	std::ifstream ifs(paths);
+	std::string line;
+	
+	while(std::getline(ifs, line)){
+		if(line[0] != '#'){
+			std::istringstream iss_read(line);
+			std::string token;
+			while(iss_read >> token){
+				fitting_result(token);
+			}
+		}
+	}
+
+	return 0;
+}
+
+
+int fitting_result(std::string path){
 
 	std::ifstream temp_ifs(path);/* 行数数え */
 	if(!temp_ifs){
@@ -17,7 +38,7 @@ int main(int argc, char *argv[]){
 	std::string temp_line;
 	int Ndatas = 0;
 	while(std::getline(temp_ifs, temp_line)){
-		if(temp_line[0] != '#'){ Ndatas++; }
+		if(temp_line[0] != '#' && temp_line != ""){ Ndatas++; }
 	}
 	temp_ifs.close();
 
@@ -55,6 +76,7 @@ int main(int argc, char *argv[]){
 	int data_index = 0;
 	int col_index = 0;
 	
+	sum_xy = 0;
 	sum_x = 0;
 	sum_y = 0;
 	sum_y2 = 0;
@@ -62,7 +84,7 @@ int main(int argc, char *argv[]){
 	while(std::getline(ifs, line)){
 		line_index++;
 		
-		if(line[0] != '#'){
+		if(line[0] != '#' && line != ""){
 			std::istringstream iss_read(line);
 			std::string token;
 			col_index = 0;
@@ -86,22 +108,26 @@ int main(int argc, char *argv[]){
 	}
 	
 	for(int i = 0; i < Ndatas; i++){
-		if(h[i] >= 20.0){
+//		if(h[i] >= 20.0){
 			sum_xy += x[i] * y[i];
 			sum_x += x[i];
 			sum_y += y[i];
 			sum_y2 += y2[i];
-		}
+//		}
+	}
+	double nd = (double)Ndatas;
+	a = (nd*sum_xy - (sum_x*sum_y)) / (nd*sum_y2 - (sum_y*sum_y));
+	b = (sum_x - sum_y * a)/nd;
+	if((nd*sum_y2 - (sum_y*sum_y)) == 0.0){
+		a = 1.0;
+		b = sum_x / nd;
 	}
 
-	a = (sum_xy - (sum_x*sum_y)) / (sum_y2 - (sum_y*sum_y));
-	b = sum_x - sum_y * a;
-
 	ifs.close();
-	
+	std::cout << sum_xy <<" "<< sum_x << " "<<sum_y<<" "<<sum_y2<<std::endl;
 	std::cout << "a; " << a << "\nb; " << b << std::endl;
 
-	std::ofstream ofs(path+".fitted20u");
+	std::ofstream ofs(path+".fittedFullLS");
 	ofs << comment << "\n";
 	for(int i=0; i<Ndatas; i++){
 		ofs << h[i] << " " << x[i] << " " << y[i] << " " << a*y[i]+b << "\n";
