@@ -1,5 +1,5 @@
 /* 
- * layered-atmosphere.cpp
+ * atmosphere.cpp
  * 関数
  *
  *
@@ -18,7 +18,7 @@
 
 
 void Atmosphere::set(Geocoordinate coord, double totalheight, int n){
-/* height [m] を n層に分割（等分） */
+/* Airをn層用意する */
 	p_N = n;
 	p_air = new Air [n];
 	double p_totalheight = totalheight;
@@ -28,9 +28,23 @@ void Atmosphere::set(Geocoordinate coord, double totalheight, int n){
 }
 
 
-void Atmosphere::setair( ParamlibRadtran* params ){
-	for(int i=0; i<N; i++){
+void Atmosphere::setair( int i, Geocoordinate coord,  ){
 		air[i].set(params[i]);
+}
+void Atmosphere::setair(   ){
+		air[i].set(params[i]);
+}
+
+ParamAtmosphere Atmosphere::libRadtran(std::string path){/* libRadtranの大気ファイルを作る */
+	std::ofstream ofs(path);/* ここに保存 */
+
+	if(!ofs){
+		std::cerr << "Failed to create file '" << path << "'" << std::endl;
+		return 1;
+	}
+
+
+
 }
 
 void Air::returnlibRadtran(){

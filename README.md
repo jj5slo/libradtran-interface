@@ -1,5 +1,5 @@
 libradtran-interface
-last update: 2025/07/23
+last update: 2025/10/02
 
 
 ## mainでする予定のこと
@@ -71,9 +71,10 @@ last update: 2025/07/23
 	- PlanetParam 半径など
 	- SatelliteParam 半径など
 
-### 大気クラス(layered-atmosphere.h)
-- layered-atmosphere.cpp
+### 大気クラス(atmosphere.h)
+- atmosphere.cpp
 	- TODO
+	- 大気諸量をまとめたクラスAirを各高度（座標）ごとに作ってまとめているのがAtmosphere
 
 ### 結果のファイルへの保存(save.h)
 - save.cpp
@@ -83,5 +84,8 @@ last update: 2025/07/23
 - fit.cpp
 	- saveで保存した結果（複数）から、フィッティング係数を一つ決めて全てに適用する
 	- 最適化で回すときには使わない（係数を決めておく）ほうが良い？
+
+### NRLMSISE-00 から標準大気を取得(get_msis.h)
+
 
 "Paramなんとか"は入出力、"なんとかParam"は諸量とする

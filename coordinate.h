@@ -7,6 +7,7 @@
 #ifndef __COORDINATE_H__
 #define __COORDINATE_H__
 
+#include<iostream>
 
 #include<cmath>
 #include<Vector3d.h>
@@ -33,11 +34,12 @@ AndoLab::Vector3d <double> rotate_theta(
 
 class LookingDirection{
 private:
-	double pAltitude;	/* [m] */
-	double pAlpha;		/* [deg] */
+	double pAltitude{0.0};	/* [m] */
+	double pAlpha{0.0};		/* [deg] */
 public:
 	/* LookingDirection.cpp */
 	/* アクセサ */
+	LookingDirection(){}
 	LookingDirection(const double Alt, const double Alpha);
 	void set(const double Alt, const double Alpha);
 	double alpha(void);
@@ -91,7 +93,7 @@ public:
 
 /* across_point_atmosphere.cpp */
 AndoLab::Vector3d <double> cross_point_at_altitude(PlanetParam earth, AndoLab::Vector3d <double> r, AndoLab::Vector3d <double> d, const double H);
-AndoLab::Vector3d <double> *Across_point_atmosphere(PlanetParam earth, SatelliteParam satellite, AndoLab::Vector3d <double> r);
+AndoLab::Vector3d <double> *Across_point_atmosphere(PlanetParam earth, SatelliteParam satellite, AndoLab::Vector3d <double> r, double TOA);
 
 
 /* sensor_direction.cpp */

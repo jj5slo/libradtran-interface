@@ -2,13 +2,13 @@
 #include <Vector3d.h>
 #include "coordinate.h"
 
-constexpr double Altitude_of_Atmosphere { 120*1.e3 };/* TODO DELETE */
+// constexpr double Altitude_of_Atmosphere { 120*1.e3 };
 
 /* ひまわりから r の点へ向かう直線で大気圏頂上と交差する点を求める
  *
  * return_vector[0]が近い点、[1constexpr ]が遠い点
  */
-AndoLab::Vector3d <double> *Across_point_atmosphere(PlanetParam earth, SatelliteParam satellite, AndoLab::Vector3d <double> r){
+AndoLab::Vector3d <double> *Across_point_atmosphere(PlanetParam earth, SatelliteParam satellite, AndoLab::Vector3d <double> r, double TOA){
   AndoLab::Vector3d <double> r_geo(satellite.radius(), 0.0, 0.0); /* ひまわりの位置 */
 //  AndoLab::Vector3d <double> re = r - r_geo; /* ひまわりから、その点に向かうベクトル */
 //  AndoLab::Vector3d <double> ren = re.n(); /* その単位ベクトル */
@@ -26,10 +26,12 @@ AndoLab::Vector3d <double> *Across_point_atmosphere(PlanetParam earth, Satellite
 //  for(int i = 0; i < 2; i++){
 //    r_atmos[i] = r_geo + t[i]*ren;
 //  }
+	
+	std::cout << "Across_point_atmosphere: TOA: " << TOA << "[km]" << std::endl;
 
   AndoLab::Vector3d <double> re = r_geo - r; /* その点から、ひまわりに向かうベクトル */
-  r_atmos[0] = cross_point_at_altitude(earth, r, re.n(), Altitude_of_Atmosphere);
-  r_atmos[1] = cross_point_at_altitude(earth, r, -1.0*re.n(), Altitude_of_Atmosphere);
+  r_atmos[0] = cross_point_at_altitude(earth, r, re.n(), TOA);
+  r_atmos[1] = cross_point_at_altitude(earth, r, -1.0*re.n(), TOA);
 
   return r_atmos;
 }

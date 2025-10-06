@@ -60,8 +60,8 @@ int save_result(std::string path, std::string secid, Geocoordinate on_ground, in
 
 
 
-int save_params(std::string dir, std::string secid, std::string path_stdin){
-	std::string dest = dir + "/" + secid + "_stdin.txt";
+int save_params(std::string dir, std::string secid, std::string path_stdin, std::string suffix){
+	std::string dest = dir + "/" + secid + suffix;
 	try {
 		std::filesystem::copy(path_stdin, dest, std::filesystem::copy_options::overwrite_existing);
 		std::cout << "File copied successfully." << std::endl;

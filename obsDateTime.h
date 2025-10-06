@@ -40,7 +40,7 @@ public:
 	int Second();
 
 	int DOY();
-
+	int DaySecond();
 
 
 };

@@ -22,11 +22,19 @@ double* Observed::Heights(void){
 int Observed::Nheights(void){
 	return pNheights;
 }
-double Observed::Data(double height){
+double Observed::Data(double height){/* いらない */
 	for(int i=0; i<pNheights; i++){
 		if(std::abs(pHeights[i] - height) < 0.1){/* TODO */
 			return pData[i];
 		}
 	}
+}
+
+double Observed::maxHeight(){
+	double maxh = pHeights[0];
+	for(int i=1; i<pNheights; i++){
+		if(maxh < pHeights[i]){ maxh = pHeights[i]; }
+	}
+	return maxh;
 }
 

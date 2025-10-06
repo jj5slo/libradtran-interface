@@ -75,3 +75,7 @@ int obsDateTime::DOY(){
 	return doy;
 }
 
+int obsDateTime::DaySecond(){
+	return 60*60*pHour + 60*pMinute + pSecond;
+}
+

@@ -24,6 +24,6 @@ std::string save_path(std::string data_dir, std::string secid, obsDateTime dt, d
 
 int save_result(std::string path, std::string secid, Geocoordinate on_ground, int Nheights, double* heights, Observed obsd, double* radiance);/* 結果保存 */
 
-int save_params(std::string dir, std::string secid, std::string path_stdin);/* パラメータ保存(inファイルをコピーするだけ) */
+int save_params(std::string dir, std::string secid, std::string path_stdin, std::string suffix);/* パラメータ保存(inファイルをコピーするだけ) */
 
 #endif
