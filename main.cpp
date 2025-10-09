@@ -68,7 +68,7 @@ int main(int argc, char *argv[]){
 		double *heights = obsds[obs_index].Heights();
 		int Nheights = obsds[obs_index].Nheights();
 		double maxHeight = obsds[obs_index].maxHeight();
-		std::cout << "lat" << obsds[obs_index].Latitude() << " "  << "lon" << obsds[obs_index].Longitude() << " " << obsds[obs_index].Nheights() << "heights" << std::endl;
+		std::cout << "lat" << obsds[obs_index].Latitude() << " "  << "lon" << obsds[obs_index].Longitude() << " " << obsds[obs_index].Nheights() << "heights max:" << maxHeight << std::endl;
 		for(int i=0; i<obsds[obs_index].Nheights(); i++){
 			std::cout << heights[i] << " " << obsds[obs_index].Data(heights[i]) << "\n";
 		}

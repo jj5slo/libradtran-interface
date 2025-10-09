@@ -30,8 +30,8 @@ AndoLab::Vector3d <double> *Across_point_atmosphere(PlanetParam earth, Satellite
 	std::cout << "Across_point_atmosphere: TOA: " << TOA << "[km]" << std::endl;
 
   AndoLab::Vector3d <double> re = r_geo - r; /* その点から、ひまわりに向かうベクトル */
-  r_atmos[0] = cross_point_at_altitude(earth, r, re.n(), TOA);
-  r_atmos[1] = cross_point_at_altitude(earth, r, -1.0*re.n(), TOA);
+  r_atmos[0] = cross_point_at_altitude(earth, r, re.n(), TOA/m2km);
+  r_atmos[1] = cross_point_at_altitude(earth, r, -1.0*re.n(), TOA/m2km);
 
   return r_atmos;
 }
