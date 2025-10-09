@@ -1,4 +1,5 @@
 #include "execute.h"
+#include "Observed.h"
 
 
 std::string obs_path(std::string data_dir, obsDateTime dt){

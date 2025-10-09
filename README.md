@@ -1,5 +1,5 @@
 libradtran-interface
-last update: 2025/10/02
+last update: 2025/10/09
 
 
 ## mainでする予定のこと
@@ -55,16 +55,16 @@ last update: 2025/10/02
 ### libRadtran実行, ファイル読出し系(execute.h)
 - execute.cpp
 	- uvspecを実行する
-- read.cpp
-	- 結果を読み出す
 
 ### 日付時刻クラス(obsDateTime.h)
 - obsDateTime.cpp
 	- 計算用
 	- TODO
 
-### 観測データ格納クラス(Observated.h)
-- Observated.cpp
+### 観測データ格納クラス(Observed.h)
+- Observed.cpp
+- read.cpp
+	- 結果を読み出す
 
 ### 地球・衛星軌道の情報クラス(FixedParams.h)
 - FixedParams.h
