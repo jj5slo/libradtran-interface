@@ -4,3 +4,5 @@ main
 *.swp
 in
 out
+Archive/*
+working/*
