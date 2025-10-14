@@ -1,7 +1,10 @@
-#include<cmath>
-
 #ifndef __OBSERVED_H__
 #define __OBSERVED_H__
+
+#include<cmath>
+#include<string>
+
+#include"obsDateTime.h"
 
 class Observed{/* ある方向の高度ごとのデータ */
 private:

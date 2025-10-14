@@ -1,9 +1,9 @@
 libradtran-interface
-last update: 2025/10/09
+last update: 2025/10/14
 
 
-## mainでする予定のこと
-- 北極を0度として、ぐるっと円周何度方向で、高度何キロ方向を見たいのかを決める。
+## mainの処理
+- 北極を0度として、円周何度方向で、高度何キロ方向を見たいのかを決める。
 - それをある時刻で緯度経度に変換する。（この緯度経度がデータファイルにあるかどうかを確認する）
 - その緯度経度、時刻での太陽天頂角、方位角を計算する（これは、大気上層でも同じ方向という近似をする）（sza, phi0）
 - 視線方向とTOAの交点のうち衛星に近い方での、視線方向の天頂角（対地表）及び方位角を計算する。（umu(cosに直していれる), phi）
@@ -80,12 +80,19 @@ last update: 2025/10/09
 - save.cpp
 	- save
 
-### 結果のフィッティング(fit.h)
+### NRLMSISE-00 から標準大気を取得(get_msis.h)
+- get_msis.cpp
+
+### 最適化(optimeze.h)
+- optimize.cpp
+
+### interface自体の設定をファイルから読込(read_config.h)
+- read_config.cpp
+
+## 結果のフィッティング(fit)
+TODO
+- fitbyleastsquare.cpp
 - fit.cpp
 	- saveで保存した結果（複数）から、フィッティング係数を一つ決めて全てに適用する
 	- 最適化で回すときには使わない（係数を決めておく）ほうが良い？
-
-### NRLMSISE-00 から標準大気を取得(get_msis.h)
-
-
-"Paramなんとか"は入出力、"なんとかParam"は諸量とする
+"Param~"は入出力、"~Param"は諸量とする

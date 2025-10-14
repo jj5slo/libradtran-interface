@@ -15,7 +15,7 @@
 
 //constexpr int PREC {6};
 
-void saveParamAtmosphere(std::string filename, ParamAtmosphere *params, int Nlines, int Ndecimal){/* ParamlibRadtran からファイルを作る関数 */
+void saveParamAtmosphere(std::string filename, ParamAtmosphere *params, int Nlines, int Ndecimal){/* ParamAtmosphere からファイルを作る関数 */
 	int NoPs = params[0].NoPs();
 	double** data = AndoLab::allocate_memory2d(Nlines, NoPs, 0.0);
 	for(int i=0; i<Nlines; i++){

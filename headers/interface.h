@@ -14,13 +14,14 @@ public:
 	double phi {0.0};
 	double albedo{0.0};
 
-	int brdf_cam_u10{15};
+	double brdf_cam_u10{15};
 	int mc_photons {1000000};
 
 	std::string solver = "mystic";
 	std::string additional = "";
 
 };
+
 
 class ParamAtmosphere{/* libRadtranの大気プロファイルに設定できる諸量 */
 private:
@@ -44,12 +45,11 @@ public:
 		return p_NoPs;
 	}
 };
-/* TODO 標準的な値を出す関数を作る（ファイル参照でもなんでもいいので）  -> MSIS*/
 
 
 /* interface_stdin.cpp */
 int save_stdin(std::string path_stdin, ParamStdin param);
-	/* 0:無問題, 1:ERROR */
+	/* 0:問題なし, 1:Error */
 
 
 /* interface-atmosphere.cpp */

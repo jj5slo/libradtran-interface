@@ -11,8 +11,11 @@
 #include"execute.h"
 #include"save.h"
 #include"get_msis.h"
+#include"read_config.h"
+
 
 constexpr double BOLTZMANN_CONSTANT = 1.380649e-23;
+char input;
 
 int main(int argc, char *argv[]){
 /* ==== 引数処理 ==== */
@@ -38,27 +41,60 @@ int main(int argc, char *argv[]){
 	/* secid を結果につけることでパラメータを保存 */
 
 /* ==== */
-/* ==== 保存先ディレクトリ等指定 ==== */
+/* ==== ファイルから設定読込 ==== */
 
-	std::string dir_result = "../testresult/" + secid;/* ここに保存 */
-	std::filesystem::create_directory(dir_result);
+	std::string configfile = "./config.conf";
+	std::map<std::string, std::string> configs = readConfigFile(configfile);
+	
+	const int DEBUG = getConfig(configs, "DEBUG", 0);
+	const int FLAG_UNDISPLAY_LOG = getConfig(configs, "FLAG_UNDISPLAY_LOG", 0);
 
-	std::string path_stdin = "in";
-	std::string path_stdout = "out";
-//	std::string path_result = "result.txt";
-	/* 観測データ読み込み */
+	const std::string DIR_INTERFACE = getConfig(configs, "DIR_INTERFACE", std::string(std::getenv("HOME"))+"/SANO/research/estimate-profile/libradtran-interface/");/* このプログラムが置かれるディレクトリ */
+	const std::string DIR_UVSPEC = getConfig(configs, "DIR_UVSPEC", std::string(std::getenv("HOME"))+"/SANO/research/LIBRARIES/libradtran/libRadtran-2.0.6/bin/");/* uvspec(libRadtran本体)の置かれたディレクトリ */
+
+	std::string dir_result = getConfig(configs, "dir_result", "../testresult") + secid;/* 保存先ディレクトリ */
+	std::string dir_obs = getConfig(configs, "dir_obs", "../testdata");/* 観測データのディレクトリ */
+	std::string path_stdin = getConfig(configs, "path_stdin", "in");/* libRadtran標準入力を一時保存する場所 */
+	std::string path_stdout = getConfig(configs, "path_stdout", "out");/* libRadtranの標準出力を一時保存する場所 */
+	std::string path_atmosphere = getConfig(configs, "path_atmosphere", "/home/sano/SANO/research/estimate-profile/atmmod-temporary/msis-atm.dat");/* libRadtranに渡す大気ファイル */
+	
+	double wavelength = getConfig(configs, "wavelength", 470.0);/* 波長 [nm]. TODO 決まっているので指定方法を変える */
+
+	std::string solver = getConfig(configs, "solver", "mystic");/* libRadtranのソルバ */
+	double brdf_cam_u10 = getConfig(configs, "brdf_cam_u10", 15.0);/* BRDF_CAM の風速 */
+	std::string additional_option = getConfig(configs, "additional_option", "");/* libRadtranの標準入力に追加で書き込む文字列 */
+	int mc_photons = getConfig(configs, "mc_photons", 60000);/* MYSTICの回数 */
+
+	int atmosphere_precision = getConfig(configs, "atmosphere_precision", 7);/* MSISから取得する大気の保存時の精度 */
+
+//	DIR_UVSPEC
+
+
+
+
+
+/* ==== */
+/*
 	std::string path_atmosphere = "/home/sano/SANO/research/estimate-profile/atmmod-temporary/afglus-modN.dat";
 	path_atmosphere = "/home/sano/SANO/research/LIBRARIES/libradtran/libRadtran-2.0.6/data/atmmod/afglus.dat";
-
 	path_atmosphere = "/home/sano/SANO/research/estimate-profile/atmmod-temporary/msis-atm.dat";
+*/
+/* ==== 保存先ディレクトリ作成 ==== */
+	std::cerr << dir_result << std::endl;
+	std::filesystem::create_directory(dir_result);
+
+	if(DEBUG){ std::cin >> input; }
+
+//	std::string path_result = "result.txt";
 
 /* ==== */
 /* ==== 観測データ読み込み ==== */
 
 	for(int HOUR = 0; HOUR < 24; HOUR++){
 		dt.settime(HOUR, 0, 0);/* 観測時 */
-		std::string path_obs = obs_path("../testdata/", dt);/* 観測日時からデータの名前 */
+		std::string path_obs = obs_path(dir_obs, dt);/* 観測日時からデータの名前 */
 		std::cerr << path_obs << std::endl;
+		if(DEBUG){ std::cin >> input; }
 		int Nobs = 0;
 		Observed *obsds = read_obs( &Nobs, path_obs );/* 使うのはobsds[obs_index]だけ */
 		std::cout << Nobs << "points" << std::endl;
@@ -74,6 +110,7 @@ int main(int argc, char *argv[]){
 		}
 		std::cout << std::endl;
 	
+		if(DEBUG){ std::cin >> input; }
 /* ==== 地球、衛星の設定 ==== */
 	
 		auto earth = PlanetParam( 6370.e3 );
@@ -83,21 +120,21 @@ int main(int argc, char *argv[]){
 
 		int doy = dt.DOY();/*  */
 		ParamStdin pstdin;
-		pstdin.mc_photons = 60000;/* default is 300000 */
-		pstdin.solver = "mystic";
-		pstdin.additional = "output_user uu";//\npseudospherical";
+		pstdin.mc_photons = mc_photons;/* default is 300000 */
+		pstdin.solver = solver;
+		pstdin.additional = additional_option;//\npseudospherical";
 	/*
 		std::cout << &pstdin << " " << &pstdin.sza << std::endl;
 		return 0;
 	*/
 
 		pstdin.atmosphere_file = path_atmosphere;
-		pstdin.brdf_cam_u10 = 15;
+		pstdin.brdf_cam_u10 = brdf_cam_u10;
 
 		double sensor_theta;
 		double *radiance = new double [Nheights];		
 	
-		pstdin.wavelength = 470.0;
+		pstdin.wavelength = wavelength;
 //		pstdin.albedo = 0.3;/* 地球平均 */
 		
 		Geocoordinate on_ground(earth, himawari, obsds[obs_index].Latitude(), obsds[obs_index].Longitude(), 0.0);/* 観測データにある緯度経度の高度0km 地点のGeocoordinate */
@@ -114,7 +151,7 @@ int main(int argc, char *argv[]){
 			tparr[i] = ld.tangential_point( earth, himawari);/* tangential point の配列 */
 		}
 		ParamAtmosphere *pAtom = get_msis(dt, tparr, Nheights);/* tangential point でのMSIS大気から求めたパラメタを取得 */
-		saveParamAtmosphere(path_atmosphere, pAtom, Nheights, 7);
+		saveParamAtmosphere(path_atmosphere, pAtom, Nheights, atmosphere_precision);
 
 /* ==== */
 
@@ -139,17 +176,21 @@ int main(int argc, char *argv[]){
 		
 			save_stdin(path_stdin, pstdin);/* 座標情報を入力ファイルにセーブ */
 		
+			if(DEBUG){ std::cin >> input; }
 		
 			/* TODO ここで大気プロファイル決定、ループ開始 */
+			
+			/* delete_mystic_rad(); */
 		
-		
-			execute_uvspec(DIR_INTERFACE+path_stdin, DIR_INTERFACE+path_stdout);
+			execute_uvspec(DIR_INTERFACE+path_stdin, DIR_INTERFACE+path_stdout, FLAG_UNDISPLAY_LOG);
 		
 			if(pstdin.solver == "mystic"){
 				radiance[i] = read_mystic_rad(105);/* TODO この層番号の決め方がいまいちわからない */
 			}else{
 				radiance[i] = read_stdout(path_stdout, 0);
 			}
+			std::cerr << "Radiance: " << radiance[i] << std::endl;
+			if(DEBUG){ std::cin >> input; }
 		}	
 		/* save */
 		std::string path_result = save_path(dir_result, secid, dt, ld_alpha);
@@ -158,6 +199,7 @@ int main(int argc, char *argv[]){
 	/* 最後だけパラメータ保存 */
 	save_params(dir_result, secid, path_stdin, "_stdin.txt");
 	save_params(dir_result, secid, path_atmosphere, "_atm.txt");/* atmosphereも保存しておく */
+	save_params(dir_result, secid, configfile, "_config.conf");
 
 //	delete[] radiance;
 	return 0;
