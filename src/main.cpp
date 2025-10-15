@@ -63,7 +63,7 @@ int main(int argc, char *argv[]){
 	std::string solver = getConfig(configs, "solver", "mystic");/* libRadtranのソルバ */
 	double brdf_cam_u10 = getConfig(configs, "brdf_cam_u10", 15.0);/* BRDF_CAM の風速 */
 	std::string additional_option = getConfig(configs, "additional_option", "");/* libRadtranの標準入力に追加で書き込む文字列 */
-	int mc_photons = getConfig(configs, "mc_photons", 60000);/* MYSTICの回数 */
+	int mc_photons = getConfig(configs, "mc_photons", 60000);/* MYSTICの回数 デフォルトは300000 */
 
 	int atmosphere_precision = getConfig(configs, "atmosphere_precision", 7);/* MSISから取得する大気の保存時の精度 */
 
@@ -132,7 +132,6 @@ int main(int argc, char *argv[]){
 		pstdin.brdf_cam_u10 = brdf_cam_u10;
 
 		double sensor_theta;
-		double *radiance = new double [Nheights];		
 	
 		pstdin.wavelength = wavelength;
 //		pstdin.albedo = 0.3;/* 地球平均 */
@@ -155,7 +154,8 @@ int main(int argc, char *argv[]){
 
 /* ==== */
 
-	for(int i=0; i<Nheights; i++){
+		double *radiance = new double [Nheights];/* シミュレーション結果 */
+		for(int i=0; i<Nheights; i++){
 			Geocoordinate tp = tparr[i];
 			std::cout << "Tangential point:\n";
 			std::cout << "\tlat:" << tp.latitude() << "\n\tlon:" << tp.longitude() << "\nt\taltitude:" << tp.altitude() << "\n\talpha:" << tp.alpha()*Rad2deg << std::endl;

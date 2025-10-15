@@ -9,7 +9,7 @@ INC_PATHS = $(addprefix -I, $(INC_DIR))
 
 LIB_DIR = /home/sano/lib
 LIB_PATHS = $(addprefix -L, $(LIB_DIR))
-LIB_OPTS = -lnrlmsise00 -Wl,-rpath,$(LIB_DIR)
+LIB_OPTS = -lnrlmsise00 -lnlopt -lm -Wl,-rpath,$(LIB_DIR)
 OPTS = -Wall -O3
 
 vpath %.cpp src:src/Observed:src/coordinate:src/execute:src/interface

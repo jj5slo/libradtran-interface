@@ -13,7 +13,7 @@ for month in 6 7 8 9; do
 			./main 2022 "$month" "$date" "$i" &> /tmp/libradtran-interface.log
 		done
 	done
-# done
+done
  
 
 

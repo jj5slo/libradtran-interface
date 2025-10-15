@@ -4,4 +4,4 @@ main
 *.swp
 in
 out
-Archive/*
+Archive_local/*
