@@ -6,7 +6,7 @@ int main(int argc, char* argv[]){
 	}
 	std::string path = std::string(argv[1]);
 	int Ndata;
-	double* fitted = fitting_result(path, LOG_LS, &Ndata);
+	double* fitted = fitting_result(path, LOG, &Ndata);
 	for(int i = 0; i<Ndata; i++){
 		std::cout << fitted[i] << " ";
 	}

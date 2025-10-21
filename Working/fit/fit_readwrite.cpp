@@ -73,7 +73,7 @@ double** fit::read_result(std::string path, std::string *header, int *ptr_Nlines
 			}
 			line_index++;
 		}
-		else header = header + line + "\n";/* コメントが全てヘッダに集約される(仕様) */
+		else *header = std::string( *header + line + "\n" );/* コメントが全てヘッダに集約される(仕様) */
 	}
 	ifs.close();
 	return data;/* don't forget deallocation */

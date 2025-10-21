@@ -40,3 +40,20 @@ double* fit::leastsquare(double** data, int Nlines){
 
 	return fitting_coefficient;
 }
+
+double fit::log_square_error(const std::vector <double> &Coef, std::vector <double> &grad, void* raw_lsep){// double **data, double offset, int &number_of_iteration){
+	fit::LSE_Param* lsep = static_cast<fit::LSE_Param*>(raw_lsep);
+	double err = 0.0;
+	double grad_err = 0.0;
+	double logdiff = 0.0;
+	double a = 0.0;
+	for(int j=0; j<Ndata; j++){/* 対数の二乗誤差をとる */
+		logdiff = std::log10(lsep->data[1][j]) - std::log10(a*lsep->data[2][j]+lsep->offset);
+		err += logdiff*logdiff;
+		grad_err += (-2.0) * logdiff * lsep->data[2][j] / (a*lsep->data[2][j]+lsep->offset);
+	}
+	lsep->number_of_iteration++;
+	if( number_of_iteration > 10000 ){
+		throw nlopt::forced_stop();
+	}
+}
