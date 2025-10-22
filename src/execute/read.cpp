@@ -1,7 +1,7 @@
 
 #include"execute.h"
 
-double read_mystic_rad(int NN){
+double read_mystic_rad(const std::string DIR_UVSPEC, int NN){
 	std::string path = (DIR_UVSPEC+"mc"+std::to_string(NN)+".rad");
 	std::ifstream ifs(path);
 

@@ -182,23 +182,23 @@ int main(int argc, char *argv[]){
 			
 			/* delete_mystic_rad(); */
 		
-			execute_uvspec(DIR_INTERFACE+path_stdin, DIR_INTERFACE+path_stdout, FLAG_UNDISPLAY_LOG);
+			execute_uvspec(DIR_UVSPEC, DIR_INTERFACE+path_stdin, DIR_INTERFACE+path_stdout, FLAG_UNDISPLAY_LOG);
 		
 			if(pstdin.solver == "mystic"){
-				radiance[i] = read_mystic_rad(105);/* TODO この層番号の決め方がいまいちわからない */
+				radiance[i] = read_mystic_rad(DIR_UVSPEC, 105);/* TODO この層番号の決め方がいまいちわからない 0から100km, 1kmごとであればTOAで105 */
 			}else{
 				radiance[i] = read_stdout(path_stdout, 0);
 			}
-			std::cerr << "Radiance: " << radiance[i] << std::endl;
+			std::cerr << "Radiance: " << radiance[i] << "\n----" << std::endl;
 			if(DEBUG){ std::cin >> input; }
 		}	
 		/* save */
 		std::string path_result = save_path(dir_result, secid, dt, ld_alpha);
 		save_result(path_result, secid, on_ground, Nheights, heights, obsds[obs_index], radiance);
+		save_params(dir_result, secid, path_atmosphere, "_atm"+std::to_string(HOUR)+".txt");/* atmosphereも保存しておく */
 	}	
 	/* 最後だけパラメータ保存 */
 	save_params(dir_result, secid, path_stdin, "_stdin.txt");
-	save_params(dir_result, secid, path_atmosphere, "_atm.txt");/* atmosphereも保存しておく */
 	save_params(dir_result, secid, configfile, "_config.conf");
 
 //	delete[] radiance;
