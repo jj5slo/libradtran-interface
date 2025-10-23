@@ -1,6 +1,15 @@
 #ifndef __INTERFACE_H__
 #define __INTERFACE_H__
 
+
+// enum class SurfaceType {
+// 	ABSORB,
+// 	LAMBERT,
+// 	LAMBERT_WAVELENGTH,/* 波長によって違う反射率を記載したファイルを用意 */
+// 	LAMBERT_IGBP,/* brdf_surface_typeで指定する
+// 	BRDF_CAM;
+// };
+
 class ParamStdin{/* stdin に渡すパラメタをまとめたクラス（後で拡張しやすいように） */
 private:
 public:
@@ -12,9 +21,20 @@ public:
 	double phi0 {0.0};
 	double umu {0.0};
 	double phi {0.0};
-	double albedo{0.0};
 
+	/* ---- surface condition ---- */
+	std::string SURFACE_TYPE = "ABSORB";/* 判定用。ファイルに書き込まない */
+	// ABSORB,
+	// LAMBERT,
+	// 未実装 LAMBERT_WAVELENGTH,/* 波長によって違う反射率を記載したファイルを用意 */
+	// 未実装 LAMBERT_IGBP,/* brdf_surface_typeで指定する */
+	// BRDF_CAM;
+	double albedo{0.0};
+	std::string brdf_surface_type = "";
+	std::string albedo_file = "";
 	double brdf_cam_u10{15};
+	/* ---- */
+
 	int mc_photons {1000000};
 
 	std::string solver = "mystic";

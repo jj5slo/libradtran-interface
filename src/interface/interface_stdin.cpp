@@ -30,8 +30,12 @@ int save_stdin(std::string path, ParamStdin param){
 	}
 	ofs << "wavelength " << param.wavelength << "\n\n";
 
-/*	ofs << "albedo " << param.albedo << "\n\n"; */
-	ofs << "brdf_cam u10 " << param.brdf_cam_u10 << "\n\n";
+	if(param.SURFACE_TYPE == "LAMBERT"){
+		ofs << "albedo " << param.albedo << "\n\n"; 
+	} else if(param.SURFACE_TYPE == "BRDF_CAM"){
+		ofs << "brdf_cam u10 " << param.brdf_cam_u10 << "\n\n";
+	}
+	/* ABSORB は何も書かない */
 
 	ofs << "zout TOA\n";/* fixed */
 	ofs << "sza " << param.sza << "\n";

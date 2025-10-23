@@ -61,6 +61,9 @@ int main(int argc, char *argv[]){
 	double wavelength = getConfig(configs, "wavelength", 470.0);/* 波長 [nm]. TODO 決まっているので指定方法を変える */
 
 	std::string solver = getConfig(configs, "solver", "mystic");/* libRadtranのソルバ */
+
+	std::string SURFACE_TYPE = getConfig(configs, "SURFACE_TYPE", "ABSORB");/* 表面反射のタイプを指定 */
+	double albedo = getConfig(configs, "albedo", 0.3);/* LAMBERT の反射率 */
 	double brdf_cam_u10 = getConfig(configs, "brdf_cam_u10", 15.0);/* BRDF_CAM の風速 */
 	std::string additional_option = getConfig(configs, "additional_option", "");/* libRadtranの標準入力に追加で書き込む文字列 */
 	int mc_photons = getConfig(configs, "mc_photons", 60000);/* MYSTICの回数 デフォルトは300000 */
@@ -127,14 +130,16 @@ int main(int argc, char *argv[]){
 		std::cout << &pstdin << " " << &pstdin.sza << std::endl;
 		return 0;
 	*/
-
+		
 		pstdin.atmosphere_file = path_atmosphere;
+		
+		pstdin.SURFACE_TYPE = SURFACE_TYPE;
 		pstdin.brdf_cam_u10 = brdf_cam_u10;
+		pstdin.albedo = albedo;/* 地球平均は0.3 */
 
 		double sensor_theta;
 	
 		pstdin.wavelength = wavelength;
-//		pstdin.albedo = 0.3;/* 地球平均 */
 		
 		Geocoordinate on_ground(earth, himawari, obsds[obs_index].Latitude(), obsds[obs_index].Longitude(), 0.0);/* 観測データにある緯度経度の高度0km 地点のGeocoordinate */
 		double ld_alpha = on_ground.alpha()*Rad2deg;
