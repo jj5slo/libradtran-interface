@@ -77,6 +77,8 @@ double* fit::fitting_result(int Ndata, double* height, double* obs, double* sim,
 		slep.data = data;
 		slep.Ndata = Ndata;
 		slep.offset = offset;
+		slep.min_height = min_height;
+		slep.max_height = max_height;
 
 		opt.set_min_objective( fit::square_log_error, (void*)(&slep) ); 
 		opt.set_xtol_rel(1.0e-6);/* TODO */
