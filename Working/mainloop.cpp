@@ -27,7 +27,7 @@ int main(int argc, char *argv[]){
 	const int YEAR = atoi(argv[1]);
 	const int MONTH = atoi(argv[2]);
 	const int DAY = atoi(argv[3]);
-	const int obs_index = atoi(argv[4]) - 1;/* 観測データの何行目を読むか */
+	const int obs_index = atoi(argv[4]);/* 観測データの何行目を読むか */
 
 /* ==== */
 

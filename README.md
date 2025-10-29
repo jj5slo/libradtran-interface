@@ -31,6 +31,12 @@ last update: 2025/10/23
 - save.h
 - fit.h
 
+### main.cpp
+-	main
+	- main関数
+- core
+	- libRadtranに
+
 ### ファイル作成系(interface.h)
 - interface_stdin.cpp	libRadtranの入力ファイルを作る
 - interface_atmosphere.cpp	libRadtranの大気プロファイル設定ファイルを作る(TODO)

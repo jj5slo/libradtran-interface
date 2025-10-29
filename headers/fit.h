@@ -22,7 +22,7 @@ namespace fit
 	/* ---- fit_result.cpp ---- */	
 	constexpr int LS = 0; /* そのまま最小二乗法 */
 	constexpr int LS_OFFSET = 1;/* オフセットは与えたものを使って a だけ最小二乗法 */
-	constexpr int LOG = 2; /* 対数の差の二乗が最小になるように ay+b の aとbを決める。実態はNLOptで最適化。 */
+	constexpr int LOG = 2; /* 対数の差の二乗が最小になるように ay+b の aとbを決める。実態はNLoptで最適化。 */
 	
 	double* fitting_result(int Ndata, double* height, double* obs, double* sim, double min_height, double max_height, double offset, int TYPE);/* 観測(フィッティング先)データ, シミュレーション(被フィッティング)データ, フィッティングに使用する最小高度, 最大高度, オフセット, フィッティングの種類 */
 	

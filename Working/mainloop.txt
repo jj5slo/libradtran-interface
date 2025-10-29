@@ -1,0 +1,11 @@
+mainでradianceを求める流れを分割する
+
+
+ParamStdinを作る関数
+ParamAtmosphereを作る関数（NLoptのベクトルから）
+それらのpathからuvspecを実行して結果を読み取り、保存し、結果の配列を返す関数
+結果の配列から誤差を計算する関数
+
+これら一連の処理を実行するwrapper（引数がかなり多い）
+
+

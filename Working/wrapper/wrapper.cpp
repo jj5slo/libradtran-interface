@@ -1,17 +1,18 @@
 /*
- * optimize.cpp
+ * wrapper.cpp
  *
  *
  */
 
 /*
  *	すべきこと
+ *			
  *		fitを組み込む
  * 		
  */
 
 
-#include"optimize.h"
+#include"wrapper.h"
 
 
 

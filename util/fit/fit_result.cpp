@@ -46,6 +46,7 @@ double* fit::fitting_result(int Ndata, double* height, double* obs, double* sim,
 		b = fitting_coefficient[1];
 
 		std::cout << "fitting_result:\n\ta: " << a << "\n\tb: " << b << std::endl;
+		if( a<0.0 ){ a=0.0; }/* マイナスはだめでしょう */
 		for(int i=0; i<Ndata; i++){
 			fitted[i] = a*data[2][i] + b;
 		}
@@ -63,6 +64,7 @@ double* fit::fitting_result(int Ndata, double* height, double* obs, double* sim,
 		}
 		double a = (Sxy - offset*Sy)/Sy2;
 		std::cout << "fitting_result:\n\ta: " << a << "\n\toffset: " << offset << std::endl;
+		if( a<0.0 ){ a=0.0; }/* マイナスはだめでしょう */
 		for(int i=0; i<Ndata; i++){
 			fitted[i] = a*data[2][i] + offset;
 		}
@@ -92,6 +94,7 @@ double* fit::fitting_result(int Ndata, double* height, double* obs, double* sim,
 			std::cout << "NLopt for obtaining fitting coefficient failed. : " << e.what() << std::endl;
 		}
 		double a = x[0];
+		if( a<0.0 ){ a=0.0; }/* マイナスはだめでしょう */
 		std::cout << "fitting_result:\n\ta: " << a << "\n\toffset: " << offset << "\n\tminf: " << minf << std::endl;
 		for(int i=0; i<Ndata; i++){
 			fitted[i] = a*data[2][i] + offset;
