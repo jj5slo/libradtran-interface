@@ -15,7 +15,7 @@
 
 
 /* execute.cpp */
-void execute_uvspec(const std::string DIR_UVSPEC, std::string path_stdin, std::string path_stdout, int FLAG);
+void execute_uvspec(const std::string DIR_UVSPEC, const std::string path_stdin, const std::string path_stdout, const int FLAG, const std::string DIR_LOG);
 
 
 

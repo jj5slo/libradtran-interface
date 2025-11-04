@@ -47,7 +47,7 @@ class ParamAtmosphere{/* libRadtranの大気プロファイルに設定できる
 private:
 	int p_NoPs = 9; /* パラメタの数 */
 public:
-	double z;
+	double z;/* [km] */
 	double p;/* 圧力[hPa] */
 	double T;/* 温度[K] */
 	double Nair;/* 空気分子の数密度[cm-3] */

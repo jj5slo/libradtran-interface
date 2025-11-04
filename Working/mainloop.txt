@@ -1,11 +1,29 @@
 mainでradianceを求める流れを分割する
 
 
-ParamStdinを作る関数
+済 そのtangential_height に対応した ParamStdinを作る関数
 ParamAtmosphereを作る関数（NLoptのベクトルから）
-それらのpathからuvspecを実行して結果を読み取り、保存し、結果の配列を返す関数
+済 それらのpathからuvspecを実行して結果を読み取り、保存し、結果の配列を返す関数
 結果の配列から誤差を計算する関数
 
 これら一連の処理を実行するwrapper（引数がかなり多い）
+
+
+今の流れ
+引数処理
+	観測日決定
+設定ファイル読み込み
+観測データ読み込み
+	観測データ(これは普通に流用する)
+!!pStdin tangential heightが変わるとかえないといけない
+MSIS(初回だけつくる)
+!!pAtm これを変えるので。
+
+
+
+今やっている: vector_to_atmosphere
+
+
+
 
 

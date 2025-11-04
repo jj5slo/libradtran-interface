@@ -4,6 +4,7 @@
 #include<chrono>
 #include<filesystem>
 
+
 #include"solar_direction.h"
 
 #include"coordinate.h"
@@ -13,6 +14,7 @@
 #include"get_msis.h"
 #include"read_config.h"
 
+#include "wrapper.h"
 
 constexpr double BOLTZMANN_CONSTANT = 1.380649e-23;
 char input;
@@ -122,24 +124,22 @@ int main(int argc, char *argv[]){
 /* ==== */
 
 		int doy = dt.DOY();/*  */
-		ParamStdin pstdin;
-		pstdin.mc_photons = mc_photons;/* default is 300000 */
-		pstdin.solver = solver;
-		pstdin.additional = additional_option;//\npseudospherical";
+		ParamStdin pStdin;
+		pStdin.mc_photons = mc_photons;/* default is 300000 */
+		pStdin.solver = solver;
+		pStdin.additional = additional_option;//\npseudospherical";
 	/*
-		std::cout << &pstdin << " " << &pstdin.sza << std::endl;
+		std::cout << &pStdin << " " << &pStdin.sza << std::endl;
 		return 0;
 	*/
 		
-		pstdin.atmosphere_file = path_atmosphere;
+		pStdin.atmosphere_file = path_atmosphere;
 		
-		pstdin.SURFACE_TYPE = SURFACE_TYPE;
-		pstdin.brdf_cam_u10 = brdf_cam_u10;
-		pstdin.albedo = albedo;/* 地球平均は0.3 */
+		pStdin.SURFACE_TYPE = SURFACE_TYPE;
+		pStdin.brdf_cam_u10 = brdf_cam_u10;
+		pStdin.albedo = albedo;/* 地球平均は0.3 */
 
-		double sensor_theta;
-	
-		pstdin.wavelength = wavelength;
+		pStdin.wavelength = wavelength;
 		
 		Geocoordinate on_ground(earth, himawari, obsds[obs_index].Latitude(), obsds[obs_index].Longitude(), 0.0);/* 観測データにある緯度経度の高度0km 地点のGeocoordinate */
 		double ld_alpha = on_ground.alpha()*Rad2deg;
@@ -154,61 +154,42 @@ int main(int argc, char *argv[]){
 			ld.set( ld_alpha, heights[i]/m2km );/* 見る場所決め */
 			tparr[i] = ld.tangential_point( earth, himawari);/* tangential point の配列 */
 		}
-		ParamAtmosphere *pAtom = get_msis(dt, tparr, Nheights);/* tangential point でのMSIS大気から求めたパラメタを取得 */
-		saveParamAtmosphere(path_atmosphere, pAtom, Nheights, atmosphere_precision);
+		ParamAtmosphere *pAtm = get_msis(dt, tparr, Nheights);/* tangential point でのMSIS大気から求めたパラメタを取得 */
+//		saveParamAtmosphere(path_atmosphere, pAtm, Nheights, atmosphere_precision);
+		std::vector<double> x(Nheights, 0.0);/* 要素数指定、初期化 */
+		for(int i=0; i<Nheights; i++){
+			x[i] = pAtm[i].Nair;/* [cm-3] */
+		}
+		ParamAtmosphere *newatm = Nair_to_atmosphere(Nheights, dt, tparr, earth, x, pAtm[Nheights-1].p);
 
+		std::cout << "atm_msis\t\t\t\t\t|newatm\nz\tNair\tp\tT\t|z\tNair\tp\tT" << std::endl;
+
+		for(int i=0; i<Nheights; i++){
+			std::cout << "\t" << pAtm[i].z << "\t" << pAtm[i].Nair << "\t" << pAtm[i].p << "\t" <<  pAtm[i].T << "\t\t" << newatm[i].z<< "\t" << newatm[i].Nair<< "\t" << newatm[i].p<< "\t" << newatm[i].T << std::endl;
+		}
+		return 0;
+	}
 /* ==== */
 /* MSISで求めた大気をNLoptの初期値に代入する。最小化する評価関数はwrapperとして実装するが、
 */
 
-		double *radiance = new double [Nheights];/* シミュレーション結果 */
-		for(int i=0; i<Nheights; i++){
-			Geocoordinate tp = tparr[i];
-			std::cout << "Tangential point:\n";
-			std::cout << "\tlat:" << tp.latitude() << "\n\tlon:" << tp.longitude() << "\nt\taltitude:" << tp.altitude() << "\n\talpha:" << tp.alpha()*Rad2deg << std::endl;
+//		double *radiances = new double [Nheights];/* シミュレーション結果 */
+//		for(int i=0; i<Nheights; i++){
+//			set_stdin_direction( i, pStdin, tparr, earth, himawari, maxHeight, doy, dt );
+//			save_stdin(path_stdin, pStdin);/* 座標情報を入力ファイルにセーブ */
+//			radiances[i] = acquire_radiance(DIR_UVSPEC, PATH_STDIN, PATH_STDOUT, FLAG_UNDISPLAY_LOG, pStdin.solver);
+//		}	
+//		/* save */
+//		std::string path_result = save_path(dir_result, secid, dt, ld_alpha);
+//		save_result(path_result, secid, on_ground, Nheights, heights, obsds[obs_index], radiances);
+//		save_params(dir_result, secid, path_atmosphere, "_atm"+std::to_string(HOUR)+".txt");/* atmosphereも保存しておく */
+//	}	
+//	/* 最後だけパラメータ保存 */
+//	save_params(dir_result, secid, path_stdin, "_stdin.txt");
+//	save_params(dir_result, secid, configfile, "_config.conf");
+//
+////	delete[] radiances;
+//	return 0;
 
-
-			AndoLab::Vector3d <double> *crosspts = new AndoLab::Vector3d <double> [2];
-			crosspts = Across_point_atmosphere(earth, himawari, tp.r(), maxHeight); /* maxHeight=TOA */
-			Geocoordinate crosspt(earth, himawari, crosspts[0]);/* TOAと視線の交点を求める */
-
-			std::cout << "crosspoint_of_atmosphere:\n\tlat:" << crosspt.latitude() << "\n\tlon:" << crosspt.longitude() << "\n\taltitude:" << crosspt.altitude() << std::endl;
-			
-			AndoLab::solar_direction(crosspt.latitude(), crosspt.longitude(), doy, dt.Hour(), &pstdin.sza, &pstdin.phi0);/* tangential point での太陽方向を求める */
-			std::cout << "sza:" << pstdin.sza << " phi0:" << pstdin.phi0 << std::endl;
-			sensor_direction(himawari, crosspt.r(), &pstdin.umu, &pstdin.phi);/* crosspt からみた衛星方向を元に、視線方向の局所鉛直からの角（オフナディア角）を求める */
-			sensor_theta = acos(pstdin.umu) * Rad2deg;
-			std::cout << "sonsor_direction:\n\tsensor_theta:" << sensor_theta <<"\n\tphi:" << pstdin.phi << std::endl;
-			std::cout << "cos(sensor_theta) = umu = " << pstdin.umu << std::endl;
-		
-			save_stdin(path_stdin, pstdin);/* 座標情報を入力ファイルにセーブ */
-		
-			if(DEBUG){ std::cin >> input; }
-		
-			/* TODO ここで大気プロファイル決定、ループ開始 */
-			
-			/* delete_mystic_rad(); */
-		
-			execute_uvspec(DIR_UVSPEC, DIR_INTERFACE+path_stdin, DIR_INTERFACE+path_stdout, FLAG_UNDISPLAY_LOG);
-		
-			if(pstdin.solver == "mystic"){
-				radiance[i] = read_mystic_rad(DIR_UVSPEC, 105);/* TODO この層番号の決め方がいまいちわからない 0から100km, 1kmごとであればTOAで105 */
-			}else{
-				radiance[i] = read_stdout(path_stdout, 0);
-			}
-			std::cerr << "Radiance: " << radiance[i] << "\n----" << std::endl;
-			if(DEBUG){ std::cin >> input; }
-		}	
-		/* save */
-		std::string path_result = save_path(dir_result, secid, dt, ld_alpha);
-		save_result(path_result, secid, on_ground, Nheights, heights, obsds[obs_index], radiance);
-		save_params(dir_result, secid, path_atmosphere, "_atm"+std::to_string(HOUR)+".txt");/* atmosphereも保存しておく */
-	}	
-	/* 最後だけパラメータ保存 */
-	save_params(dir_result, secid, path_stdin, "_stdin.txt");
-	save_params(dir_result, secid, configfile, "_config.conf");
-
-//	delete[] radiance;
-	return 0;
 }
 

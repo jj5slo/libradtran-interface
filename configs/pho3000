@@ -7,7 +7,7 @@ DIR_LOG=/tmp/TEMPORARY/
 # DIRECTORY
 DIR_INTERFACE=/lhome/sano2/SANO/research/estimate-profile/libradtran-interface/
 DIR_UVSPEC=/lhome/sano2/SANO/research/LIBRARIES/libradtran/libRadtran-2.0.6/bin/
-dir_result=../Result/Result-10-W5/pho300000/
+dir_result=../Result/Result-10-W5/pho3000/
 dir_obs=../testdata/
 PATH_STDIN=/tmp/TEMPORARY/in
 PATH_STDOUT=/tmp/TEMPORARY/out
@@ -25,7 +25,7 @@ albedo=0.3
 # brdf_cam_u10=5
 
 # MYSTIC
-mc_photons=300000
+mc_photons=3000
 
 # ATMOSPHERE
 atmosphere_precision=7

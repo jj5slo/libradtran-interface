@@ -32,15 +32,15 @@ public:
 	obsDateTime(int aY, int aM, int aD);
 	void settime(int ah, int am, int as);
 
-	int Year();
-	int Month();
-	int Date();
-	int Hour();
-	int Minute();
-	int Second();
+	int Year() const;
+	int Month() const;
+	int Date() const;
+	int Hour() const;
+	int Minute() const;
+	int Second() const;
 
-	int DOY();
-	int DaySecond();
+	int DOY() const;
+	int DaySecond() const;
 
 
 };

@@ -24,26 +24,26 @@ void obsDateTime::settime(int ah, int am, int as){
 	pSecond = as;
 }
 
-int obsDateTime::Year(){
+int obsDateTime::Year() const{
 	return pYear;	
 }
-int obsDateTime::Month(){
+int obsDateTime::Month() const{
 	return pMonth;
 }
-int obsDateTime::Date(){
+int obsDateTime::Date() const{
 	return pDay;
 }
-int obsDateTime::Hour(){
+int obsDateTime::Hour() const{
 	return pHour;
 }
-int obsDateTime::Minute(){
+int obsDateTime::Minute() const{
 	return pMinute;
 }
-int obsDateTime::Second(){
+int obsDateTime::Second() const{
 	return pSecond;
 }
 
-int obsDateTime::DOY(){
+int obsDateTime::DOY() const{
 	int doy = 0;
 	switch(pMonth){
 		case 12:
@@ -75,7 +75,7 @@ int obsDateTime::DOY(){
 	return doy;
 }
 
-int obsDateTime::DaySecond(){
+int obsDateTime::DaySecond() const{
 	return 60*60*pHour + 60*pMinute + pSecond;
 }
 
