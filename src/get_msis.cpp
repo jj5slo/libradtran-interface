@@ -160,3 +160,10 @@ double get_msis_total_mass_density(obsDateTime dt, Geocoordinate coord){
 	return Output.d[5];
 }
 
+
+double get_msis_total_mass_density(/* 全質量密度を返す */
+	obsDateTime dt, Geocoordinate coord1, Geocoordinate coord2
+){
+	Geocoordinate coord ( coord1.planet(), coord1.satellite(), ( coord1.r() + coord2.r() ) / 2.0 );
+	return get_msis_total_mass_density(dt, coord);
+}

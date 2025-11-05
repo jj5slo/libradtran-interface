@@ -7,8 +7,9 @@
 
 class PlanetParam{/* 地球諸元（今の所半径だけ） */
 private:
-	const double p_radius;
+	double p_radius;
 public:
+	PlanetParam(void) : p_radius(6371.e3) {}/* 地球半径 */
 	PlanetParam(double radius) : p_radius(radius) {}/* [m] */
 
 	double radius(void){ return p_radius; }

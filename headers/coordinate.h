@@ -59,6 +59,7 @@ private:
 	double pAltitude;  /* [m] */
 	AndoLab::Vector3d <double> pR;
 
+	PlanetParam pPlanet;
 	SatelliteParam pSatellite;
 
 	AndoLab::Vector3d <double> projection_on_yz(void);
@@ -80,6 +81,8 @@ public:
 	double altitude(void){ return pAltitude; }
 	double altitude_in_km(void){ return pAltitude*m2km; }
 	AndoLab::Vector3d <double> r(void){ return pR; }
+	PlanetParam planet(void){ return pPlanet; }
+	SatelliteParam satellite(void){ return pSatellite; }
 
 	/* 衛星からみた角度αに直す */
 	double alpha(void);

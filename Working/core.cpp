@@ -118,7 +118,7 @@ int main(int argc, char *argv[]){
 		if(DEBUG){ std::cin >> input; }
 /* ==== 地球、衛星の設定 ==== */
 	
-		auto earth = PlanetParam( 6370.e3 );
+		auto earth = PlanetParam( 6371.e3 );/* changed 6370 -> 6371 2025/11/5 15:43 */
 		auto himawari = SatelliteParam( 35790.e3 + earth.radius(), 0.0, 140.7 );
 	
 /* ==== */
@@ -160,12 +160,17 @@ int main(int argc, char *argv[]){
 		for(int i=0; i<Nheights; i++){
 			x[i] = pAtm[i].Nair;/* [cm-3] */
 		}
+
+		double* gm_e = msis_to_gm_e(pAtm, earth, dt, tparr, Nheights);
+		for(int i=0; i<Nheights-1; i++){
+			std::cout << i <<" "<< gm_e[i] <<"\n";
+		}
 		ParamAtmosphere *newatm = Nair_to_atmosphere(Nheights, dt, tparr, earth, x, pAtm[Nheights-1].p);
 
 		std::cout << "atm_msis\t\t\t\t\t|newatm\nz\tNair\tp\tT\t|z\tNair\tp\tT" << std::endl;
 
 		for(int i=0; i<Nheights; i++){
-			std::cout << "\t" << pAtm[i].z << "\t" << pAtm[i].Nair << "\t" << pAtm[i].p << "\t" <<  pAtm[i].T << "\t\t" << newatm[i].z<< "\t" << newatm[i].Nair<< "\t" << newatm[i].p<< "\t" << newatm[i].T << std::endl;
+			std::cout << " " << pAtm[i].z << " " << pAtm[i].Nair << " " << pAtm[i].p << " " <<  pAtm[i].T << "\t\t" << newatm[i].z<< " " << newatm[i].Nair<< " " << newatm[i].p<< " " << newatm[i].T << std::endl;
 		}
 		return 0;
 	}

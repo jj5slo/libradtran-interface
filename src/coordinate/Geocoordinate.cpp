@@ -15,6 +15,7 @@ Geocoordinate::Geocoordinate(
 }
 
 void Geocoordinate::set(PlanetParam earth, SatelliteParam satellite, AndoLab::Vector3d <double> r){
+	pPlanet = earth;
 	pSatellite = satellite;
 	pR = r;
 
@@ -33,6 +34,7 @@ void Geocoordinate::set(PlanetParam earth, SatelliteParam satellite, AndoLab::Ve
 
 void Geocoordinate::set(
 		PlanetParam earth, SatelliteParam satellite, const double Lat, const double Long, const double Alt){
+	pPlanet = earth;
 	pSatellite = satellite;
 
 	pLatitude = Lat;

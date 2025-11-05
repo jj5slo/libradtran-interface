@@ -22,7 +22,15 @@
 #include"read_config.h"
 
 
+/* MSIS_TO_GM_E */
 
+double* msis_to_gm_e(
+	ParamAtmosphere* patm,
+	PlanetParam earth,
+	obsDateTime dt,
+	Geocoordinate* coord,
+	int Nheights
+);
 
 
 class WrapperArgs{/* wrapperに渡すものをすべてまとめる（NLoptが要求する形式にするため） */
@@ -53,5 +61,6 @@ ParamAtmosphere* Nair_to_atmosphere(
 	Geocoordinate*& coord,
 	PlanetParam earth,
 	std::vector<double> x,
-	const double PRESSURE_AT_TOA
+	const double PRESSURE_AT_TOA//,
+//	double* gm_e_arr 
 );
