@@ -94,7 +94,7 @@ int main(int argc, char *argv[]){
 /* ==== */
 /* ==== 観測データ読み込み ==== */
 
-	for(int HOUR = 17; HOUR < 18; HOUR++){/* TODO 一時的に変更 */
+	for(int HOUR = 0; HOUR < 24; HOUR++){/* TODO 一時的に変更 */
 		dt.settime(HOUR, 0, 0);/* 観測時 */
 		std::string path_obs = obs_path(dir_obs, dt);/* 観測日時からデータの名前 */
 		std::cerr << path_obs << std::endl;
@@ -203,7 +203,7 @@ int main(int argc, char *argv[]){
 			if(DEBUG){ std::cin >> input; }
 		}	
 		/* save */
-		std::string path_result = save_path(dir_result, secid, dt, ld_alpha);
+		std::string path_result = save_path(dir_result, secid, dt, ld_alpha, obs_index);
 		save_result(path_result, secid, on_ground, Nheights, heights, obsds[obs_index], radiance);
 		save_params(dir_result, secid, PATH_ATMOSPHERE, "_atm"+std::to_string(HOUR)+".txt");/* atmosphereも保存しておく */
 	}	

@@ -20,7 +20,7 @@
 
 constexpr double Rad2Deg = 180/M_PI;
 
-std::string save_path(std::string data_dir, std::string secid, obsDateTime dt, double ld_alpha);/* 結果の保存名 */
+std::string save_path(std::string data_dir, std::string secid, obsDateTime dt, double ld_alpha, int line_index);/* 結果の保存名 */
 
 int save_result(std::string path, std::string secid, Geocoordinate on_ground, int Nheights, double* heights, Observed obsd, double* radiance);/* 結果保存 */
 

@@ -97,16 +97,13 @@ int main(int argc, char *argv[]){
 
 	for(int HOUR = 0; HOUR < 24; HOUR++){
 		dt.settime(HOUR, 0, 0);/* 観測時 */
+		std::cout << dt.Year() <<" "<< dt.Month() <<" "<< dt.Date() <<" time:"<< dt.Hour();
 		std::string path_obs = obs_path(dir_obs, dt);/* 観測日時からデータの名前 */
+		std::cout << path_obs << std::endl;
 		if(DEBUG){ std::cin >> input; }
 		int Nobs = 0;
 		Observed *obsds = read_obs( &Nobs, path_obs );/* 使うのはobsds[obs_index]だけ */
 		std::cout << Nobs << "points" << std::endl;
-		
-		std::ofstream ofs("./hydrostat/"+std::to_string(dt.Year())+"-"+std::to_string(dt.Month())+"-"+std::to_string(dt.Date())+"-"+std::to_string(dt.Hour())+"_"+std::to_string(obs_index)+".dat");
-		// "_lat"+std::to_string(obsds[obs_index].Latitude())+"_lon"+std::to_string(obsds[obs_index].Longitude())+".dat");
-		ofs << "# " << dt.Year() <<" "<< dt.Month() <<" "<< dt.Date() <<" time:"<< dt.Hour() <<"\n";
-		ofs << "# " << path_obs << std::endl;
 
 /* ==== */
 
@@ -114,7 +111,6 @@ int main(int argc, char *argv[]){
 		int Nheights = obsds[obs_index].Nheights();
 		double maxHeight = obsds[obs_index].maxHeight();
 		std::cout << "lat" << obsds[obs_index].Latitude() << " "  << "lon" << obsds[obs_index].Longitude() << " " << obsds[obs_index].Nheights() << "heights max:" << maxHeight << std::endl;
-		ofs <<"# " << "lat" << obsds[obs_index].Latitude() << " "  << "lon" << obsds[obs_index].Longitude() << " " << obsds[obs_index].Nheights() << "heights max:" << maxHeight << std::endl;
 //		for(int i=0; i<obsds[obs_index].Nheights(); i++){
 //			std::cout << heights[i] << " " << obsds[obs_index].Data(heights[i]) << "\n";
 //		}
@@ -150,7 +146,6 @@ int main(int argc, char *argv[]){
 		double ld_alpha = on_ground.alpha()*Rad2deg;
 		
 		std::cout << "ld_alpha : " <<  ld_alpha << std::endl;
-		ofs <<"# " << "ld_alpha : " <<  ld_alpha << std::endl;
 
 /* ==== MSIS ==== */
 
@@ -173,17 +168,13 @@ int main(int argc, char *argv[]){
 //		}
 		ParamAtmosphere *newatm = Nair_to_atmosphere(Nheights, dt, tparr, earth, x, pAtm[Nheights-1].p);
 
-		std::cout << "# atm_msis|newatm\nz Nair p T | z Nair p T | Dp DT" << std::endl;
-		ofs << "# atm_msis|newatm\nz Nair p T | z Nair p T | Dp DT" << std::endl;
+		std::cout << "atm_msis\t\t\t\t\t|newatm\nz\tNair\tp\tT\t|z\tNair\tp\tT" << std::endl;
 
 		for(int i=0; i<Nheights; i++){
-			std::cout << " " << pAtm[i].z << " " << pAtm[i].Nair << " " << pAtm[i].p << " " <<  pAtm[i].T << " " << newatm[i].z<< " " << newatm[i].Nair<< " " << newatm[i].p<< " " << newatm[i].T << " " << pAtm[i].p-newatm[i].p <<" "<< pAtm[i].T-newatm[i].T << std::endl;
-			ofs << " " << pAtm[i].z << " " << pAtm[i].Nair << " " << pAtm[i].p << " " <<  pAtm[i].T << " " << newatm[i].z<< " " << newatm[i].Nair<< " " << newatm[i].p<< " " << newatm[i].T << " " << pAtm[i].p-newatm[i].p <<" "<< pAtm[i].T-newatm[i].T << std::endl;
+			std::cout << " " << pAtm[i].z << " " << pAtm[i].Nair << " " << pAtm[i].p << " " <<  pAtm[i].T << "\t\t" << newatm[i].z<< " " << newatm[i].Nair<< " " << newatm[i].p<< " " << newatm[i].T << std::endl;
 		}
-		ofs.close();
-		continue;
+		return 0;
 	}
-	return 0;
 /* ==== */
 /* MSISで求めた大気をNLoptの初期値に代入する。最小化する評価関数はwrapperとして実装するが、
 */

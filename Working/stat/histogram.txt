@@ -1,4 +1,0 @@
-set style fill solid
-filter(x,y)=floor(x/y)*y
-plot "pho300000.dat" u (filter($1,0.01)):(1) smooth frequency with boxes
-

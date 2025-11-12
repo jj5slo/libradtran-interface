@@ -4,9 +4,9 @@
 
 #include"save.h"
 
-std::string save_path(std::string data_dir, std::string secid, obsDateTime dt, double ld_alpha/* 緯度経度にすると結局高度で変わるのでここは視線方向の北からの角度としておく*/){
+std::string save_path(std::string data_dir, std::string secid, obsDateTime dt, double ld_alpha, int line_index/* 緯度経度にすると結局高度で変わるのでここは視線方向の北からの角度としておく*/){
 	std::ostringstream filename;
-	filename << "result_" << std::setw(4) << std::setfill('0') << dt.Year() << std::setw(2) << std::setfill('0') << dt.Month() <<  std::setw(2) << std::setfill('0') << dt.Date() << "_" <<   std::setw(2) << std::setfill('0') << dt.Hour() <<  std::setw(2) << std::setfill('0') << dt.Minute() <<  std::setw(2) << std::setfill('0') << dt.Second() << "_a" << std::setw(5) << std::fixed << std::setprecision(1) << std::setfill('0') << ld_alpha << "_id" << secid << ".txt";
+	filename << "result_" << std::setw(4) << std::setfill('0') << dt.Year() << std::setw(2) << std::setfill('0') << dt.Month() <<  std::setw(2) << std::setfill('0') << dt.Date() << "_" <<   std::setw(2) << std::setfill('0') << dt.Hour() <<  std::setw(2) << std::setfill('0') << dt.Minute() <<  std::setw(2) << std::setfill('0') << dt.Second() << "_a" << std::setw(5) << std::fixed << std::setprecision(1) << std::setfill('0') << ld_alpha << "_" << line_index <<"_" << "_id" << secid << ".txt";
 	std::string path = data_dir + "/" + filename.str();
 	return path;
 }
