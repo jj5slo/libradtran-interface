@@ -19,15 +19,32 @@ char input;
 
 int main(int argc, char *argv[]){
 /* ==== 引数処理 ==== */
-
-	if(argc != 5){
-		std::cerr << "Usage: ./main YEAR MONTH DAY OBS_INDEX\n";
+	int YEAR;
+	int MONTH;
+	int DAY;
+	int HOUR_START;
+	int HOUR_END;
+	int obs_index;
+	if(argc == 5){
+		YEAR = atoi(argv[1]);
+		MONTH = atoi(argv[2]);
+		DAY = atoi(argv[3]);
+		HOUR_START = 0;
+		HOUR_END = 23;
+		obs_index = atoi(argv[4]) - 1;/* 観測データの何行目を読むか */
+	}
+	else if(argc == 6){
+		YEAR = atoi(argv[1]);
+		MONTH = atoi(argv[2]);
+		DAY = atoi(argv[3]);
+		HOUR_START = atoi(argv[4]);
+		HOUR_END = HOUR_START;
+		obs_index = atoi(argv[5]) - 1;/* 観測データの何行目を読むか */
+	}
+	else{
+		std::cerr << "Usage: ./main YEAR MONTH DAY OBS_INDEX\nUsage: ./main YEAR MONTH DAY HOUR OBS_INDEX";
 		return 0;
 	}
-	const int YEAR = atoi(argv[1]);
-	const int MONTH = atoi(argv[2]);
-	const int DAY = atoi(argv[3]);
-	const int obs_index = atoi(argv[4]) - 1;/* 観測データの何行目を読むか */
 
 /* ==== */
 
@@ -93,9 +110,9 @@ int main(int argc, char *argv[]){
 
 /* ==== */
 /* ==== 観測データ読み込み ==== */
-
-	for(int HOUR = 0; HOUR < 24; HOUR++){/* TODO 一時的に変更 */
-		dt.settime(HOUR, 0, 0);/* 観測時 */
+	
+	for(int HOUR_i = HOUR_START; HOUR_i <= HOUR_END; HOUR_i++){/* TODO 一時的に変更 */
+		dt.settime(HOUR_i, 0, 0);/* 観測時 */
 		std::string path_obs = obs_path(dir_obs, dt);/* 観測日時からデータの名前 */
 		std::cerr << path_obs << std::endl;
 		if(DEBUG){ std::cin >> input; }
@@ -203,9 +220,9 @@ int main(int argc, char *argv[]){
 			if(DEBUG){ std::cin >> input; }
 		}	
 		/* save */
-		std::string path_result = save_path(dir_result, secid, dt, ld_alpha, obs_index);
+		std::string path_result = save_path(dir_result, secid, dt, ld_alpha, obs_index + 1);
 		save_result(path_result, secid, on_ground, Nheights, heights, obsds[obs_index], radiance);
-		save_params(dir_result, secid, PATH_ATMOSPHERE, "_atm"+std::to_string(HOUR)+".txt");/* atmosphereも保存しておく */
+		save_params(dir_result, secid, PATH_ATMOSPHERE, "_atm"+std::to_string(HOUR_i)+".txt");/* atmosphereも保存しておく */
 	}	
 	/* 最後だけパラメータ保存 */
 	save_params(dir_result, secid, PATH_STDIN, "_stdin.txt");

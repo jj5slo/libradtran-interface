@@ -123,7 +123,7 @@ int main(int argc, char *argv[]){
 		if(DEBUG){ std::cin >> input; }
 /* ==== 地球、衛星の設定 ==== */
 	
-		auto earth = PlanetParam( 6371.e3 );/* changed 6370 -> 6371 2025/11/5 15:43 */
+		auto earth = PlanetParam( 6370.e3 );/* changed 6370 -> 6371 2025/11/5 15:43 */ /* 6371 -> 6370 2025/11/13 15:01 */
 		auto himawari = SatelliteParam( 35790.e3 + earth.radius(), 0.0, 140.7 );
 	
 /* ==== */

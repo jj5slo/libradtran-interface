@@ -1,4 +1,4 @@
-#include "fit.h"
+#include "mean_trials.h"
 
 int main(int argc, char* argv[]){
 	if(argc != 2){

@@ -1,0 +1,10 @@
+../../../../Result/Result-11-W3/bara-1/black/merged/fitted_each/result_20220601_030000_a014.6_35_black_id1762935887_fitted_each.dat
+../../../../Result/Result-11-W3/bara-1/black/merged/fitted_each/result_20220601_030000_a014.6_35_black_id1762935930_fitted_each.dat
+../../../../Result/Result-11-W3/bara-1/black/merged/fitted_each/result_20220601_030000_a014.6_35_black_id1762935973_fitted_each.dat
+../../../../Result/Result-11-W3/bara-1/black/merged/fitted_each/result_20220601_030000_a014.6_35_black_id1762936017_fitted_each.dat
+../../../../Result/Result-11-W3/bara-1/black/merged/fitted_each/result_20220601_030000_a014.6_35_black_id1762936060_fitted_each.dat
+../../../../Result/Result-11-W3/bara-1/black/merged/fitted_each/result_20220601_030000_a014.6_35_black_id1762936103_fitted_each.dat
+../../../../Result/Result-11-W3/bara-1/black/merged/fitted_each/result_20220601_030000_a014.6_35_black_id1762936146_fitted_each.dat
+../../../../Result/Result-11-W3/bara-1/black/merged/fitted_each/result_20220601_030000_a014.6_35_black_id1762936189_fitted_each.dat
+../../../../Result/Result-11-W3/bara-1/black/merged/fitted_each/result_20220601_030000_a014.6_35_black_id1762936232_fitted_each.dat
+../../../../Result/Result-11-W3/bara-1/black/merged/fitted_each/result_20220601_030000_a014.6_35_black_id1762936275_fitted_each.dat

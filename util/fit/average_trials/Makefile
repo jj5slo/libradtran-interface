@@ -1,5 +1,7 @@
-OBJS = fit_result.o fit_readwrite.o mean.o squareerr.o apply_fitting.o main.o
+OBJS = fit_result.o fit_readwrite.o mean.o squareerr.o apply_fitting.o running_mean.o average_trials.o
 HEADERS = fit.h
+
+vpath %.cpp ../
 
 all: main
 

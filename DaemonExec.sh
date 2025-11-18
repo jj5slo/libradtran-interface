@@ -6,37 +6,32 @@ cd /lhome/sano2/SANO/research/estimate-profile/libradtran-interface
 # ./main 2022 6 2 3
 # ./main 2022 6 6 6 &> /tmp/libradtran-interface.log
 
-# cp configs/pho3000000 config.conf
-# cp configs/pho1000000 config.conf
-# cp configs/pho300000 config.conf
-# cp configs/pho100000 config.conf
-# cp configs/pho75000 config.conf
-# cp configs/pho47000 config.conf
-# cp configs/pho18750 config.conf
-# cp configs/pho4700 config.conf
-# cp configs/pho3000 config.conf
-# cp configs/pho750 config.conf
-# cp configs/pho300 config.conf
 
-
-cp configs/black.conf config.conf
-for month in 6 ;do
-	for date in 1 ;do
-		for i in 56 76 86; do
-			echo "Progress: $month $date, $i,"
-			./main 2022 "$month" "$date" "$i" &> /tmp/TEMPORARY/libradtran-interface.log
-		done
-	done
-done
-for month in 6 9;do
-	for date in 11 21 30;do
-		for i in 6 16 26 36 46 56 76 86; do
-			echo "Progress: $month $date, $i,"
-			./main 2022 "$month" "$date" "$i" &> /tmp/TEMPORARY/libradtran-interface.log
-		done
-	done
+#cp configs/black.conf config.conf
+for i in `seq 1 10`;do
+	echo "Progress: $month $date, $i,"
+	./main 2022 6 1 3 36 &> /tmp/TEMPORARY/libradtran-interface.log
 done
 
+
+
+# for month in 6 ;do
+# 	for date in 1 ;do
+# 		for i in 56 76 86; do
+# 			echo "Progress: $month $date, $i,"
+# 			./main 2022 "$month" "$date" "$i" &> /tmp/TEMPORARY/libradtran-interface.log
+# 		done
+# 	done
+# done
+# for month in 6 9;do
+# 	for date in 11 21 30;do
+# 		for i in 6 16 26 36 46 56 76 86; do
+# 			echo "Progress: $month $date, $i,"
+# 			./main 2022 "$month" "$date" "$i" &> /tmp/TEMPORARY/libradtran-interface.log
+# 		done
+# 	done
+# done
+# 
 # month=6
 # date=1
 # i=86

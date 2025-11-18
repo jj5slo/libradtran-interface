@@ -1,4 +1,4 @@
-#include "fit.h"
+
 
 double fit::mean(std::string path, double min_height, double max_height){
 	int Nlines;
@@ -19,13 +19,4 @@ double fit::mean(int Ndata, double**data, double min_height, double max_height){
 	}
 	return sum / (double)count;
 }
-
-double fit::mean(int Ndata, double* data){	
-	double sum = 0.0;
-	int count = 0;
-	for(int i=0; i<Ndata; i++){
-		sum += data[i];/* 観測値 */
-		count++;
-	}
-	return sum / (double)count;
-}
+	
