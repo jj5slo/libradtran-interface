@@ -10,6 +10,8 @@
 // 	BRDF_CAM;
 // };
 
+constexpr double BOLTZMANN_CONSTANT = 1.380649e-23;
+
 class ParamStdin{/* stdin に渡すパラメタをまとめたクラス（後で拡張しやすいように） */
 private:
 public:
@@ -64,6 +66,8 @@ public:
 	int NoPs(void){
 		return p_NoPs;
 	}
+	void set_p_from_Nair_T(void);/* Nair, T から状態方程式で p を設定し直す */
+
 };
 
 

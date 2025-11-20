@@ -13,8 +13,10 @@
 #include"get_msis.h"
 #include"read_config.h"
 
-
-constexpr double BOLTZMANN_CONSTANT = 1.380649e-23;
+constexpr double SUPERCOEFFICIENT {128.0};
+constexpr double BOTTOM_OF_BUFFER_HEIGHT { 30.0 - 0.0 - 0.5 };
+constexpr int i_bottom {28};/* 輝度計算する最低 */
+constexpr int i_top {62};/* 輝度計算する最高 */
 char input;
 
 int main(int argc, char *argv[]){
@@ -42,7 +44,7 @@ int main(int argc, char *argv[]){
 		obs_index = atoi(argv[5]) - 1;/* 観測データの何行目を読むか */
 	}
 	else{
-		std::cerr << "Usage: ./main YEAR MONTH DAY OBS_INDEX\nUsage: ./main YEAR MONTH DAY HOUR OBS_INDEX";
+		std::cerr << "Usage: ./main YEAR MONTH DAY OBS_INDEX\nUsage: ./main YEAR MONTH DAY HOUR OBS_INDEX" << std::endl;
 		return 0;
 	}
 
@@ -174,8 +176,22 @@ int main(int argc, char *argv[]){
 			ld.set( ld_alpha, heights[i]/m2km );/* 見る場所決め */
 			tparr[i] = ld.tangential_point( earth, himawari);/* tangential point の配列 */
 		}
-		ParamAtmosphere *pAtom = get_msis(dt, tparr, Nheights);/* tangential point でのMSIS大気から求めたパラメタを取得 */
-		saveParamAtmosphere(PATH_ATMOSPHERE, pAtom, Nheights, atmosphere_precision);
+		ParamAtmosphere *pAtm = get_msis(dt, tparr, Nheights);/* tangential point でのMSIS大気から求めたパラメタを取得 */
+		std::cout << "# MSIS\nz Nair p T" << std::endl;
+		for(int i=0; i<Nheights; i++){
+			std::cout << " " << pAtm[i].z << " " << pAtm[i].Nair << " " << pAtm[i].p << " " <<  pAtm[i].T << std::endl;
+		}
+		for(int i=0; i<Nheights; i++){/* TODO NOW あるtangential heightの光強度に周辺高度の大気が与える影響 */
+			if( pAtm[i].z < BOTTOM_OF_BUFFER_HEIGHT ){
+				pAtm[i].Nair = pAtm[i].Nair * SUPERCOEFFICIENT;
+				pAtm[i].set_p_from_Nair_T();
+			}
+		}
+		std::cout << "# Modified Atmosphere\nz Nair p T" << std::endl;
+		for(int i=0; i<Nheights; i++){
+			std::cout << " " << pAtm[i].z << " " << pAtm[i].Nair << " " << pAtm[i].p << " " <<  pAtm[i].T << std::endl;
+		}
+		saveParamAtmosphere(PATH_ATMOSPHERE, pAtm, Nheights, atmosphere_precision);
 
 /* ==== */
 /* MSISで求めた大気をNLoptの初期値に代入する。最小化する評価関数はwrapperとして実装するが、
@@ -183,6 +199,10 @@ int main(int argc, char *argv[]){
 
 		double *radiance = new double [Nheights];/* シミュレーション結果 */
 		for(int i=0; i<Nheights; i++){
+			radiance[i] = 0.0;/* initialize */
+			/* 必要あれば輝度計算する最低最高高度を調べてi_bottom, i_top を決定する */
+		}
+		for(int i=i_bottom; i<=i_top; i++){/* 一応等号を入れておく */
 			Geocoordinate tp = tparr[i];
 			std::cout << "Tangential point:\n";
 			std::cout << "\tlat:" << tp.latitude() << "\n\tlon:" << tp.longitude() << "\nt\taltitude:" << tp.altitude() << "\n\talpha:" << tp.alpha()*Rad2deg << std::endl;
@@ -216,7 +236,7 @@ int main(int argc, char *argv[]){
 			}else{
 				radiance[i] = read_stdout(PATH_STDOUT, 0);
 			}
-			std::cerr << "Radiance: " << radiance[i] << "\n----" << std::endl;
+			std::cerr << "Tangential height: " << tp.altitude() << " [m]\nRadiance: " << radiance[i] << "\n----" << std::endl;
 			if(DEBUG){ std::cin >> input; }
 		}	
 		/* save */

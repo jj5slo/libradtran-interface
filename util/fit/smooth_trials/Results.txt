@@ -1,0 +1,10 @@
+../../../../Result/Result-11-W4/hb_0_alp_128/merged/result_20220601_030000_a014.6_36__id1763618253.dat_fitted.dat
+../../../../Result/Result-11-W4/hb_0_alp_128/merged/result_20220601_030000_a014.6_36__id1763618291.dat_fitted.dat
+../../../../Result/Result-11-W4/hb_0_alp_128/merged/result_20220601_030000_a014.6_36__id1763618329.dat_fitted.dat
+../../../../Result/Result-11-W4/hb_0_alp_128/merged/result_20220601_030000_a014.6_36__id1763618368.dat_fitted.dat
+../../../../Result/Result-11-W4/hb_0_alp_128/merged/result_20220601_030000_a014.6_36__id1763618406.dat_fitted.dat
+../../../../Result/Result-11-W4/hb_0_alp_128/merged/result_20220601_030000_a014.6_36__id1763618444.dat_fitted.dat
+../../../../Result/Result-11-W4/hb_0_alp_128/merged/result_20220601_030000_a014.6_36__id1763618483.dat_fitted.dat
+../../../../Result/Result-11-W4/hb_0_alp_128/merged/result_20220601_030000_a014.6_36__id1763618522.dat_fitted.dat
+../../../../Result/Result-11-W4/hb_0_alp_128/merged/result_20220601_030000_a014.6_36__id1763618563.dat_fitted.dat
+../../../../Result/Result-11-W4/hb_0_alp_128/merged/result_20220601_030000_a014.6_36__id1763618601.dat_fitted.dat

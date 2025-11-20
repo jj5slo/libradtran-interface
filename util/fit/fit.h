@@ -34,10 +34,12 @@ double* apply_fitting(int Ndata, double* data, double* a_offset);
 	/* ---- */
 
 	/* ---- fit_readwrite.cpp ---- */
-	double** read_result(std::string path, std::string &header, int &Nlines, int &Ncolumns);/* 結果を単純に2次元配列に格納する */
+	double** read_result(std::string path, std::string &header, int &Nlines, int &Ncolumns);/* 読んだ結果を単純に2次元配列に格納する */
+	void save_data_and_result(std::string path, std::string header, int Nlines, double* data, double* result);
 	void save_fitting_result(std::string path, std::string header, int Nlines,  double** data, double* fitted);
 	void save_data_and_result(std::string path, std::string header, int Nlines, int Ncolumns, double** data, double* result);/* dataにresultの列を追加して保存 */
 	void save_data_and_result(std::string path, std::string header, int Nlines, int Ncolumns, double** data, int Nresult_columns, double** result);/* dataにresultの列(複数)を追加して保存 */
+	void save_data(std::string path, std::string header, int Nlines, int Ncolumns, double** data);/* dataを保存 */
 	/* ---- */
 	/* ---- mean.cpp ---- */
 	double mean(std::string path, double min_height, double max_height);/* 観測値の指定高度範囲の平均 */

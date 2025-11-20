@@ -3,13 +3,16 @@
 
 int main(int argc, char* argv[]){
 	if(argc != 3){
-		std::cerr << "Usage ./fit paths.txt" << std::endl;
+		std::cerr << "Usage ./fit paths.txt N" << std::endl;
+		return 1;
 	}
-
-	std::string path;
 
 	std::string paths = argv[1];
 	int Nfiles = std::stoi(argv[2]);/* 平均化する線の数 */
+
+	std::string path;
+	std::string* paths_saved = new std::string[Nfiles];/* 平均化して保存したファイルの一覧 */
+
 	std::ifstream ifs(paths);
 	std::string line;
 
@@ -27,7 +30,6 @@ int main(int argc, char* argv[]){
 
 				/* -- */
 
-				std::cout << path << std::endl;
 				int Ndata;
 				std::string header;
 				Nlines = 0;
@@ -50,13 +52,15 @@ int main(int argc, char* argv[]){
 				
 				/* ==== ファイルに保存 ==== */	
 				header = "# RUNNING_MEAN\n"+header + "#height observed simulated sim(fitted) sim(running_mean_3) sim(running_mean_5) sim(running_mean_3_log) sim(running_mean_5_log)\n";
-				fit::save_data_and_result(path+"_runningmean.dat", header, Nlines, Ncolumns, data, 4, running_means);
+				paths_saved[i_file] = path+"_runningmean.dat";
+				fit::save_data_and_result(paths_saved[i_file], header, Nlines, Ncolumns, data, 4, running_means);
 				/* ==== */
 				/* ^^ */
 			}
 		}
 		i_file++;
 	}
+	ifs.close();
 	
 	double** averaged = new double* [Ncolumns];
 	for(int i=0; i<Ncolumns; i++){
@@ -68,13 +72,22 @@ int main(int argc, char* argv[]){
 			tmp[i] = data_arr[i][3][k];
 		}
 		averaged[3][k] = fit::mean(Nfiles, tmp);
+		for(int i=0; i<Nfiles; i++){
+			tmp[i] = data_arr[i][2][k];
+		}
+		averaged[2][k] = fit::mean(Nfiles, tmp);
 	}
 
 	for(int i=0; i<Nlines; i++){
-		std::cout << averaged[3][i] << std::endl;
+		std::cout << averaged[2][i] <<" "<< averaged[3][i] << std::endl;
 	}
+	double** save_avr = new double* [3];
+	save_avr[0] = data_arr[0][0];
+	save_avr[1] = averaged[2];
+	save_avr[2] = averaged[3];
+	fit::save_data(paths_saved[0]+"_averaged_trials.dat", "#TangentialHeight sim(averaged) sim(fitted-averaged)\n", Nlines, 3, save_avr);
 
-	fit::save_data_and_result("averaged_trials.dat", "#TangentialHeight obs sim sim(fit) sim(averaged)\n", Nlines, Ncolumns, data_arr[0], averaged[3]);
+
 	return 0;
 	
 

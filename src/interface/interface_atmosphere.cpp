@@ -54,3 +54,10 @@ double* ParamAtmosphere::returnvector(void){
 	linevector[8] = Nno2;
 	return linevector;
 }
+void ParamAtmosphere::set_p_from_Nair_T(void){
+	p = (Nair*1e6) * BOLTZMANN_CONSTANT * T * 1e-2;
+}
+
+
+
+
