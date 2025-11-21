@@ -13,8 +13,9 @@
 #include"get_msis.h"
 #include"read_config.h"
 
-constexpr double SUPERCOEFFICIENT {128.0};
-constexpr double BOTTOM_OF_BUFFER_HEIGHT { 30.0 - 0.0 - 0.5 };
+constexpr double SUPERCOEFFICIENT {64};
+constexpr double BOTTOM_OF_BUFFER_HEIGHT { 0.0 - 1.0 - 0.5 };
+constexpr double TOP_OF_BUFFER_HEIGHT { 60.0 + 21.0 + 0.5 };/* 82 */
 constexpr int i_bottom {28};/* 輝度計算する最低 */
 constexpr int i_top {62};/* 輝度計算する最高 */
 char input;
@@ -182,7 +183,7 @@ int main(int argc, char *argv[]){
 			std::cout << " " << pAtm[i].z << " " << pAtm[i].Nair << " " << pAtm[i].p << " " <<  pAtm[i].T << std::endl;
 		}
 		for(int i=0; i<Nheights; i++){/* TODO NOW あるtangential heightの光強度に周辺高度の大気が与える影響 */
-			if( pAtm[i].z < BOTTOM_OF_BUFFER_HEIGHT ){
+			if( pAtm[i].z < BOTTOM_OF_BUFFER_HEIGHT || TOP_OF_BUFFER_HEIGHT < pAtm[i].z ){
 				pAtm[i].Nair = pAtm[i].Nair * SUPERCOEFFICIENT;
 				pAtm[i].set_p_from_Nair_T();
 			}
