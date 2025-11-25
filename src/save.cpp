@@ -10,7 +10,36 @@ std::string save_path(std::string data_dir, std::string secid, obsDateTime dt, d
 	std::string path = data_dir + "/" + filename.str();
 	return path;
 }
+std::string save_path(std::string data_dir, std::string secid, obsDateTime dt, int line_index/* 緯度経度にすると結局高度で変わるのでここは視線方向の北からの角度としておく*/){
+	std::ostringstream filename;
+	filename << "result_" << std::setw(4) << std::setfill('0') << dt.Year() << std::setw(2) << std::setfill('0') << dt.Month() <<  std::setw(2) << std::setfill('0') << dt.Date() << "_" <<   std::setw(2) << std::setfill('0') << dt.Hour() <<  std::setw(2) << std::setfill('0') << dt.Minute() <<  std::setw(2) << std::setfill('0') << dt.Second() << "_" << line_index <<"_" << "_id" << secid << ".dat";
+	std::string path = data_dir + "/" + filename.str();
+	return path;
+}
 
+int save_result(std::string path, std::string secid, Geocoordinate on_ground, int Nheights, double* heights, double* radiance){
+	double ld_alpha = on_ground.alpha();
+	double longitude = on_ground.longitude();
+	double latitude = on_ground.latitude();
+
+	std::ofstream ofs(path);
+
+	if(!ofs){
+		std::cerr << "Failed to open file '" << path << "'" << std::endl;
+		return 1;
+	}
+	/* ofs << "#rad_min rad_max rad_min_i rad_max_i obs_rminv obs_rmaxv scaling_factor\n#" << rad_min <<" "<< rad_max <<" "<< rad_min_i <<" "<< rad_max_i <<" "<< obs_rminv <<" "<< obs_rmaxv <<" "<< scaling_factor << "\n"; */
+	ofs << "# secid: " << secid << "\n";
+	ofs << "# longitude: " << longitude << "\n";
+	ofs << "# latitude: " << latitude << "\n";
+	ofs << "# ld_alpha: " << ld_alpha << "[rad] = " << ld_alpha*Rad2Deg << "deg" << "\n";
+	ofs << "#height simulated\n";
+
+	for(int i=0; i<Nheights; i++){
+		ofs << heights[i] << " " << radiance[i] << "\n";
+	}
+	return 0;
+}
 int save_result(std::string path, std::string secid, Geocoordinate on_ground, int Nheights, double* heights, Observed obsd, double* radiance){
 	
 /*

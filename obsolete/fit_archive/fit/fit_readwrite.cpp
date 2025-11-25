@@ -5,7 +5,6 @@
 
 double** fit::read_result(std::string path, std::string &header, int &Nlines, int &Ncolumns){/* 参照渡し */
 	
-	std::cout << "Reading: " << path << std::endl;
 	std::ifstream temp_ifs(path);/* 行列数数え */
 	if(!temp_ifs){
 		std::cerr << "Failed to open file '" << path << "'" << std::endl;
@@ -83,60 +82,11 @@ double** fit::read_result(std::string path, std::string &header, int &Nlines, in
 
 
 void fit::save_fitting_result(std::string path, std::string header, int Nlines, double** data, double* fitted){	
-	std::cout << "Saving to: " << path << std::endl;
-	std::ofstream ofs(path);
+	std::ofstream ofs(path+".fitted");
 	ofs << header << "\n";
 	for(int i=0; i<Nlines; i++){
 		ofs << data[0][i] << " " << data[1][i] << " " << data[2][i] << " " << fitted[i] << "\n";
 	}
 	ofs.close();
-}
-void fit::save_data_and_result(std::string path, std::string header, int Nlines, double* data, double* result){	
-	std::cout << "Saving to: " << path << std::endl;
-	std::ofstream ofs(path);
-	ofs << header << "\n";
-	for(int i=0; i<Nlines; i++){
-		ofs << data[i] << " ";
-		ofs << result[i] << "\n";
-	}
-	ofs.close();
-}
-void fit::save_data_and_result(std::string path, std::string header, int Nlines, int Ncolumns, double** data, double* result){	
-	std::cout << "Saving to: " << path << std::endl;
-	std::ofstream ofs(path);
-	ofs << header << "\n";
-	for(int i=0; i<Nlines; i++){
-		for(int j=0; j<Ncolumns; j++){
-			ofs << data[j][i] << " ";
-		}
-		ofs << result[i] << "\n";
-	}
-	ofs.close();
-}
-void fit::save_data_and_result(std::string path, std::string header, int Nlines, int Ncolumns, double** data, int Nrc, double** result){	
-	std::cout << "Saving to: " << path << std::endl;
-	std::ofstream ofs(path);
-	ofs << header << "\n";
-	for(int i=0; i<Nlines; i++){
-		for(int j=0; j<Ncolumns; j++){
-			ofs << data[j][i] << " ";
-		}
-		for(int j=0; j<Nrc; j++){
-			ofs << result[j][i] << " ";
-		}
-		ofs << "\n";
-	}
-	ofs.close();
-}
-void fit::save_data(std::string path, std::string header, int Nlines, int Ncolumns, double** data){	
-	std::cout << "Saving to: " << path << std::endl;
-	std::ofstream ofs(path);
-	ofs << header << "\n";
-	for(int i=0; i<Nlines; i++){
-		for(int j=0; j<Ncolumns; j++){
-			ofs << data[j][i] << " ";
-		}
-		ofs << "\n";
-	}
-	ofs.close();
+
 }

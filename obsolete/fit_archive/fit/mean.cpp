@@ -5,10 +5,10 @@ double fit::mean(std::string path, double min_height, double max_height){
 	int Ncolumns;
 	std::string header;
 	double** data = fit::read_result( path, header, Nlines, Ncolumns );
-	return fit::mean(Nlines, data, min_height, max_height);
+	return fit::mean(data, Nlines, min_height, max_height);
 }
 
-double fit::mean(int Ndata, double**data, double min_height, double max_height){
+double fit::mean(double**data, int Ndata, double min_height, double max_height){
 	double sum = 0.0;
 	int count = 0;
 	for(int i=0; i<Ndata; i++){
@@ -19,13 +19,4 @@ double fit::mean(int Ndata, double**data, double min_height, double max_height){
 	}
 	return sum / (double)count;
 }
-
-double fit::mean(int Ndata, double* data){	
-	double sum = 0.0;
-	int count = 0;
-	for(int i=0; i<Ndata; i++){
-		sum += data[i];/* 観測値 */
-		count++;
-	}
-	return sum / (double)count;
-}
+	

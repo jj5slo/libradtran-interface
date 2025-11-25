@@ -36,7 +36,7 @@ ParamAtmosphere* Nair_to_atmosphere(
 //		double GM_E = gm_e_arr[i-1];
 
 		double graviational_acceleration = GM_E / radius / radius;
-		double air_mass_density = get_msis_total_mass_density( dt, coord[i-1] , coord[i]) * 1.0e3;/* [kg m-3] */
+		double air_mass_density = get_msis_average_molecular_weight( dt, coord[i-1] , coord[i]) * atm[i].Nair  * 1.0e3;/* [kg m-3] */
 //		std::cerr << air_mass_density << std::endl;
 		atm[i-1].p = atm[i].p + graviational_acceleration * air_mass_density * (atm[i].z - atm[i-1].z)*1.0e3 * 1.0e-2;/* [hPa] *//* 静水圧平衡 *//* dz にマイナスを入れ込んだので問題ない */
 		atm[i-1].T = (atm[i-1].p * 1.0e2)/ (atm[i-1].Nair * 1.0e6)  / BOLTZMANN_CONSTANT;/* 状態方程式 */

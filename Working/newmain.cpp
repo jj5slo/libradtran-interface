@@ -20,9 +20,8 @@ constexpr int i_bottom {28};/* 輝度計算する最低 */
 constexpr int i_top {62};/* 輝度計算する最高 */
 char input;
 
-/* ==== core の仕様 ==== */
-/* // 出力をクラス（struct）でまとめる？
- * double(log_squareerror) core(
+/* ==== main ==== */
+/* 
  *
  *
  *
@@ -136,13 +135,15 @@ int main(int argc, char *argv[]){
 		std::cout << Nobs << "points" << std::endl;
 
 /* ==== */
+/* 諸定数の準備 */
+		WrapperArgs args;/* declared in wrapper.h */
 
 		std::filesystem::remove(DIR_LOG+"libRadtran.log");/* ログ容量溢れ防止 */
 
 		double *heights = obsds[obs_index].Heights();
 		int Nheights = obsds[obs_index].Nheights();
-		double maxHeight = obsds[obs_index].maxHeight();
-		std::cout << "lat" << obsds[obs_index].Latitude() << " "  << "lon" << obsds[obs_index].Longitude() << " " << obsds[obs_index].Nheights() << "heights max:" << maxHeight << std::endl;
+		double args.TOA_height = obsds[obs_index].maxHeight();
+		std::cout << "lat" << obsds[obs_index].Latitude() << " "  << "lon" << obsds[obs_index].Longitude() << " " << obsds[obs_index].Nheights() << "heights max:" << args.TOA_height << std::endl;
 		for(int i=0; i<obsds[obs_index].Nheights(); i++){
 			std::cout << heights[i] << " " << obsds[obs_index].Data(heights[i]) << "\n";
 		}
@@ -157,25 +158,22 @@ int main(int argc, char *argv[]){
 	
 /* ==== */
 
-		int doy = dt.DOY();/*  */
-		ParamStdin pstdin;
-		pstdin.mc_photons = mc_photons;/* default is 300000 */
-		pstdin.solver = solver;
-		pstdin.additional = additional_option;//\npseudospherical";
+
+		args.pStdin.mc_photons = mc_photons;/* default is 300000 */
+		args.pStdin.solver = solver;
+		args.pStdin.additional = additional_option;//\npseudospherical";
 	/*
-		std::cout << &pstdin << " " << &pstdin.sza << std::endl;
+		std::cout << &args.pStdin << " " << &args.pStdin.sza << std::endl;
 		return 0;
 	*/
 		
-		pstdin.atmosphere_file = PATH_ATMOSPHERE;
+		args.pStdin.atmosphere_file = PATH_ATMOSPHERE;
 		
-		pstdin.SURFACE_TYPE = SURFACE_TYPE;
-		pstdin.brdf_cam_u10 = brdf_cam_u10;
-		pstdin.albedo = albedo;/* 地球平均は0.3 */
+		args.pStdin.SURFACE_TYPE = SURFACE_TYPE;
+		args.pStdin.brdf_cam_u10 = brdf_cam_u10;
+		args.pStdin.albedo = albedo;/* 地球平均は0.3 */
 
-		double sensor_theta;
-	
-		pstdin.wavelength = wavelength;
+		args.pStdin.wavelength = wavelength;
 		
 		Geocoordinate on_ground(earth, himawari, obsds[obs_index].Latitude(), obsds[obs_index].Longitude(), 0.0);/* 観測データにある緯度経度の高度0km 地点のGeocoordinate */
 		double ld_alpha = on_ground.alpha()*Rad2deg;
@@ -210,57 +208,9 @@ int main(int argc, char *argv[]){
 /* ==== */
 /* MSISで求めた大気をNLoptの初期値に代入する。最小化する評価関数はwrapperとして実装するが、
 */
-
-		double *radiance = new double [Nheights];/* シミュレーション結果 */
-		for(int i=0; i<Nheights; i++){
-			radiance[i] = 0.0;/* initialize */
-			/* 必要あれば輝度計算する最低最高高度を調べてi_bottom, i_top を決定する */
-		}
-		for(int i=i_bottom; i<=i_top; i++){/* 一応等号を入れておく */
-			Geocoordinate tp = tparr[i];
-			std::cout << "Tangential point:\n";
-			std::cout << "\tlat:" << tp.latitude() << "\n\tlon:" << tp.longitude() << "\nt\taltitude:" << tp.altitude() << "\n\talpha:" << tp.alpha()*Rad2deg << std::endl;
-
-
-			AndoLab::Vector3d <double> *crosspts = new AndoLab::Vector3d <double> [2];
-			crosspts = Across_point_atmosphere(earth, himawari, tp.r(), maxHeight); /* maxHeight=TOA */
-			Geocoordinate crosspt(earth, himawari, crosspts[0]);/* TOAと視線の交点を求める */
-
-			std::cout << "crosspoint_of_atmosphere:\n\tlat:" << crosspt.latitude() << "\n\tlon:" << crosspt.longitude() << "\n\taltitude:" << crosspt.altitude() << std::endl;
-			
-			AndoLab::solar_direction(crosspt.latitude(), crosspt.longitude(), doy, dt.Hour(), &pstdin.sza, &pstdin.phi0);/* tangential point での太陽方向を求める */
-			std::cout << "sza:" << pstdin.sza << " phi0:" << pstdin.phi0 << std::endl;
-			sensor_direction(himawari, crosspt.r(), &pstdin.umu, &pstdin.phi);/* crosspt からみた衛星方向を元に、視線方向の局所鉛直からの角（オフナディア角）を求める */
-			sensor_theta = acos(pstdin.umu) * Rad2deg;
-			std::cout << "sonsor_direction:\n\tsensor_theta:" << sensor_theta <<"\n\tphi:" << pstdin.phi << std::endl;
-			std::cout << "cos(sensor_theta) = umu = " << pstdin.umu << std::endl;
-		
-			save_stdin(PATH_STDIN, pstdin);/* 座標情報を入力ファイルにセーブ */
-		
-			if(DEBUG){ std::cin >> input; }
 		
 			/* TODO ここで大気プロファイル決定、ループ開始 */
-			
-			/* delete_mystic_rad(); */
-		
-			execute_uvspec(DIR_UVSPEC, PATH_STDIN, PATH_STDOUT, FLAG_UNDISPLAY_LOG, DIR_LOG);
-		
-			if(pstdin.solver == "mystic"){
-				radiance[i] = read_mystic_rad(DIR_UVSPEC, 105);/* TODO この層番号の決め方がいまいちわからない 0から100km, 1kmごとであればTOAで105 */
-			}else{
-				radiance[i] = read_stdout(PATH_STDOUT, 0);
-			}
-			std::cerr << "Tangential height: " << tp.altitude() << " [m]\nRadiance: " << radiance[i] << "\n----" << std::endl;
-			if(DEBUG){ std::cin >> input; }
 		}	
-		/* save */
-		std::string path_result = save_path(DIR_RESULT, secid, dt, ld_alpha, obs_index + 1);
-		save_result(path_result, secid, on_ground, Nheights, heights, obsds[obs_index], radiance);
-		save_params(DIR_RESULT, secid, PATH_ATMOSPHERE, "_atm"+std::to_string(HOUR_i)+".txt");/* atmosphereも保存しておく */
-	}	
-	/* 最後だけパラメータ保存 */
-	save_params(DIR_RESULT, secid, PATH_STDIN, "_stdin.txt");
-	save_params(DIR_RESULT, secid, configfile, "_config.conf");
 
 //	delete[] radiance;
 	return 0;
