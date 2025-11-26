@@ -1,4 +1,4 @@
-OBJS = fit_result.o fit_readwrite.o mean.o squareerr.o apply_fitting.o main.o
+OBJS = fit_result.o fit_readwrite.o mean.o squareerr.o leastsquare.o apply_fitting.o main.o
 HEADERS = fit.h
 
 all: main

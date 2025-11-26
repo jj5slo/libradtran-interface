@@ -4,20 +4,39 @@
 
 #include"save.h"
 
-std::string save_path(std::string data_dir, std::string secid, obsDateTime dt, double ld_alpha, int line_index/* 緯度経度にすると結局高度で変わるのでここは視線方向の北からの角度としておく*/){
+std::string save_path(
+	const std::string data_dir,
+	const std::string secid,
+	const obsDateTime dt,
+	double ld_alpha,
+	int line_index
+){/* 結果の保存名 */
+/* 緯度経度にすると結局高度で変わるのでここは視線方向の北からの角度としておく*/
 	std::ostringstream filename;
 	filename << "result_" << std::setw(4) << std::setfill('0') << dt.Year() << std::setw(2) << std::setfill('0') << dt.Month() <<  std::setw(2) << std::setfill('0') << dt.Date() << "_" <<   std::setw(2) << std::setfill('0') << dt.Hour() <<  std::setw(2) << std::setfill('0') << dt.Minute() <<  std::setw(2) << std::setfill('0') << dt.Second() << "_a" << std::setw(5) << std::fixed << std::setprecision(1) << std::setfill('0') << ld_alpha << "_" << line_index <<"_" << "_id" << secid << ".dat";
 	std::string path = data_dir + "/" + filename.str();
 	return path;
 }
-std::string save_path(std::string data_dir, std::string secid, obsDateTime dt, int line_index/* 緯度経度にすると結局高度で変わるのでここは視線方向の北からの角度としておく*/){
+std::string save_path(
+	const std::string data_dir,
+	const std::string secid,
+	const obsDateTime dt,
+	const int line_index
+){/* 結果の保存名 */
 	std::ostringstream filename;
 	filename << "result_" << std::setw(4) << std::setfill('0') << dt.Year() << std::setw(2) << std::setfill('0') << dt.Month() <<  std::setw(2) << std::setfill('0') << dt.Date() << "_" <<   std::setw(2) << std::setfill('0') << dt.Hour() <<  std::setw(2) << std::setfill('0') << dt.Minute() <<  std::setw(2) << std::setfill('0') << dt.Second() << "_" << line_index <<"_" << "_id" << secid << ".dat";
 	std::string path = data_dir + "/" + filename.str();
 	return path;
 }
 
-int save_result(std::string path, std::string secid, Geocoordinate on_ground, int Nheights, double* heights, double* radiance){
+int save_result(
+	std::string path,
+	std::string secid,
+	Geocoordinate on_ground,
+	int Nheights,
+	double* heights,
+	double* radiance
+){
 	double ld_alpha = on_ground.alpha();
 	double longitude = on_ground.longitude();
 	double latitude = on_ground.latitude();
@@ -40,8 +59,15 @@ int save_result(std::string path, std::string secid, Geocoordinate on_ground, in
 	}
 	return 0;
 }
-int save_result(std::string path, std::string secid, Geocoordinate on_ground, int Nheights, double* heights, Observed obsd, double* radiance){
-	
+int save_result(
+	std::string path,
+	std::string secid, 
+	Geocoordinate on_ground, 
+	int Nheights, 
+	double* heights, 
+	Observed obsd, 
+	double* radiance
+){	
 /*
 	std::pair<double*, double*> rad_minmax = std::minmax_element(radiance, radiance+Nheights);
 	double* rad_min = rad_minmax.first;

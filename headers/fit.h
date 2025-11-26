@@ -19,16 +19,35 @@
 namespace fit
 {
 
+	/* ---- obtain_fitting_coefficient.cpp ---- */
+	double* obtain_fitting_coefficient(double* obs, double* sim, int min_index, int max_index, double offset);/* leastsquare (a only) via logarithm */
+	/* ---- */
+
 	/* ---- fit_result.cpp ---- */	
 	constexpr int LS = 0; /* そのまま最小二乗法 */
 	constexpr int LS_OFFSET = 1;/* オフセットは与えたものを使って a だけ最小二乗法 */
 	constexpr int LOG = 2; /* 対数の差の二乗が最小になるように ay+b の aとbを決める。実態はNLOptで最適化。 */
 	
-	double* fitting_result(int Ndata, double* height, double* obs, double* sim, double min_height, double max_height, double offset, int TYPE);/* 観測(フィッティング先)データ, シミュレーション(被フィッティング)データ, フィッティングに使用する最小高度, 最大高度, オフセット, フィッティングの種類 */
-	
-//	double* fitting_result(std::string path, double min_height, double max_height, double offset, int TYPE, int* Ndata); /* saveで作ったファイルから読み込む. ファイルに保存もする */
+	double* fitting_result(
+		int Ndata, 
+		double* height, 
+		double* obs, 
+		double* sim, 
+		double min_height, 
+		double max_height, 
+		double offset, 
+		int TYPE
+	);/* 観測(フィッティング先)データ, シミュレーション(被フィッティング)データ, フィッティングに使用する最小高度, 最大高度, オフセット, フィッティングの種類 */
+	double* fitting_result(
+		double* obs, 
+		double* sim, 
+		int min_index, 
+		int max_index, 
+		double offset, 
+		int TYPE
+	);
+	//	double* fitting_result(std::string path, double min_height, double max_height, double offset, int TYPE, int* Ndata); /* saveで作ったファイルから読み込む. ファイルに保存もする */
 	/* ---- */
-
 	/* ---- apply_fitting.cpp ---- */
 	double* apply_fitting(int Ndata, double* data, double* a_offset);
 	/* ---- */
@@ -44,26 +63,36 @@ namespace fit
 	/* ---- mean.cpp ---- */
 	double mean(std::string path, double min_height, double max_height);/* 観測値の指定高度範囲の平均 */
 	double mean(int Ndata, double**data, double min_height, double max_height);
+	double mean(int Ndata, double* heights, double* data, double min_height, double max_height);
 	double mean(int Ndata, double* data);
 	/* ---- */
 	/* ---- leastsquare.cpp ---- */
 	class SLE_Param{
 	private:
 	public:
-		double **data;
+		double* x;
+		double* y;
 		double offset;
-		int Ndata;/* データの数 */
 		int number_of_iteration;/* 繰り返し回数 */
-
-		double min_height;
-		double max_height;
+		int min_index;
+		int max_index;
 	};
 
 	double* leastsquare(double** data, int Nlines, double min_height, double max_height);/* data = [i, x, y]. y will be fitted to x. y' = ay + b の 係数 a, b を返す. */
-	double square_log_error(const std::vector <double> &Coef, std::vector <double> &grad, void* raw_lsep);//SLE_Param* lsep);
+	double* leastsquare(double* x, double* y, int min_index, int max_index);/* y' = ay + b の 係数 a, b を返す. */
+	double least_square_log_error(const std::vector <double> &Coef, std::vector <double> &grad, void* raw_lsep);//SLE_Param* lsep);
 	/* ---- */
-	/* ---- running_mean.cpp ---- */
+	/* ---- squareerr.cpp ---- */
+	double square_log_error(int Ndata, double* obs, double* sim);
+	double square_log_error(int min_index, int max_index, double* obs, double* sim);
+	double square_log_error(int Ndata, double min_height, double max_height, double* heights, double* obs, double* sim);
+	double root_mean_square_log_error(int Ndata, double* heights, double* obs, double* sim);
+	double root_mean_square_log_error( int min_index, int max_index, double* obs, double* sim);
+	double root_mean_square_log_error(int Ndata, double min_height, double max_height, double* heights, double* obs, double* sim);
+	/* ---- */
+	/* ---- smoothing.cpp ---- */
 	double* running_mean(int Nlines, int Nmean, double* data);
+	double* running_mean_log(int Nlines, int Nmean, double* data);
 	/* ---- */
 
 }

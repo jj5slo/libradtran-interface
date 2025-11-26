@@ -2,16 +2,13 @@
 
 
 int main(int argc, char* argv[]){
-	if(argc != 2 && argc != 3){
-		std::cerr << "Usage ./fit paths.txt" << std::endl;
-		std::cerr << "Usage ./fit paths.txt N" << std::endl;
+	if(argc != 3){
+		std::cerr << "Usage ./fit paths.txt column" << std::endl;
 		return 1;
 	}
 
 	std::string paths = argv[1];
-	if(argc == 3){
-		int Nfiles = std::stoi(argv[2]);/* 平均化する線の数 */
-	}
+	int COLUMN = std::stod(argv[2]);
 
 	std::string path;
 //	std::string* paths_save = new std::string[Nfiles];/* 平均化して保存したファイルの一覧 */
@@ -40,23 +37,23 @@ int main(int argc, char* argv[]){
 				double** data = fit::read_result(path, header, Nlines, Ncolumns);
 //				data_arr[i_file] = data;
 //				double** running_means = new double* [4];/* 0=3, 1=5, 2=3(log), 3=5(log) */
-//				running_means[0] = fit::running_mean(Nlines, 3, data[3]);
-//				running_means[1] = fit::running_mean(Nlines, 5, data[3]);
-//				double* data_3_log = new double [Nlines];/* データ3列目（フィッティング後）の対数 */
+//				running_means[0] = fit::running_mean(Nlines, 3, data[COLUMN]);
+//				running_means[1] = fit::running_mean(Nlines, 5, data[COLUMN]);
+//				double* data_col_log = new double [Nlines];/* データ3列目（フィッティング後）の対数 */
 //				for(int i=0; i<Nlines; i++){
-//					data_3_log[i] = std::log10(data[3][i]);
+//					data_col_log[i] = std::log10(data[COLUMN][i]);
 //				}
-//				running_means[2] = fit::running_mean(Nlines, 3, data_3_log);
-//				running_means[3] = fit::running_mean(Nlines, 5, data_3_log);
+//				running_means[2] = fit::running_mean(Nlines, 3, data_col_log);
+//				running_means[3] = fit::running_mean(Nlines, 5, data_col_log);
 //				for(int i=0; i<Nlines; i++){
 //					running_means[2][i] = std::pow(10.0, running_means[2][i]);
 //					running_means[3][i] = std::pow(10.0, running_means[3][i]);
 //				}
-				double* data_3_log = new double[Nlines];/* データ3列目（フィッティング後）の対数 */
+				double* data_col_log = new double[Nlines];/* データcol列目（フィッティング後）の対数 */
 				for(int i=0; i<Nlines; i++){
-					data_3_log[i] = std::log10(data[3][i]);
+					data_col_log[i] = std::log10(data[COLUMN][i]);
 				}
-				double* running_mean = fit::running_mean(Nlines, 3, data_3_log);
+				double* running_mean = fit::running_mean(Nlines, 3, data_col_log);
 				for(int i=0; i<Nlines; i++){
 					running_mean[i] = std::pow(10.0, running_mean[i]);
 				}

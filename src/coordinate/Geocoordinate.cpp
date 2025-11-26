@@ -69,7 +69,7 @@ AndoLab::Vector3d <double> Geocoordinate::projection_on_yz(void){
 }
 
 
-double Geocoordinate::alpha(void){
+double Geocoordinate::alpha(void){/* const */
 	/* ひまわりから見てyz軸上へ射影した点の、z軸からの角度α
 	 * -y方向(ヨーロッパ側)がαが正、y方向(アメリカ側)がαは負
 	 * 　　ｚ

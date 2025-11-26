@@ -1,17 +1,17 @@
-#include<iostream>
-#include<cstdlib>
-#include<algorithm>/* 最大最小用 */
-#include<chrono>
-#include<filesystem>
+#include <iostream>
+#include <cstdlib>
+#include <algorithm>/* 最大最小用 */
+#include <chrono>
+#include <filesystem>
 
-#include"solar_direction.h"
+#include "solar_direction.h"
 
-#include"coordinate.h"
-#include"interface.h"
-#include"execute.h"
-#include"save.h"
-#include"get_msis.h"
-#include"read_config.h"
+#include "coordinate.h"
+#include "interface.h"
+#include "execute.h"
+#include "save.h"
+#include "get_msis.h"
+#include "read_config.h"
 
 constexpr double SUPERCOEFFICIENT {64};
 constexpr double BOTTOM_OF_BUFFER_HEIGHT { 0.0 - 1.0 - 0.5 };
@@ -137,6 +137,8 @@ int main(int argc, char *argv[]){
 /* ==== */
 /* 諸定数の準備 */
 		WrapperArgs args;/* declared in wrapper.h */
+		
+		args->PATH_CONFIG = configfile;
 
 		std::filesystem::remove(DIR_LOG+"libRadtran.log");/* ログ容量溢れ防止 */
 

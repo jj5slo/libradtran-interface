@@ -19,6 +19,12 @@ double fit::mean(int Ndata, double**data, double min_height, double max_height){
 	}
 	return sum / (double)count;
 }
+double fit::mean(int Ndata, double* heights, double* data, double min_height, double max_height){
+	double** hd = new double*[2];
+	hd[0] = heights;
+	hd[1] = data;
+	return fit::mean(Ndata, hd, min_height, max_height);
+}
 
 double fit::mean(int Ndata, double* data){	
 	double sum = 0.0;

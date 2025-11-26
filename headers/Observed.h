@@ -20,6 +20,8 @@ public:
 	double Longitude(void);
 	double* Heights(void);/* [km] */
 	double Data(double height);
+	double* Data(void);
+	double** Heights_Data(void);
 	int Nheights(void);
 	
 	double maxHeight(void);

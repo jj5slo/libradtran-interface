@@ -32,8 +32,23 @@ std::string save_path(
 	const obsDateTime dt,
 	const int line_index);/* 結果の保存名 */
 
-int save_result(std::string path, std::string secid, Geocoordinate on_ground, int Nheights, double* heights, double* radiance);/* 結果保存 */
-int save_result(std::string path, std::string secid, Geocoordinate on_ground, int Nheights, double* heights, Observed obsd, double* radiance);/* 結果保存 */
+int save_result(
+	std::string path,
+	std::string secid,
+	Geocoordinate on_ground,
+	int Nheights,
+	double* heights,
+	double* radiance
+);/* 結果保存 */
+int save_result(
+	std::string path,
+	std::string secid, 
+	Geocoordinate on_ground, 
+	int Nheights, 
+	double* heights, 
+	Observed obsd, 
+	double* radiance
+);/* 結果保存 */
 
 int save_params(std::string dir, std::string secid, std::string path_stdin, std::string suffix);/* パラメータ保存(inファイルをコピーするだけ) */
 

@@ -27,7 +27,7 @@
 // }
 
 
-double* fit::fitting_result(int Ndata, double* height, double* obs, double* sim, double min_height, double max_height, double offset, int TYPE){/* TODO MIN, MAX を実際に考慮 */
+double* fit::fitting_result(int Ndata, double* height, double* obs, double* sim, double min_height, double max_height, double offset, int TYPE){
 	double** data = new double* [3];
 	data[0] = height;
 	data[1] = obs;
@@ -69,8 +69,11 @@ double* fit::fitting_result(int Ndata, double* height, double* obs, double* sim,
 		slep.offset = offset;
 		slep.min_height = min_height;
 		slep.max_height = max_height;
+		slep.min_index = 0;
+		slep.max_index = Ndata-1;
+		slep.flag_height_range = 1;/* height を確認する */
 
-		opt.set_min_objective( fit::square_log_error, (void*)(&slep) ); 
+		opt.set_min_objective( fit::least_square_log_error, (void*)(&slep) ); 
 		opt.set_xtol_rel(1.0e-6);/* TODO */
 		std::vector<double> x(1, 5.0e3);/* 初期値 */
 		double minf;
@@ -89,6 +92,62 @@ double* fit::fitting_result(int Ndata, double* height, double* obs, double* sim,
 	return a_offset;
 }
 
+double* fitting_result(
+	double* obs, 
+	double* sim, 
+	int min_index, 
+	int max_index, 
+	double offset, 
+	int TYPE
+);
+	double** data = new double* [3];
+	data[1] = obs;
+	data[2] = sim;
+
+	double* a_offset = new double[2];
+	a_offset[0] = 0.0;
+	a_offset[1] = offset;
+/* ==== フィッティング処理 ==== */
+/* == 最小二乗 == */
+	if(	TYPE == fit::LS){
+		a_offset = fit::leastsquare(obs, sim, min_index, max_index);
+		std::cout << "fitting_result:\n\ta: " << a_offset[0] << "\n\tb: " << a_offset[1] << std::endl;
+	}
+/* == */
+/* == 対数 == */
+	if(TYPE == fit::LOG){
+		nlopt::opt opt( nlopt::LN_NELDERMEAD, 1 );
+		
+		fit::SLE_Param slep;
+		slep.number_of_iteration = 0;
+		slep.data = data;
+		slep.Ndata = Ndata;
+		slep.offset = offset;
+		slep.min_height = min_height;
+		slep.max_height = max_height;
+		slep.min_index = 0;
+		slep.max_index = Ndata-1;
+		slep.flag_height_range = 1;/* height を確認する */
+
+
+		opt.set_min_objective( fit::least_square_log_error, (void*)(&slep) ); 
+		opt.set_xtol_rel(1.0e-6);/* TODO */
+		std::vector<double> x(1, 5.0e3);/* 初期値 */
+		double minf;
+
+		try {
+			slep.number_of_iteration = 0;
+			nlopt::result result = opt.optimize(x, minf);
+		} catch (std::exception &e){
+			std::cout << "NLopt for obtaining fitting coefficient failed. : " << e.what() << std::endl;
+		}
+		a_offset[0] = x[0];
+		std::cout << "fitting_result:\n\ta: " << a_offset[0] << "\n\toffset: " << a_offset[1] << "\n\tminf: " << minf << std::endl;
+	}
+/* == */
+/* ==== */
+	return a_offset;
+}
 
 // double* fit::fitting_result(std::string path, double min_height, double max_height, double offset, int TYPE, int* Ndata){
 // 	

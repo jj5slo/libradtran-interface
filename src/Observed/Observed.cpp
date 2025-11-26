@@ -28,7 +28,18 @@ double Observed::Data(double height){/* いらない */
 			return pData[i];
 		}
 	}
+	return 0.0;/* no match */
 }
+double* Observed::Data(void){
+	return pData;
+}
+double** Observed::Heights_Data(void){
+	double** hd = new double*[2];
+	hd[0] = pHeights;
+	hd[1] = pData;
+	return hd;
+}
+
 
 double Observed::maxHeight(){
 	double maxh = pHeights[0];

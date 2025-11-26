@@ -29,6 +29,7 @@ double wrapper(const std::vector<double> &Coef, std::vector<double> &grad, void*
 		);	
 		saveParamAtmosphere(args->PATH_ATMOSPHERE, args->pAtm, args->Nheights, args->atmosphere_precision);
 	/* ==== */
+	double *radiance = new double [args->Nheights];/* シミュレーション結果 */
 	for(int i=args->i_bottom; i<=args->i_top; i++){
 	/* ==== setting sensor ==== */
 		Geocoordinate tp = args->tparr[i];
@@ -53,7 +54,6 @@ double wrapper(const std::vector<double> &Coef, std::vector<double> &grad, void*
 		save_stdin(args->PATH_STDIN, args->pStdin);/* 座標情報を入力ファイルにセーブ */
 	/* ==== */
 	/* ==== acquiring radiance from libRadtran ==== */
-		double *radiance = new double [args->Nheights];/* シミュレーション結果 */
 		
 		for(int i=0; i<args->Nheights; i++){
 			radiance[i] = 0.0;/* initialize */
@@ -71,20 +71,21 @@ double wrapper(const std::vector<double> &Coef, std::vector<double> &grad, void*
 	}
 
 /* ==== saving results ==== */
-/* 最適化途中もすべて保存している */
 	std::string path_result = save_path(args->DIR_RESULT, args->secid, args->dt, args->obs_index + 1);
 	save_result(path_result, args->secid, args->on_ground, args->Nheights, args->heights, radiance);/* TODO 最適化を回し始めたらいらない */
-	save_params(args->DIR_RESULT, args->secid, PATH_ATMOSPHERE, "_atm"+std::to_string(HOUR_i)+".txt");/* atmosphereも保存しておく */
-	save_params(args->DIR_RESULT, args->secid, PATH_STDIN, "_stdin.txt");
-	save_params(args->DIR_RESULT, args->secid, configfile, "_config.conf");
+	save_params(args->DIR_RESULT, args->secid, args->PATH_ATMOSPHERE, "_atm.txt");/* atmosphereも保存しておく */
+	save_params(args->DIR_RESULT, args->secid, args->PATH_STDIN, "_stdin.txt");
+	save_params(args->DIR_RESULT, args->secid, args->PATH_CONFIG, "_config.conf");
 /* ==== */
 /* ==== fitting result ==== */
-	double offset = fit::mean(args->Nheights, obs.Data()/* TODO */
-	double* a_offset = fit::fitting_result(args->Nheights, args->heights, obs, radiance, min_height, offset, TYPE);
-	double* fitted = 
-	return log_square_error;
+	double offset = fit::mean(args->Nheights, args->heights, args->obs.Data(), args->offset_bottom_height, args->TOA_height);
+	double* a_offset = fit::obtain_fitting_coefficient(args->obs.Data(), radiance, args->min_index, args->max_index, offset);
+	double* fitted = fit::apply_fitting(args-> Nheights, radiance, a_offset);
+	double* smoothed = fit::running_mean_log(args->Nheights, 3, fitted);/* 3 は移動平均をとる数 */
 	
+	double log_square_error = fit::root_mean_square_log_error( args->min_index, args->max_index, args->obs.Data(), smoothed );
+
+	return log_square_error;	
 }
 
 
-double acquire_radiance();

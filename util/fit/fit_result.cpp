@@ -70,7 +70,7 @@ double* fit::fitting_result(int Ndata, double* height, double* obs, double* sim,
 		slep.min_height = min_height;
 		slep.max_height = max_height;
 
-		opt.set_min_objective( fit::square_log_error, (void*)(&slep) ); 
+		opt.set_min_objective( fit::least_square_log_error, (void*)(&slep) ); 
 		opt.set_xtol_rel(1.0e-6);/* TODO */
 		std::vector<double> x(1, 5.0e3);/* 初期値 */
 		double minf;

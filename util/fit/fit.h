@@ -60,10 +60,19 @@ double* apply_fitting(int Ndata, double* data, double* a_offset);
 	};
 
 	double* leastsquare(double** data, int Nlines, double min_height, double max_height);/* data = [i, x, y]. y will be fitted to x. y' = ay + b の 係数 a, b を返す. */
-	double square_log_error(const std::vector <double> &Coef, std::vector <double> &grad, void* raw_lsep);//SLE_Param* lsep);
+	double least_square_log_error(const std::vector <double> &Coef, std::vector <double> &grad, void* raw_lsep);//SLE_Param* lsep);
 	/* ---- */
-	/* ---- running_mean.cpp ---- */
+	/* ---- squareerr.cpp ---- */
+	double square_log_error(int Ndata, double* obs, double* sim);
+	double square_log_error(int min_index, int max_index, double* obs, double* sim);
+	double square_log_error(int Ndata, double min_height, double max_height, double* heights, double* obs, double* sim);
+	double root_mean_square_log_err(int Ndata, double* heights, double* obs, double* sim);
+	double root_mean_square_log_err(int min_index, int max_index, double* obs, double* sim);
+	double root_mean_square_log_err(int Ndata, double min_height, double max_height, double* heights, double* obs, double* sim);
+	/* ---- */
+	/* ---- smoothing.cpp ---- */
 	double* running_mean(int Nlines, int Nmean, double* data);
+	double* running_mean_log(int Nlines, int Nmean, double* data);
 	/* ---- */
 
 }

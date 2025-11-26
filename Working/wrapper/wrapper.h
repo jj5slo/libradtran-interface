@@ -4,23 +4,23 @@
  *
  */
 
-#include<nlopt.hpp>
+#include <nlopt.hpp>
 
-#include<iostream>
-#include<cstdlib>
-#include<algorithm>/* 最大最小用 */
-#include<chrono>
-#include<filesystem>
+#include <iostream>
+#include <cstdlib>
+#include <algorithm>/* 最大最小用 */
+#include <chrono>
+#include <filesystem>
 
-#include"solar_direction.h"
+#include "solar_direction.h"
 
-#include"coordinate.h"
-#include"interface.h"
-#include"execute.h"
-#include"save.h"
-#include"get_msis.h"
-#include"read_config.h"
-
+#include "coordinate.h"
+#include "interface.h"
+#include "execute.h"
+#include "save.h"
+#include "get_msis.h"
+#include "read_config.h"
+#include "fit.h"
 
 /* MSIS_TO_GM_E */
 
@@ -42,32 +42,37 @@ public:
 	ParamAtmosphere* pAtm;
 	obsDateTime dt;
 	Observed obs;/* for fitting (and save) */
-	const PlanetParam planet;
-	const SatelliteParam satellite;
-	const int Nheights;
-	const double* heights;/* for fitting and save */
-	const Geocoordinate on_ground;/* for save */
-	const Geocoordinate* tparr;/* tangential points */
-	const std::string DIR_UVSPEC;
-	const std::string PATH_STDIN;
-	const std::string PATH_STDOUT;
-	const std::string PATH_ATMOSPHERE;
-	const std::string DIR_RESULT;/* for save */
-	const int FLAG_UNDISPLAY_LOG;
-	const std::string DIR_LOG;
-	const int i_bottom;
-	const int i_top;
-	const double min_height;/* for fit, けずれる */
-	const double max_height;/* for fit, けずれる */
-	const double TOA_height;
-	const int atmosphere_precision;
-	const std::string secid;/* for save */
-	const int obs_index;/* for save */
+	PlanetParam planet;
+	SatelliteParam satellite;
+	int Nheights;
+	double* heights;/* for fitting and save */
+	Geocoordinate on_ground;/* for save */
+	Geocoordinate* tparr;/* tangential points */
+	std::string DIR_UVSPEC;
+	std::string PATH_STDIN;
+	std::string PATH_STDOUT;
+	std::string PATH_ATMOSPHERE;
+	std::string DIR_RESULT;/* for save */
+	std::string PATH_CONFIG;/* for save */
+	int FLAG_UNDISPLAY_LOG;
+	std::string DIR_LOG;
+	int i_bottom;
+	int i_top;
+//	double min_height;/* for fit, けずれる */
+//	double max_height;/* for fit, けずれる */
+	int min_index;/* for fit */
+	int max_index;/* for fit */
+	double TOA_height;
+	double offset_bottom_height;/* for fit */
+	int atmosphere_precision;
+	std::string secid;/* for save */
+	int obs_index;/* for save */
 };
 
 //	args->pStdin;
 //	args->pAtm;
 //	args->dt;
+//	args->obs;/* for fitting (and save) */
 //	args->planet;
 //	args->satellite;
 //	args->Nheights;
@@ -79,11 +84,13 @@ public:
 //	args->PATH_STDOUT;
 //	args->PATH_ATMOSPHERE;
 //	args->DIR_RESULT;/* for save */
+//	args->std::string PATH_CONFIG;/* for save */
 //	args->FLAG_UNDISPLAY_LOG;
 //	args->DIR_LOG;
 //	args->i_bottom;
 //	args->i_top;
 //	args->TOA_height;
+//	args->offset_bottom_height;/* for fit */
 //	args->atmosphere_precision;
 //	args->secid;/* for save */
 //	args->obs_index;/* for save */
@@ -102,7 +109,7 @@ double acquire_radiance(
 ParamAtmosphere* Nair_to_atmosphere(
 	int atm_Nheights,
 	obsDateTime dt,
-	const Geocoordinate*& coord,
+	Geocoordinate*& coord,
 	PlanetParam earth,
 	std::vector<double> x,
 	const double PRESSURE_AT_TOA//,
