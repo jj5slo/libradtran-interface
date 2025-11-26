@@ -30,6 +30,7 @@ public:
 /* 	void set(int aMJDN, int aDS); */
 	void set(int aY, int aM, int aD, int ah, int am, int as);
 	obsDateTime(int aY, int aM, int aD);
+	obsDateTime(void);
 	void settime(int ah, int am, int as);
 
 	int Year() const;

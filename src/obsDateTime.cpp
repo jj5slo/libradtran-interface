@@ -17,6 +17,9 @@ void obsDateTime::set(int aY, int aM, int aD, int ah, int am, int as){
 obsDateTime::obsDateTime(int aY, int aM, int aD){
 	set(aY, aM, aD, 0, 0, 0);
 }
+obsDateTime::obsDateTime(void){
+	set(0, 0, 0, 0, 0, 0);
+}
 
 void obsDateTime::settime(int ah, int am, int as){
 	pHour = ah;

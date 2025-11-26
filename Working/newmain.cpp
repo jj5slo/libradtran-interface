@@ -12,6 +12,7 @@
 #include "save.h"
 #include "get_msis.h"
 #include "read_config.h"
+#include "wrapper.h"
 
 constexpr double SUPERCOEFFICIENT {64};
 constexpr double BOTTOM_OF_BUFFER_HEIGHT { 0.0 - 1.0 - 0.5 };
@@ -39,15 +40,16 @@ int main(int argc, char *argv[]){
 	int HOUR_START;
 	int HOUR_END;
 	int obs_index;
-	if(argc == 5){
-		YEAR = atoi(argv[1]);
-		MONTH = atoi(argv[2]);
-		DAY = atoi(argv[3]);
-		HOUR_START = 0;
-		HOUR_END = 23;
-		obs_index = atoi(argv[4]) - 1;/* 観測データの何行目を読むか */
-	}
-	else if(argc == 6){
+//	if(argc == 5){
+//		YEAR = atoi(argv[1]);
+//		MONTH = atoi(argv[2]);
+//		DAY = atoi(argv[3]);
+//		HOUR_START = 0;
+//		HOUR_END = 23;
+//		obs_index = atoi(argv[4]) - 1;/* 観測データの何行目を読むか */
+//	}
+//	else
+if(argc == 6){
 		YEAR = atoi(argv[1]);
 		MONTH = atoi(argv[2]);
 		DAY = atoi(argv[3]);
@@ -74,8 +76,8 @@ int main(int argc, char *argv[]){
 /* ==== */
 /* ==== ファイルから設定読込 ==== */
 
-	std::string configfile = "./config.conf";
-	std::map<std::string, std::string> configs = readConfigFile(configfile);
+	std::string PATH_CONFIG = "./config.conf";
+	std::map<std::string, std::string> configs = readConfigFile(PATH_CONFIG);
 	
 	const int DEBUG = getConfig(configs, "DEBUG", 0);
 	const int FLAG_UNDISPLAY_LOG = getConfig(configs, "FLAG_UNDISPLAY_LOG", 0);
@@ -138,13 +140,10 @@ int main(int argc, char *argv[]){
 /* 諸定数の準備 */
 		WrapperArgs args;/* declared in wrapper.h */
 		
-		args->PATH_CONFIG = configfile;
-
 		std::filesystem::remove(DIR_LOG+"libRadtran.log");/* ログ容量溢れ防止 */
 
 		double *heights = obsds[obs_index].Heights();
 		int Nheights = obsds[obs_index].Nheights();
-		double args.TOA_height = obsds[obs_index].maxHeight();
 		std::cout << "lat" << obsds[obs_index].Latitude() << " "  << "lon" << obsds[obs_index].Longitude() << " " << obsds[obs_index].Nheights() << "heights max:" << args.TOA_height << std::endl;
 		for(int i=0; i<obsds[obs_index].Nheights(); i++){
 			std::cout << heights[i] << " " << obsds[obs_index].Data(heights[i]) << "\n";
@@ -206,7 +205,32 @@ int main(int argc, char *argv[]){
 			std::cout << " " << pAtm[i].z << " " << pAtm[i].Nair << " " << pAtm[i].p << " " <<  pAtm[i].T << std::endl;
 		}
 		saveParamAtmosphere(PATH_ATMOSPHERE, pAtm, Nheights, atmosphere_precision);
+/* ==== */
 
+/* ==== prepare for wrapper ==== */
+	args.dt = dt;
+	args.obs = obsds[obs_index];/* for fitting (and save) */
+	args.planet = earth;
+	args.satellite = himawari;
+	args.Nheights = Nheights;
+	args.heights = args.obs.Heights();/* for save */
+	args.on_ground = on_ground;/* for save */
+	args.tparr = tparr;/* tangential points */
+	args.DIR_UVSPEC = DIR_UVSPEC;
+	args.PATH_STDIN = PATH_STDIN;
+	args.PATH_STDOUT = PATH_STDOUT;
+	args.PATH_ATMOSPHERE = PATH_ATMOSPHERE;
+	args.DIR_RESULT = DIR_RESULT;/* for save */
+	args.PATH_CONFIG = PATH_CONFIG;/* for save */
+	args.FLAG_UNDISPLAY_LOG = FLAG_UNDISPLAY_LOG;
+	args.DIR_LOG = DIR_LOG;
+	args.i_bottom = 30;/* for で高度検索 */
+	args.i_top = 60;/* for で高度検索 */
+	args.TOA_height = obsds[obs_index].maxHeight();
+	args.offset_bottom_height = 94.9;/* for fit */
+	args.atmosphere_precision = atmosphere_precision;
+	args.secid = secid;/* for save */
+	args.obs_index = obs_index;/* for save */
 /* ==== */
 /* MSISで求めた大気をNLoptの初期値に代入する。最小化する評価関数はwrapperとして実装するが、
 */
