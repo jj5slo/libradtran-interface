@@ -17,7 +17,7 @@
 
 
 double wrapper(const std::vector<double> &Coef, std::vector<double> &grad, void* raw_Args){
-	constexpr int ITERATION_LIMIT = 10000;
+	constexpr int ITERATION_LIMIT = 3000;
 	WrapperArgs* args = static_cast<WrapperArgs*>(raw_Args);
 //	std::cout <<std::endl<< args->Nheights;
 //	std::cout <<std::endl<< args->atm_Nheights;
@@ -44,6 +44,9 @@ double wrapper(const std::vector<double> &Coef, std::vector<double> &grad, void*
 	const int running_mean_extra = args->N_running_mean / 2;/* ( N - 1 ) / 2 */
 	const int i_bottom_rad = args->i_bottom - running_mean_extra;
 	const int i_top_rad = args->i_top + running_mean_extra;
+	
+	std::cerr << "Iteration " << args->number_of_iteration << "th time" << std::endl;
+
 	/* ==== setting atmosphere ==== */
 	std::cout << "setting atmosphere..." << std::endl;
 	double* Nair_arr = new double[args->atm_Nheights];
@@ -51,7 +54,7 @@ double wrapper(const std::vector<double> &Coef, std::vector<double> &grad, void*
 		Nair_arr[i] = args->pAtm[i].Nair;
 	}
 	for(int i=args->atm_i_bottom; i<=args->atm_i_top; i++){/* TODO 一時的に、top_rad 以上は真値としている */
-		Nair_arr[i] = Coef[i-args->atm_i_bottom];
+		Nair_arr[i] = Coef[args->atm_i_top - i];/* 上から */
 	}
 	for(int i=args->atm_i_top+1; i<args->atm_Nheights; i++){
 		Nair_arr[i] = args->pAtm[i].Nair;
@@ -143,14 +146,16 @@ double wrapper(const std::vector<double> &Coef, std::vector<double> &grad, void*
 
 	double log_square_error = fit::root_mean_square_log_error( args->i_bottom, args->i_top, args->obs.Data(), smoothed );
 	
-	double grad_err = 0;/* TODO(むり) */
+//	double grad_err = 0;/* TODO(むり) */
 	args->number_of_iteration++;
 	if( args->number_of_iteration > ITERATION_LIMIT ){
 		std::cerr << "wrapper: iteration by nlopt stopped." << std::endl;
 		throw nlopt::forced_stop();
 	}
 	if( !grad.empty() ){/* 微分を使わないアルゴリズムもある */
-		grad[0] = grad_err;
+//		grad[0] = grad_err;
+		std::cerr << "wrapper: Can't calculate gradient!!" << std::endl;
+		throw nlopt::forced_stop();
 	}
 	return log_square_error;	
 }

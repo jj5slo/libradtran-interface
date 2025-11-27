@@ -16,7 +16,7 @@ double** fit::read_result(std::string path, std::string &header, int &Nlines, in
 	Ncolumns = 0;
 	int col_index = 0;
 	while(std::getline(temp_ifs, temp_line)){
-		if(temp_line[0] != '#' && temp_line != ""){
+		if(temp_line[0] != '#' && temp_line != "" && temp_line != " " && temp_line != "\t"){
 			Nlines++;
 			std::istringstream iss_read(temp_line);
 			std::string token;
@@ -63,7 +63,7 @@ double** fit::read_result(std::string path, std::string &header, int &Nlines, in
 	col_index = 0;
 	
 	while(std::getline(ifs, line)){
-		if(line[0] != '#' && line != ""){
+		if(line[0] != '#' && line != "" && line != " " && line != "\t"){
 			std::istringstream iss_read(line);
 			std::string token;
 			col_index = 0;

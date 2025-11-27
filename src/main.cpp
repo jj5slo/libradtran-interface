@@ -117,7 +117,7 @@ if(argc == 6){
 	PATH_ATMOSPHERE = "/home/sano/SANO/research/estimate-profile/atmmod-temporary/msis-atm.dat";
 */
 /* ==== 保存先ディレクトリ作成 ==== */
-	std::cerr << DIR_RESULT << std::endl;
+	std::cout << DIR_RESULT << std::endl;
 	std::filesystem::create_directory(DIR_RESULT);
 
 	if(DEBUG){ std::cin >> input; }
@@ -125,16 +125,30 @@ if(argc == 6){
 //	std::string path_result = "result.txt";
 
 /* ==== */
+	for(int HOUR_i = HOUR_START; HOUR_i <= HOUR_END; HOUR_i++){/* TODO 一時的に変更 */
 /* ==== 観測データ読み込み ==== */
 	
-	for(int HOUR_i = HOUR_START; HOUR_i <= HOUR_END; HOUR_i++){/* TODO 一時的に変更 */
-		dt.settime(HOUR_i, 0, 0);/* 観測時 */
-		std::string path_obs = obs_path(DIR_OBS, dt);/* 観測日時からデータの名前 */
-		std::cerr << path_obs << std::endl;
-		if(DEBUG){ std::cin >> input; }
-		int Nobs = 0;
-		Observed *obsds = read_obs( &Nobs, path_obs );/* 使うのはobsds[obs_index]だけ */
-		std::cout << Nobs << "points" << std::endl;
+//		dt.settime(HOUR_i, 0, 0);/* 観測時 */
+//		std::string path_obs = obs_path(DIR_OBS, dt);/* 観測日時からデータの名前 */
+//		std::cout << path_obs << std::endl;
+//		if(DEBUG){ std::cin >> input; }
+//		int Nobs = 0;
+//		Observed *obsds = read_obs( &Nobs, path_obs );/* 使うのはobsds[obs_index]だけ */
+//		std::cout << Nobs << "points" << std::endl;
+
+		int otehon_lines;
+		int otehon_columns;
+		std::string otehon_header;
+		double** otehon = fit::read_result("/lhome/sano2/SANO/research/estimate-profile/Result/Result-11-W5/for_optimize/plain_msis.dat", otehon_header, otehon_lines, otehon_columns);
+		std::cout << "Read Otehon." << std::endl;
+		obs_index = 0;
+		Observed *obsds = new Observed[1];
+		obsds[obs_index].set(73.0, 82.0, otehon_lines, otehon[0], otehon[4]);
+		
+		for(int i=0; i<otehon_lines; i++){
+			std::cout << otehon[0][i] <<" "<< obsds[0].Data()[i] << std::endl;
+		}
+
 
 /* ==== */
 /* 諸定数の準備 */
@@ -205,6 +219,7 @@ if(argc == 6){
 		for(int i=0; i<Nheights; i++){
 			std::cout << " " << pAtm[i].z << " " << pAtm[i].Nair << " " << pAtm[i].p << " " <<  pAtm[i].T << std::endl;
 		}
+		
 //		saveParamAtmosphere(PATH_ATMOSPHERE, pAtm, Nheights, atmosphere_precision);
 /* ==== */
 
@@ -249,8 +264,8 @@ if(argc == 6){
 	opt.set_min_objective( wrapper, (void*)(&args) ); 
 	opt.set_xtol_rel(1.0e-6);/* TODO */
 	std::vector<double> x(number_of_optimization_parameters, 0.0);/* 初期値 */
-	for(int i=0; i<number_of_optimization_parameters; i++){/* 初期化 */
-		x[i] = pAtm[i].Nair;
+	for(int i=args.atm_i_bottom; i<=args.atm_i_top; i++){/* 初期化 */
+		x[args.atm_i_top - i] = pAtm[i].Nair;/* 上から */
 	}
 	double minf;
 
