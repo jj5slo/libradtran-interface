@@ -61,7 +61,7 @@ public:
 	
 	ParamAtmosphere(void) : z(0.0), p(0.0), T(0.0), Nair(0.0), No3(0.0), No2(0.0), Nh2o(0.0), Nco2(0.0), Nno2(0.0) {}
 
-	/* radtran-interface-atmosphere.cpp */
+	/* interface-atmosphere.cpp */
 	double* returnvector(void);
 	int NoPs(void){
 		return p_NoPs;

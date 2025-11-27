@@ -12,7 +12,7 @@ ParamAtmosphere* Nair_to_atmosphere(
 	obsDateTime dt,
 	Geocoordinate*& coord,
 	PlanetParam earth,
-	std::vector<double> x,
+	double* x,
 	const double PRESSURE_AT_TOA//,
 //	double* gm_e_arr
 ){

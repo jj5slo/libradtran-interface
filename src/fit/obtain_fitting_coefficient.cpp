@@ -27,7 +27,9 @@
 // }
 
 double* fit::obtain_fitting_coefficient(double* obs, double* sim, int min_index, int max_index, double offset){
-	
+
+	std::cout << "obtain fitting_coefficient: fitting in [" << min_index << ", " << max_index << "]" << std::endl;
+
 	double* a_offset = new double[2];
 	a_offset[0] = 0.0;
 	a_offset[1] = offset;
@@ -51,7 +53,7 @@ double* fit::obtain_fitting_coefficient(double* obs, double* sim, int min_index,
 		slep.number_of_iteration = 0;
 		nlopt::result result = opt.optimize(x, minf);
 	} catch (std::exception &e){
-		std::cout << "NLopt for obtaining fitting coefficient failed. : " << e.what() << std::endl;
+		std::cerr << "NLopt for obtaining fitting coefficient failed. : " << e.what() << std::endl;
 	}
 	a_offset[0] = x[0];
 	std::cout << "fitting_result:\n\ta: " << a_offset[0] << "\n\toffset: " << a_offset[1] << "\n\tminf: " << minf << std::endl;

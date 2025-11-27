@@ -17,8 +17,8 @@
 constexpr double SUPERCOEFFICIENT {64};
 constexpr double BOTTOM_OF_BUFFER_HEIGHT { 0.0 - 1.0 - 0.5 };
 constexpr double TOP_OF_BUFFER_HEIGHT { 60.0 + 21.0 + 0.5 };/* 82 */
-constexpr int i_bottom {28};/* 輝度計算する最低 */
-constexpr int i_top {62};/* 輝度計算する最高 */
+constexpr int i_bottom {30};/* 誤差計算に含める最低 */
+constexpr int i_top {60};/* 誤差計算に含める最高 */
 char input;
 
 /* ==== main ==== */
@@ -40,15 +40,16 @@ int main(int argc, char *argv[]){
 	int HOUR_START;
 	int HOUR_END;
 	int obs_index;
-	if(argc == 5){
-		YEAR = atoi(argv[1]);
-		MONTH = atoi(argv[2]);
-		DAY = atoi(argv[3]);
-		HOUR_START = 0;
-		HOUR_END = 23;
-		obs_index = atoi(argv[4]) - 1;/* 観測データの何行目を読むか */
-	}
-	else if(argc == 6){
+//	if(argc == 5){
+//		YEAR = atoi(argv[1]);
+//		MONTH = atoi(argv[2]);
+//		DAY = atoi(argv[3]);
+//		HOUR_START = 0;
+//		HOUR_END = 23;
+//		obs_index = atoi(argv[4]) - 1;/* 観測データの何行目を読むか */
+//	}
+//	else
+if(argc == 6){
 		YEAR = atoi(argv[1]);
 		MONTH = atoi(argv[2]);
 		DAY = atoi(argv[3]);
@@ -193,25 +194,29 @@ int main(int argc, char *argv[]){
 		for(int i=0; i<Nheights; i++){
 			std::cout << " " << pAtm[i].z << " " << pAtm[i].Nair << " " << pAtm[i].p << " " <<  pAtm[i].T << std::endl;
 		}
-		for(int i=0; i<Nheights; i++){/* TODO NOW あるtangential heightの光強度に周辺高度の大気が与える影響 */
-			if( pAtm[i].z < BOTTOM_OF_BUFFER_HEIGHT || TOP_OF_BUFFER_HEIGHT < pAtm[i].z ){
-				pAtm[i].Nair = pAtm[i].Nair * SUPERCOEFFICIENT;
-				pAtm[i].set_p_from_Nair_T();
-			}
+		for(int i=i_bottom; i<=i_top; i++){/* TODO NOW MSISから考えている高度範囲だけはずらした上で最適化で戻るかどうか */
+			double supercoef = 1.0;
+			double sigma_z = (pAtm[i_top].z - pAtm[i_bottom].z) / 3.0;
+			supercoef = 2 * std::exp( -(pAtm[i].z - pAtm[i_bottom].z)*(pAtm[i].z - pAtm[i_bottom].z) / 2.0 / sigma_z/sigma_z );
+			pAtm[i].Nair = supercoef * pAtm[i].Nair;
+			pAtm[i].set_p_from_Nair_T();
 		}
 		std::cout << "# Modified Atmosphere\nz Nair p T" << std::endl;
 		for(int i=0; i<Nheights; i++){
 			std::cout << " " << pAtm[i].z << " " << pAtm[i].Nair << " " << pAtm[i].p << " " <<  pAtm[i].T << std::endl;
 		}
-		saveParamAtmosphere(PATH_ATMOSPHERE, pAtm, Nheights, atmosphere_precision);
+//		saveParamAtmosphere(PATH_ATMOSPHERE, pAtm, Nheights, atmosphere_precision);
 /* ==== */
 
 /* ==== prepare for wrapper ==== */
+//	args.pStdin = pStdin;
+	args.pAtm = pAtm;
 	args.dt = dt;
 	args.obs = obsds[obs_index];/* for fitting (and save) */
 	args.planet = earth;
 	args.satellite = himawari;
 	args.Nheights = Nheights;
+	args.atm_Nheights = Nheights;
 	args.heights = args.obs.Heights();/* for save */
 	args.on_ground = on_ground;/* for save */
 	args.tparr = tparr;/* tangential points */
@@ -223,19 +228,41 @@ int main(int argc, char *argv[]){
 	args.PATH_CONFIG = PATH_CONFIG;/* for save */
 	args.FLAG_UNDISPLAY_LOG = FLAG_UNDISPLAY_LOG;
 	args.DIR_LOG = DIR_LOG;
-	args.i_bottom = 30;/* for で高度検索 */
-	args.i_top = 60;/* for で高度検索 */
+	args.i_bottom = i_bottom;/* for で高度検索して決めても良い */
+	args.i_top = i_top;/* for で高度検索して決めても良い */
+	
 	args.TOA_height = obsds[obs_index].maxHeight();
 	args.offset_bottom_height = 94.9;/* for fit */
 	args.atmosphere_precision = atmosphere_precision;
 	args.secid = secid;/* for save */
 	args.obs_index = obs_index;/* for save */
+	args.N_running_mean = 3;/*移動平均*/
 /* ==== */
 /* MSISで求めた大気をNLoptの初期値に代入する。最小化する評価関数はwrapperとして実装するが、
 */
+	int running_mean_extra = args.N_running_mean / 2;/* ( N - 1 ) / 2 */
+	args.atm_i_bottom = args.i_bottom - running_mean_extra;	
+	args.atm_i_top    = args.i_top    + running_mean_extra;
+	int number_of_optimization_parameters = args.atm_i_top - args.atm_i_bottom + 1;
+
+	nlopt::opt opt( nlopt::LN_NELDERMEAD, number_of_optimization_parameters );
+	opt.set_min_objective( wrapper, (void*)(&args) ); 
+	opt.set_xtol_rel(1.0e-6);/* TODO */
+	std::vector<double> x(number_of_optimization_parameters, 0.0);/* 初期値 */
+	for(int i=0; i<number_of_optimization_parameters; i++){/* 初期化 */
+		x[i] = pAtm[i].Nair;
+	}
+	double minf;
+
+	try {
+		args.number_of_iteration = 0;
+		nlopt::result result = opt.optimize(x, minf);
+	} catch (std::exception &e){
+		std::cout << "NLopt failed : " << e.what() << std::endl;
+	}
 		
 			/* TODO ここで大気プロファイル決定、ループ開始 */
-		}	
+	}	
 
 //	delete[] radiance;
 	return 0;

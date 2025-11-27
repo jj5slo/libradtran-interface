@@ -1,6 +1,8 @@
 #include "fit.h"
 
 int main(int argc, char* argv[]){
+	double bottom_height = 29.5;
+	double top_height = 60.5;
 	if(argc != 4){
 		std::cerr << "Usage ./fit paths.txt OBS SIM" << std::endl;
 		return 1;
@@ -66,7 +68,7 @@ int main(int argc, char* argv[]){
 				double offset = fit::mean(Nlines, data, 95.0, 100.0);/* data[1] は 観測値 */
 				std::cout << offset << std::endl;
 
-				double* a_offset = fit::fitting_result(Nlines, data[0], data[OBS_COL], data[SIM_COL], 29.5, 60.5, offset, TYPE);
+				double* a_offset = fit::fitting_result(Nlines, data[0], data[OBS_COL], data[SIM_COL], bottom_height, top_height, offset, TYPE);
 				std::cout << "a = " << std::to_string(a_offset[0]) <<"\noffset = " << std::to_string(a_offset[1]) << std::endl;
 
 				double* fitted = fit::apply_fitting(Nlines, data[SIM_COL], a_offset);/* data[2] はシミュレーション値 */
@@ -87,7 +89,7 @@ int main(int argc, char* argv[]){
 				std::cout << std::endl;
 
 				/* ==== ファイルに保存 ==== */	
-				header = "# TYPE="+std::to_string(TYPE)+"\n# FITTING_COEFFICIENT: A="+std::to_string(a_offset[0])+", OFFSET="+std::to_string(a_offset[1])+"\n" + header + "#height observed simulated sim(fitted)\n";
+				header = "# TYPE="+std::to_string(TYPE)+"\n#top="+std::to_string(top_height)+", bottom="+std::to_string(bottom_height)+"# FITTING_COEFFICIENT: A="+std::to_string(a_offset[0])+", OFFSET="+std::to_string(a_offset[1])+"\n" + header + "#height observed simulated sim(fitted)\n";
 //				header = "# FITTED FOR OTHER DATA\n# TYPE="+std::to_string(TYPE)+"\n# FITTING_COEFFICIENT: A="+std::to_string(a_offset[0])+", OFFSET="+std::to_string(a_offset[1])+"\n" + header + "#height observed simulated sim(fitted)\n";
 				fit::save_data_and_result(path+"_fitted.dat", header, Nlines, Ncolumns, data, fitted);
 				/* ==== */

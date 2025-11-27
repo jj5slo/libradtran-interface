@@ -84,8 +84,9 @@ double fit::least_square_log_error(const std::vector <double> &Coef, std::vector
 	double logdiff = 0.0;
 	double a = 0.0;
 	a = Coef[0];
-	std::cout << "least_square_log_error: min_index=" << slep->min_index << " max_index=" << slep->max_index << std::endl;
+//	std::cout << "least_square_log_error: min_index=" << slep->min_index << " max_index=" << slep->max_index << std::endl << "a=" << a << std::endl;
 	for(int j=slep->min_index; j <= slep->max_index; j++){/* 対数の二乗誤差をとる */
+//		std::cout << slep->x[j] << " " << slep->y[j] << std::endl;
 		logdiff = std::log10(slep->x[j]) - std::log10(a * slep->y[j] + slep->offset);
 		err += logdiff*logdiff;
 		grad_err += (-2.0) * logdiff * slep->y[j] / (a*slep->y[j]+slep->offset);
@@ -99,5 +100,6 @@ double fit::least_square_log_error(const std::vector <double> &Coef, std::vector
 	if( !grad.empty() ){/* 微分を使わないアルゴリズムもある */
 		grad[0] = grad_err;
 	}
+//	std::cout << "err:" << err << std::endl;
 	return err;
 }
