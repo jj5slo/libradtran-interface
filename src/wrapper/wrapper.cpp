@@ -17,7 +17,7 @@
 
 
 double wrapper(const std::vector<double> &Coef, std::vector<double> &grad, void* raw_Args){
-	constexpr int ITERATION_LIMIT = 3000;
+	constexpr int ITERATION_LIMIT = 5000;
 	WrapperArgs* args = static_cast<WrapperArgs*>(raw_Args);
 //	std::cout <<std::endl<< args->Nheights;
 //	std::cout <<std::endl<< args->atm_Nheights;
@@ -54,7 +54,7 @@ double wrapper(const std::vector<double> &Coef, std::vector<double> &grad, void*
 		Nair_arr[i] = args->pAtm[i].Nair;
 	}
 	for(int i=args->atm_i_bottom; i<=args->atm_i_top; i++){/* TODO 一時的に、top_rad 以上は真値としている */
-		Nair_arr[i] = Coef[args->atm_i_top - i];/* 上から */
+		Nair_arr[i] = std::pow(10, Coef[i - args->atm_i_bottom]);/* Coef は対数 */
 	}
 	for(int i=args->atm_i_top+1; i<args->atm_Nheights; i++){
 		Nair_arr[i] = args->pAtm[i].Nair;
@@ -111,9 +111,10 @@ double wrapper(const std::vector<double> &Coef, std::vector<double> &grad, void*
 	}
 
 /* ==== saving results ==== */
+	std::string identifier = args->secid +"_"+ std::to_string(args->number_of_iteration);
 	std::cout << "saving results..." << std::endl;
-	std::string path_result = save_path(args->DIR_RESULT, args->secid, args->dt, args->obs_index + 1);
-	save_result(path_result, args->secid, args->on_ground, args->Nheights, args->heights, radiance);/* TODO 最適化を回し始めたらいらない */
+	std::string path_result = save_path(args->DIR_RESULT, identifier, args->dt, args->obs_index + 1);
+//	save_result(path_result, identifier, args->on_ground, args->Nheights, args->heights, radiance);/* TODO 最適化を回し始めたらいらない */
 	save_params(args->DIR_RESULT, args->secid, args->PATH_ATMOSPHERE, "_atm"+std::to_string(args->number_of_iteration)+".dat");/* atmosphereも保存しておく */
 	save_params(args->DIR_RESULT, args->secid, args->PATH_STDIN, "_stdin.txt");
 	save_params(args->DIR_RESULT, args->secid, args->PATH_CONFIG, "_config.conf");
@@ -141,11 +142,20 @@ double wrapper(const std::vector<double> &Coef, std::vector<double> &grad, void*
 		+ "# atm_i_bottom: " + std::to_string(args->atm_i_bottom) + ", atm_i_top: " + std::to_string(args->atm_i_top) + "\n"
 		+ "# a: " + std::to_string(a_offset[0]) + ", offset: " + std::to_string(a_offset[1]) + "\n"
 		+ "# N_running_mean: " + std::to_string(args->N_running_mean) + "\n";
-	fit::save_data(path_result+"_fitted.dat", header, args->Nheights,  5, fitted_results);
+	fit::save_data(path_result+"_fitted.dat", header, args->Nheights,  5, fitted_results);/* 最適化を回し始めたら不要、/tmp/に入れてもいいかも */
 	delete[] fitted_results;
 
 	double log_square_error = fit::root_mean_square_log_error( args->i_bottom, args->i_top, args->obs.Data(), smoothed );
 	
+	std::cerr << "wrapper: log_square_error = " << log_square_error << std::endl;
+	std::string path_save_lse = args->DIR_RESULT+"/log_square_error.dat";
+	std::ofstream save_lse (path_save_lse, std::ios::app);
+	if(!save_lse){
+		std::cerr << "wrapper: log_square_error cannot be saved!! path: " << path_save_lse << std::endl;
+	}
+	save_lse << args->number_of_iteration <<" "<< log_square_error << std::endl;
+	save_lse.close();
+
 //	double grad_err = 0;/* TODO(むり) */
 	args->number_of_iteration++;
 	if( args->number_of_iteration > ITERATION_LIMIT ){
@@ -157,6 +167,7 @@ double wrapper(const std::vector<double> &Coef, std::vector<double> &grad, void*
 		std::cerr << "wrapper: Can't calculate gradient!!" << std::endl;
 		throw nlopt::forced_stop();
 	}
+
 	return log_square_error;	
 }
 

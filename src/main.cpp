@@ -17,7 +17,7 @@
 constexpr double SUPERCOEFFICIENT {64};
 constexpr double BOTTOM_OF_BUFFER_HEIGHT { 0.0 - 1.0 - 0.5 };
 constexpr double TOP_OF_BUFFER_HEIGHT { 60.0 + 21.0 + 0.5 };/* 82 */
-constexpr int i_bottom {30};/* 誤差計算に含める最低 */
+constexpr int i_bottom {50};/* 誤差計算に含める最低 */
 constexpr int i_top {60};/* 誤差計算に含める最高 */
 char input;
 
@@ -64,7 +64,7 @@ if(argc == 6){
 
 /* ==== */
 
-	obsDateTime dt(YEAR, MONTH, DAY);/* 観測日 */
+	obsDateTime dt(YEAR, MONTH, DAY, HOUR_START, 0, 0);/* 観測日 *//* TODO HOUR */
 
 /* ==== id付け ==== */
 /* 現在時刻（シミュレーション開始時刻）を取得、保持 */
@@ -256,16 +256,19 @@ if(argc == 6){
 /* MSISで求めた大気をNLoptの初期値に代入する。最小化する評価関数はwrapperとして実装するが、
 */
 	int running_mean_extra = args.N_running_mean / 2;/* ( N - 1 ) / 2 */
-	args.atm_i_bottom = args.i_bottom - running_mean_extra;	
-	args.atm_i_top    = args.i_top    + running_mean_extra;
+
+	args.atm_i_bottom = args.i_bottom;// - running_mean_extra;	
+	args.atm_i_top    = args.i_top   ;// + running_mean_extra;
 	int number_of_optimization_parameters = args.atm_i_top - args.atm_i_bottom + 1;
 
 	nlopt::opt opt( nlopt::LN_NELDERMEAD, number_of_optimization_parameters );
 	opt.set_min_objective( wrapper, (void*)(&args) ); 
+	opt.set_lower_bounds(10);/* TODO */
 	opt.set_xtol_rel(1.0e-6);/* TODO */
+
 	std::vector<double> x(number_of_optimization_parameters, 0.0);/* 初期値 */
 	for(int i=args.atm_i_bottom; i<=args.atm_i_top; i++){/* 初期化 */
-		x[args.atm_i_top - i] = pAtm[i].Nair;/* 上から */
+		x[i - args.atm_i_bottom] = std::log10(pAtm[i].Nair);/* Coef は対数 */
 	}
 	double minf;
 
