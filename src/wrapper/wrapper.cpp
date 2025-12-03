@@ -162,6 +162,8 @@ double wrapper(const std::vector<double> &Coef, std::vector<double> &grad, void*
 		+ "# longitude: " + std::to_string(args->on_ground.longitude()) + "\n"
 		+ "# latitude: " + std::to_string(args->on_ground.latitude()) + "\n"
 		+ "# ld_alpha: " + std::to_string(ld_alpha) + "[rad] = " + std::to_string(ld_alpha*Rad2Deg) + "deg" + "\n"
+		+ "# sza_on_ground: " + std::to_string(args->sza_on_ground) +"\n"
+		+ "# phi0_on_ground: " + std::to_string(args->phi0_on_ground) + "\n"
 		+ "# i_bottom: " + std::to_string(args->i_bottom) + ", i_top: " + std::to_string(args->i_top) + "\n"
 		+ "# atm_i_bottom: " + std::to_string(args->atm_i_bottom) + ", atm_i_top: " + std::to_string(args->atm_i_top) + "\n"
 		+ "# a: " + std::to_string(a_offset[0]) + ", offset: " + std::to_string(a_offset[1]) + "\n"

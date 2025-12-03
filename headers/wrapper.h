@@ -48,6 +48,8 @@ public:
 	int              atm_Nheights;
 	double*          heights;/* for fitting and save */
 	Geocoordinate    on_ground;/* for save */
+	double           sza_on_ground;/* for save */
+	double           phi0_on_ground;/* for save */
 	Geocoordinate*   tparr;/* tangential points */
 	std::string      DIR_UVSPEC;
 	std::string      PATH_STDIN;
