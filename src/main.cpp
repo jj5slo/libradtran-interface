@@ -17,8 +17,8 @@
 constexpr double SUPERCOEFFICIENT {64};
 constexpr double BOTTOM_OF_BUFFER_HEIGHT { 0.0 - 1.0 - 0.5 };
 constexpr double TOP_OF_BUFFER_HEIGHT { 60.0 + 21.0 + 0.5 };/* 82 */
-constexpr int i_bottom {50};/* 誤差計算に含める最低 */
-constexpr int i_top {60};/* 誤差計算に含める最高 */
+constexpr int i_top {59};/* 誤差計算に含める最高 */
+constexpr int i_bottom {55};/* 誤差計算に含める最低 */
 char input;
 
 /* ==== main ==== */
@@ -103,6 +103,7 @@ if(argc == 6){
 	int mc_photons = getConfig(configs, "mc_photons", 60000);/* MYSTICの回数 デフォルトは300000 */
 
 	int atmosphere_precision = getConfig(configs, "atmosphere_precision", 7);/* MSISから取得する大気の保存時の精度 */
+	double XTOL_REL = getConfig(configs, "XTOL_REL", 1.0e-6);/* 最適化終了判定 */
 	
 //	DIR_UVSPEC
 
@@ -212,7 +213,7 @@ if(argc == 6){
 			double supercoef = 1.0;
 			double sigma_z = (pAtm[i_top].z - pAtm[i_bottom].z) / 3.0;
 			supercoef = 2 * std::exp( -(pAtm[i].z - pAtm[i_bottom].z)*(pAtm[i].z - pAtm[i_bottom].z) / 2.0 / sigma_z/sigma_z );
-			pAtm[i].Nair = supercoef * pAtm[i].Nair;
+			pAtm[i].Nair = std::pow(10.0, supercoef) * pAtm[i].Nair;
 			pAtm[i].set_p_from_Nair_T();
 		}
 		std::cout << "# Modified Atmosphere\nz Nair p T" << std::endl;
@@ -257,20 +258,35 @@ if(argc == 6){
 */
 	int running_mean_extra = args.N_running_mean / 2;/* ( N - 1 ) / 2 */
 
-	args.atm_i_bottom = args.i_bottom;// - running_mean_extra;	
+	args.atm_i_bottom = args.i_bottom - running_mean_extra;	
 	args.atm_i_top    = args.i_top   ;// + running_mean_extra;
-	int number_of_optimization_parameters = args.atm_i_top - args.atm_i_bottom + 1;
+
+/* ==== Optimize ==== */
+/* -- 各点 -- */
+//	int number_of_optimization_parameters = args.atm_i_top - args.atm_i_bottom + running_mean_extra;//1;//args.atm_i_top - args.atm_i_bottom + 1;
+//	std::vector<double> x(number_of_optimization_parameters, 0.0);/* 初期値 */
+//	for(int i=args.atm_i_bottom; i<=args.atm_i_top; i++){/* 初期化 */
+//		x[i - args.atm_i_bottom] = std::log10(pAtm[i].Nair);/* Coef は対数 */
+//	}
+/* -- 直線1つのみ -- */
+	int number_of_optimization_parameters = 1;
+	std::vector<double>x(number_of_optimization_parameters, -0.1);
+	x[0] = -0.1;/* 初期値 */
+/* -- 各点(下限を直上の層とする) -- */
+//	int number_of_optimization_parameters = args.atm_i_top - args.atm_i_bottom + running_mean_extra;//1;//args.atm_i_top - args.atm_i_bottom + 1;
+//	std::vector<double> x(number_of_optimization_parameters, 0.0);/* 初期値 */
+//	for(int i=args.atm_i_bottom; i<=args.atm_i_top; i++){/* 初期化 */
+//		x[i - args.atm_i_bottom] = std::log10(pAtm[i].Nair) - std::log10(pAtm[i-1].Nair);/* Coef は対数 */
+//		if(x[i - args.atm_i_bottom] > 0.0){ x[i - args.atm_i_bottom] = 0.0; }
+//	}
 
 	nlopt::opt opt( nlopt::LN_NELDERMEAD, number_of_optimization_parameters );
 	opt.set_min_objective( wrapper, (void*)(&args) ); 
-	opt.set_lower_bounds(10);/* TODO */
-	opt.set_xtol_rel(1.0e-6);/* TODO */
-
-	std::vector<double> x(number_of_optimization_parameters, 0.0);/* 初期値 */
-	for(int i=args.atm_i_bottom; i<=args.atm_i_top; i++){/* 初期化 */
-		x[i - args.atm_i_bottom] = std::log10(pAtm[i].Nair);/* Coef は対数 */
-	}
 	double minf;
+	opt.set_xtol_rel(XTOL_REL);/* TODO */
+//	opt.set_lower_bounds(10);/* TODO */
+	opt.set_upper_bounds(0.0);/* 必ず上が減少 */
+
 
 	try {
 		args.number_of_iteration = 0;
@@ -278,6 +294,16 @@ if(argc == 6){
 	} catch (std::exception &e){
 		std::cout << "NLopt failed : " << e.what() << std::endl;
 	}
+
+	std::string path_save_vector = args.DIR_RESULT+"/optimized_vector.dat";
+	std::ofstream save_vector (path_save_vector);
+	if(!save_vector){
+		std::cerr << "main: optimized vector_error cannot be saved!! path: " << path_save_vector << std::endl;
+	}
+	for(int i=0; i<number_of_optimization_parameters; i++){
+		save_vector << i <<" "<< x[i] << std::endl;
+	}
+	save_vector.close();
 		
 			/* TODO ここで大気プロファイル決定、ループ開始 */
 	}	

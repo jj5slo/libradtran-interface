@@ -50,15 +50,39 @@ double wrapper(const std::vector<double> &Coef, std::vector<double> &grad, void*
 	/* ==== setting atmosphere ==== */
 	std::cout << "setting atmosphere..." << std::endl;
 	double* Nair_arr = new double[args->atm_Nheights];
-	for(int i=0; i<args->atm_i_bottom; i++){
-		Nair_arr[i] = args->pAtm[i].Nair;
-	}
-	for(int i=args->atm_i_bottom; i<=args->atm_i_top; i++){/* TODO 一時的に、top_rad 以上は真値としている */
-		Nair_arr[i] = std::pow(10, Coef[i - args->atm_i_bottom]);/* Coef は対数 */
-	}
+/* -- 各点 -- */
+//	for(int i=0; i<args->atm_i_bottom; i++){
+//		Nair_arr[i] = args->pAtm[i].Nair;
+//	}
+//	for(int i=args->atm_i_bottom; i<=args->atm_i_top; i++){/* TODO 一時的に、top_rad 以上は真値としている */
+//		Nair_arr[i] = std::pow(10, Coef[i - args->atm_i_bottom]);/* Coef は対数 */
+//	}
+//	for(int i=args->atm_i_top+1; i<args->atm_Nheights; i++){
+//		Nair_arr[i] = args->pAtm[i].Nair;
+//	}
+/* -- 直線1つのみ -- */
 	for(int i=args->atm_i_top+1; i<args->atm_Nheights; i++){
 		Nair_arr[i] = args->pAtm[i].Nair;
 	}
+	for(int i=args->atm_i_bottom; i<=args->atm_i_top; i++){/* TODO 一時的に、top_rad 以上は真値としている */
+		Nair_arr[i] = args->pAtm[args->atm_i_top+1].Nair * std::pow(10, Coef[0]*(args->pAtm[i].z - args->pAtm[args->atm_i_top+1].z));/* Coef は対数の直線の傾き */
+	}
+	for(int i=0; i<args->atm_i_bottom; i++){
+		Nair_arr[i] = args->pAtm[i].Nair;
+	}
+/* -- 各点(下限を直上の層とする) -- */
+//	for(int i=0; i<args->atm_i_bottom; i++){
+//		Nair_arr[i] = args->pAtm[i].Nair;
+//	}
+//	for(int i=args->atm_i_bottom; i<=args->atm_i_top; i++){/* TODO 一時的に、top_rad 以上は真値としている */
+//		Nair_arr[i] = std::pow(10, Coef[i - args->atm_i_bottom]) * Nair_arr[i-1];/* Coef は対数 */
+//	}
+//	for(int i=args->atm_i_top+1; i<args->atm_Nheights; i++){
+//		Nair_arr[i] = args->pAtm[i].Nair;
+//	}
+
+
+
 	args->pAtm = Nair_to_atmosphere(
 		args->atm_Nheights,
 		args->dt,
@@ -121,8 +145,8 @@ double wrapper(const std::vector<double> &Coef, std::vector<double> &grad, void*
 /* ==== */
 /* ==== fitting results ==== */
 	std::cout << "fitting results..." << std::endl;
-	double offset = fit::mean(args->Nheights, args->heights, args->obs.Data(), args->offset_bottom_height, args->TOA_height);
-	double* a_offset = fit::obtain_fitting_coefficient(args->obs.Data(), radiance, args->i_bottom, args->i_top, offset);
+	double offset = fit::mean(args->Nheights, args->heights, args->obs.Data(), args->offset_bottom_height, 99.1);// TODO NOW args->TOA_height); /* TODO TODO 観測値からオフセットをとる場合は、90 km - 100 km の 11点程度でやる!!! TODO TODO */
+	double* a_offset = fit::obtain_fitting_coefficient(args->obs.Data(), radiance, args->i_bottom, /*args->Nheights-1*/args->i_top, offset);/* TODO NOW i_top までではなく、TOAまでフィッティングしてみるみない */
 	double* fitted = fit::apply_fitting(args-> Nheights, radiance, a_offset);
 	double* smoothed = fit::running_mean_log(args->Nheights, args->N_running_mean, fitted);/* 3 は移動平均をとる数 */
 	double** fitted_results = new double* [5];
@@ -141,7 +165,8 @@ double wrapper(const std::vector<double> &Coef, std::vector<double> &grad, void*
 		+ "# i_bottom: " + std::to_string(args->i_bottom) + ", i_top: " + std::to_string(args->i_top) + "\n"
 		+ "# atm_i_bottom: " + std::to_string(args->atm_i_bottom) + ", atm_i_top: " + std::to_string(args->atm_i_top) + "\n"
 		+ "# a: " + std::to_string(a_offset[0]) + ", offset: " + std::to_string(a_offset[1]) + "\n"
-		+ "# N_running_mean: " + std::to_string(args->N_running_mean) + "\n";
+		+ "# N_running_mean: " + std::to_string(args->N_running_mean) + "\n"
+		+ "# height observed sumulated fitted smoothed\n";
 	fit::save_data(path_result+"_fitted.dat", header, args->Nheights,  5, fitted_results);/* 最適化を回し始めたら不要、/tmp/に入れてもいいかも */
 	delete[] fitted_results;
 

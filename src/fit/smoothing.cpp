@@ -20,6 +20,10 @@ double* fit::running_mean(int Nlines, int Nmean, double* data){
 		}
 		result[i] = result[i] / (double)Nmean;
 	}
+	for(int i=0; i<width; i++){
+		result[i] = data[i];
+		result[Nlines-1 - i] = data[i];
+	}/* 端は元の値そのまま */
 	return result;
 }
 double* fit::running_mean_log(int Nlines, int Nmean, double* data){
