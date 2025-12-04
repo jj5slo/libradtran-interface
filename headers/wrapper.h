@@ -106,14 +106,15 @@ public:
 
 double wrapper(const std::vector<double> &Coef, std::vector<double> &grad, void* raw_Args_to_be_converted_to_WrapperArgs_pointer);/* for NLopt */
 /* wrapper では、輝度計算と観測光強度にフィッティング・誤差の算出以外に、各高度に対するセンサ向きの設定を行う必要がある。更新する入力ファイルは大気プロファイルと、標準入力。 */
+double core(void* raw_Args_to_be_converted_to_WrapperArgs_pointer);/* 単純に今の設定ファイルで一回実行するだけ */
 
-double acquire_radiance(
-	const std::string DIR_UVSPEC,
-	const std::string PATH_STDIN,
-	const std::string PATH_STDOUT,
-	const int FLAG_UNDISPLAY_LOG,
-	const std::string solver
-);
+//double acquire_radiance(
+//	const std::string DIR_UVSPEC,
+//	const std::string PATH_STDIN,
+//	const std::string PATH_STDOUT,
+//	const int FLAG_UNDISPLAY_LOG,
+//	const std::string solver
+//);
 
 ParamAtmosphere* Nair_to_atmosphere(
 	int atm_Nheights,

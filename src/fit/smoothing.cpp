@@ -22,7 +22,7 @@ double* fit::running_mean(int Nlines, int Nmean, double* data){
 	}
 	for(int i=0; i<width; i++){
 		result[i] = data[i];
-		result[Nlines-1 - i] = data[i];
+		result[Nlines-1 - i] = data[Nlines-1 - i];
 	}/* 端は元の値そのまま */
 	return result;
 }

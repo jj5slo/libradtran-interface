@@ -45,7 +45,7 @@ public:
 };
 
 
-class ParamAtmosphere{/* libRadtranの大気プロファイルに設定できる諸量 */
+class ParamAtmosphere{/* libRadtranの大気プロファイルに設定できる諸量。配列にして使う。 */
 private:
 	int p_NoPs = 9; /* パラメタの数 */
 public:
@@ -69,6 +69,7 @@ public:
 	void set_p_from_Nair_T(void);/* Nair, T から状態方程式で p を設定し直す */
 
 };
+ParamAtmosphere* readParamAtmosphere(std::string filename, int& Nlines);
 
 
 /* interface_stdin.cpp */

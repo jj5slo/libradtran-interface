@@ -14,12 +14,8 @@
 #include "read_config.h"
 #include "wrapper.h"
 
-constexpr double SUPERCOEFFICIENT {64};
-constexpr double BOTTOM_OF_BUFFER_HEIGHT { 0.0 - 1.0 - 0.5 };
-constexpr double TOP_OF_BUFFER_HEIGHT { 60.0 + 21.0 + 0.5 };/* 82 */
-constexpr int i_top    {59};/* 全体のどこかでは誤差計算に含める */
-constexpr int i_bottom {30};
-constexpr int N_linear_atm {5}; /* この範囲の点数では数密度は指数的に変化するものとする(これごとに分割してもとめる) */
+constexpr int i_top    {100 - 1};/* 全体のどこかでは誤差計算に含める */
+constexpr int i_bottom {0 + 1};
 char input;
 
 /* ==== main ==== */
@@ -31,6 +27,7 @@ char input;
 /* ==== */
 
 
+double core(void* raw_Args);
 int main(int argc, char *argv[]){
 /* ==== 引数処理 ==== */
 	int YEAR;
@@ -102,7 +99,6 @@ if(argc == 6){
 	int mc_photons = getConfig(configs, "mc_photons", 60000);/* MYSTICの回数 デフォルトは300000 */
 
 	int atmosphere_precision = getConfig(configs, "atmosphere_precision", 7);/* MSISから取得する大気の保存時の精度 */
-	double XTOL_REL = getConfig(configs, "XTOL_REL", 1.0e-6);/* 最適化終了判定 */
 	
 //	DIR_UVSPEC
 
@@ -198,134 +194,64 @@ if(argc == 6){
 		std::cout << "ld_alpha : " <<  ld_alpha << std::endl;
 		std::cout << "sza_on_ground : " <<  sza_on_ground << std::endl;
 		std::cout << "phi0_on_ground : " <<  phi0_on_ground << std::endl;
-
-/* ==== MSIS ==== */
-
 		Geocoordinate *tparr = new Geocoordinate[Nheights];
 		LookingDirection ld;
 		for(int i=0; i<Nheights; i++){
 			ld.set( ld_alpha, heights[i]/m2km );/* 見る場所決め */
 			tparr[i] = ld.tangential_point( earth, himawari);/* tangential point の配列 */
 		}
-		ParamAtmosphere *pAtm = get_msis(dt, tparr, Nheights);/* tangential point でのMSIS大気から求めたパラメタを取得 */
-		std::cout << "# MSIS\nz Nair p T" << std::endl;
-		for(int i=0; i<Nheights; i++){
-			std::cout << " " << pAtm[i].z << " " << pAtm[i].Nair << " " << pAtm[i].p << " " <<  pAtm[i].T << std::endl;
+/* ==== atmosphere読み込み（今のところ使わない） ==== */
+		args.pAtm = readParamAtmosphere(PATH_ATMOSPHERE, args.Nheights);
+		args.heights = new double[args.Nheights];
+		for(int i=0; i<args.Nheights; i++){
+			args.heights[i] = args.pAtm[i].z;
 		}
-		for(int i=i_bottom; i<=i_top; i++){/* TODO NOW MSISから考えている高度範囲だけはずらした上で最適化で戻るかどうか */
-//			double supercoef = 1.0;
-//			double sigma_z = (pAtm[i_top].z - pAtm[i_bottom].z) / 3.0;
-//			supercoef = 2 * std::exp( -(pAtm[i].z - pAtm[i_bottom].z)*(pAtm[i].z - pAtm[i_bottom].z) / 2.0 / sigma_z/sigma_z );
-			double super_inv_10_scaleheight = 0.1;
-			pAtm[i].Nair = pAtm[i_top+1].Nair * std::pow(10.0, -super_inv_10_scaleheight * (pAtm[i].z - pAtm[i_top+1].z));
-			pAtm[i].set_p_from_Nair_T();
-		}
-		std::cout << "# Modified Atmosphere\nz Nair p T" << std::endl;
-		for(int i=0; i<Nheights; i++){
-			std::cout << " " << pAtm[i].z << " " << pAtm[i].Nair << " " << pAtm[i].p << " " <<  pAtm[i].T << std::endl;
-		}
-		
-//		saveParamAtmosphere(PATH_ATMOSPHERE, pAtm, Nheights, atmosphere_precision);
-		args.pAtm           = pAtm;/* 最初だけ初期値 */
-/* ==== */
 
-/* ==== 上から求める ==== */
-		int N_repeating_optimization = ((i_top - i_bottom) + N_linear_atm-1) / N_linear_atm;/* 切り上げ除算 *//* 最適化を走らせる回数 */
-		double* inv_10_scaleheights = new double[N_repeating_optimization];/* 最適化して求めた係数を保存する */
-		for(int i_stage=0; i_stage<N_repeating_optimization; i_stage++){
-			int i_top_opt = i_top - i_stage*N_linear_atm;
-			int i_bottom_opt = i_top_opt - N_linear_atm+1;
-			if( i_bottom_opt < i_bottom ){ i_bottom_opt = i_bottom; }
-			
-			args.DIR_RESULT = DIR_RESULT+"/"+std::to_string(i_stage);/* for save */
-			std::cout << "create_directory " << args.DIR_RESULT << std::endl;
-			std::filesystem::create_directory(args.DIR_RESULT);
-			args.secid                = secid+"_"+std::to_string(i_stage);/* for save */
+/* ==== 求める ==== */
+		args.secid = secid;	
+		args.DIR_RESULT = DIR_RESULT+"/run_once";/* for save */
+		std::cout << "create_directory " << args.DIR_RESULT << std::endl;
+		std::filesystem::create_directory(args.DIR_RESULT);
+	/* ==== prepare for wrapper ==== */
+	//	args.pStdin = pStdin;
+		args.dt             = dt;
+		args.obs            = obsds[obs_index];/* for fitting (and save) */
+		args.planet         = earth;
+		args.satellite      = himawari;
+		args.Nheights       = Nheights;
+		args.atm_Nheights   = Nheights;
+		args.heights        = args.obs.Heights();/* for save */
+		args.on_ground      = on_ground;/* for save */
+		args.sza_on_ground  = sza_on_ground;/* for save */
+		args.phi0_on_ground = phi0_on_ground;/* for save */
+		args.tparr          = tparr;/* tangential points */
+		args.DIR_UVSPEC      = DIR_UVSPEC;
+		args.PATH_STDIN      = PATH_STDIN;
+		args.PATH_STDOUT     = PATH_STDOUT;
+		args.PATH_ATMOSPHERE = PATH_ATMOSPHERE;
+		args.PATH_CONFIG     = PATH_CONFIG;/* for save */
+		args.FLAG_UNDISPLAY_LOG = FLAG_UNDISPLAY_LOG;
+		args.DIR_LOG            = DIR_LOG;
+		args.i_bottom           = i_bottom;/* 誤差計算に含める最高 */
+		args.i_top              = i_top;   /* 誤差計算に含める最低 */
+		
+		args.TOA_height           = obsds[obs_index].maxHeight();
+		args.offset_bottom_height = 94.9;/* for fit *//* TODO TODO 89.9にする */
+		args.atmosphere_precision = atmosphere_precision;
+		args.obs_index            = obs_index;/* for save */
+		args.N_running_mean       = 3;/*移動平均*/
+	/* ==== */
+	/* MSISで求めた大気をNLoptの初期値に代入する。最小化する評価関数はwrapperとして実装するが、
+	*/
+		int running_mean_extra = args.N_running_mean / 2;/* ( N - 1 ) / 2 */
 	
-		/* ==== prepare for wrapper ==== */
-		//	args.pStdin = pStdin;
-			args.dt             = dt;
-			args.obs            = obsds[obs_index];/* for fitting (and save) */
-			args.planet         = earth;
-			args.satellite      = himawari;
-			args.Nheights       = Nheights;
-			args.atm_Nheights   = Nheights;
-			args.heights        = args.obs.Heights();/* for save */
-			args.on_ground      = on_ground;/* for save */
-			args.sza_on_ground  = sza_on_ground;/* for save */
-			args.phi0_on_ground = phi0_on_ground;/* for save */
-			args.tparr          = tparr;/* tangential points */
-			args.DIR_UVSPEC      = DIR_UVSPEC;
-			args.PATH_STDIN      = PATH_STDIN;
-			args.PATH_STDOUT     = PATH_STDOUT;
-			args.PATH_ATMOSPHERE = PATH_ATMOSPHERE;
-			args.PATH_CONFIG     = PATH_CONFIG;/* for save */
-			args.FLAG_UNDISPLAY_LOG = FLAG_UNDISPLAY_LOG;
-			args.DIR_LOG            = DIR_LOG;
-			args.i_bottom           = i_bottom_opt;/* 誤差計算に含める最高 */
-			args.i_top              = i_top_opt;   /* 誤差計算に含める最低 */
-			
-			args.TOA_height           = obsds[obs_index].maxHeight();
-			args.offset_bottom_height = 94.9;/* for fit *//* TODO TODO 89.9にする */
-			args.atmosphere_precision = atmosphere_precision;
-			args.obs_index            = obs_index;/* for save */
-			args.N_running_mean       = 3;/*移動平均*/
-		/* ==== */
-		/* MSISで求めた大気をNLoptの初期値に代入する。最小化する評価関数はwrapperとして実装するが、
-		*/
-			int running_mean_extra = args.N_running_mean / 2;/* ( N - 1 ) / 2 */
-		
-			args.atm_i_bottom = args.i_bottom - running_mean_extra;	
-			args.atm_i_top    = args.i_top   ;// + running_mean_extra;
-		
-		/* ==== Optimize ==== */
-		/* -- 各点 -- */
-		//	int number_of_optimization_parameters = args.atm_i_top - args.atm_i_bottom + running_mean_extra;//1;//args.atm_i_top - args.atm_i_bottom + 1;
-		//	std::vector<double> x(number_of_optimization_parameters, 0.0);/* 初期値 */
-		//	for(int i=args.atm_i_bottom; i<=args.atm_i_top; i++){/* 初期化 */
-		//		x[i - args.atm_i_bottom] = std::log10(pAtm[i].Nair);/* Coef は対数 */
-		//	}
-		/* -- 直線1つのみ -- */
-			int number_of_optimization_parameters = 1;
-			std::vector<double>x(number_of_optimization_parameters, -0.1);
-			x[0] = -0.1;/* 初期値 */
-		/* -- 各点(下限を直上の層とする) -- */
-		//	int number_of_optimization_parameters = args.atm_i_top - args.atm_i_bottom + running_mean_extra;//1;//args.atm_i_top - args.atm_i_bottom + 1;
-		//	std::vector<double> x(number_of_optimization_parameters, 0.0);/* 初期値 */
-		//	for(int i=args.atm_i_bottom; i<=args.atm_i_top; i++){/* 初期化 */
-		//		x[i - args.atm_i_bottom] = std::log10(pAtm[i].Nair) - std::log10(pAtm[i-1].Nair);/* Coef は対数 */
-		//		if(x[i - args.atm_i_bottom] > 0.0){ x[i - args.atm_i_bottom] = 0.0; }
-		//	}
-		
-			nlopt::opt opt( nlopt::LN_NELDERMEAD, number_of_optimization_parameters );
-			opt.set_min_objective( wrapper, (void*)(&args) ); 
-			double minf;
-			opt.set_xtol_rel(XTOL_REL);/* TODO */
-		//	opt.set_lower_bounds(10);/* TODO */
-			opt.set_upper_bounds(0.0);/* 必ず上が減少 */
-		
-		
-			try {
-				args.number_of_iteration = 0;
-				nlopt::result result = opt.optimize(x, minf);
-			} catch (std::exception &e){
-				std::cout << "NLopt failed : " << e.what() << std::endl;
-			}
-			inv_10_scaleheights[i_stage] = x[0];
-		}	
+		args.atm_i_bottom = args.i_bottom - running_mean_extra;	
+		args.atm_i_top    = args.i_top   ;// + running_mean_extra;
+	
+		double lerr = core((void*)(&args));
 
-		std::string path_save_vector = args.DIR_RESULT+"/optimized_vector.dat";
-		std::ofstream save_vector (path_save_vector);
-		if(!save_vector){
-			std::cerr << "main: optimized vector_error cannot be saved!! path: " << path_save_vector << std::endl;
-		}
-		for(int i=0; i<N_repeating_optimization; i++){
-//			for(number_of_optimization_parameters)
-			save_vector << i <<" "<< inv_10_scaleheights[i] << std::endl;
-		}
-		save_vector.close();
-	}	
-
+		std::cerr << "lerr: " << lerr << std::endl;
+	}
 //	delete[] radiance;
 	return 0;
 }
