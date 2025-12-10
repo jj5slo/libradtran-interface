@@ -45,7 +45,7 @@ double wrapper(const std::vector<double> &Coef, std::vector<double> &grad, void*
 	const int i_bottom_rad = args->i_bottom - running_mean_extra;
 	const int i_top_rad = args->i_top + running_mean_extra;
 	
-	std::cerr << "Iteration " << args->number_of_iteration << "th time" << std::endl;
+	std::cerr << args->secid <<" Iteration " << args->number_of_iteration << "th time" << std::endl;
 
 	/* ==== setting atmosphere ==== */
 	std::cout << "setting atmosphere..." << std::endl;

@@ -42,8 +42,8 @@ double core(void* raw_Args){
 //	std::cout <<std::endl<< args->number_of_iteration;/* NLopt */
 //	std::cout << std::endl;
 	const int running_mean_extra = args->N_running_mean / 2;/* ( N - 1 ) / 2 */
-	const int i_bottom_rad = args->i_bottom - running_mean_extra;
-	const int i_top_rad = args->i_top + running_mean_extra;
+	const int i_bottom_rad = args->i_bottom - running_mean_extra - 1;
+	const int i_top_rad = args->i_top + running_mean_extra + 1;
 	
 	std::cerr << "core: running libRadtran once." << std::endl;
 
@@ -89,7 +89,7 @@ double core(void* raw_Args){
 	}
 
 /* ==== saving results ==== */
-	std::string identifier = args->secid +"_"+ std::to_string(args->number_of_iteration);
+	std::string identifier = args->secid;// +"_"+ std::to_string(args->number_of_iteration);
 	std::cout << "saving results..." << std::endl;
 	std::string path_result = save_path(args->DIR_RESULT, identifier, args->dt, args->obs_index + 1);
 //	save_result(path_result, identifier, args->on_ground, args->Nheights, args->heights, radiance);/* TODO 最適化を回し始めたらいらない */

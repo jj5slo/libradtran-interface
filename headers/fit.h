@@ -22,32 +22,33 @@ namespace fit
 	/* ---- obtain_fitting_coefficient.cpp ---- */
 	double* obtain_fitting_coefficient(double* obs, double* sim, int min_index, int max_index, double offset);/* leastsquare (a only) via logarithm */
 	/* ---- */
-
-	/* ---- fit_result.cpp ---- */	
-	constexpr int LS = 0; /* そのまま最小二乗法 */
-	constexpr int LS_OFFSET = 1;/* オフセットは与えたものを使って a だけ最小二乗法 */
-	constexpr int LOG = 2; /* 対数の差の二乗が最小になるように ay+b の aとbを決める。実態はNLOptで最適化。 */
-	
-	double* fitting_result(
-		int Ndata, 
-		double* height, 
-		double* obs, 
-		double* sim, 
-		double min_height, 
-		double max_height, 
-		double offset, 
-		int TYPE
-	);/* 観測(フィッティング先)データ, シミュレーション(被フィッティング)データ, フィッティングに使用する最小高度, 最大高度, オフセット, フィッティングの種類 */
-	double* fitting_result(
-		double* obs, 
-		double* sim, 
-		int min_index, 
-		int max_index, 
-		double offset, 
-		int TYPE
-	);
-	//	double* fitting_result(std::string path, double min_height, double max_height, double offset, int TYPE, int* Ndata); /* saveで作ったファイルから読み込む. ファイルに保存もする */
-	/* ---- */
+/* 破棄予定 */
+			/* ---- fit_result.cpp ---- */	
+			constexpr int LS = 0; /* そのまま最小二乗法 */
+			constexpr int LS_OFFSET = 1;/* オフセットは与えたものを使って a だけ最小二乗法 */
+			constexpr int LOG = 2; /* 対数の差の二乗が最小になるように ay+b の aとbを決める。実態はNLOptで最適化。 */
+			
+			double* fitting_result(
+				int Ndata, 
+				double* height, 
+				double* obs, 
+				double* sim, 
+				double min_height, 
+				double max_height, 
+				double offset, 
+				int TYPE
+			);/* 観測(フィッティング先)データ, シミュレーション(被フィッティング)データ, フィッティングに使用する最小高度, 最大高度, オフセット, フィッティングの種類 */
+			double* fitting_result(
+				double* obs, 
+				double* sim, 
+				int min_index, 
+				int max_index, 
+				double offset, 
+				int TYPE
+			);
+			//	double* fitting_result(std::string path, double min_height, double max_height, double offset, int TYPE, int* Ndata); /* saveで作ったファイルから読み込む. ファイルに保存もする */
+			/* ---- */
+/*    */
 	/* ---- apply_fitting.cpp ---- */
 	double* apply_fitting(int Ndata, double* data, double* a_offset);
 	/* ---- */

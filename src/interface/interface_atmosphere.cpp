@@ -15,7 +15,7 @@
 
 //constexpr int PREC {6};
 
-void saveParamAtmosphere(std::string filename, ParamAtmosphere *params, int Nlines, int Ndecimal){/* ParamAtmosphere からファイルを作る関数 */
+void saveParamAtmosphere(std::string filename, ParamAtmosphere *params, int Nlines, int Ndecimal){/* ParamAtmosphere からファイルを作る関数 *//* TODO セーブ前にソート */
 	int NoPs = params[0].NoPs();
 	double** data = AndoLab::allocate_memory2d(Nlines, NoPs, 0.0);
 	for(int i=0; i<Nlines; i++){
@@ -67,15 +67,19 @@ ParamAtmosphere* readParamAtmosphere(std::string path, int& Nlines){
 			std::istringstream iss_read(line);
 			std::string token;
 			iss_read >> token;/* 1 */
-			pAtm[line_index].z = std::stod(token);
+			pAtm[Nlines-1 - line_index].z = std::stod(token);
 			iss_read >> token;/* 2 */
-			pAtm[line_index].p = std::stod(token);
+			pAtm[Nlines-1 - line_index].p = std::stod(token);
 			iss_read >> token;/* 3 */
-			pAtm[line_index].T = std::stod(token);
+			pAtm[Nlines-1 - line_index].T = std::stod(token);
 			iss_read >> token;/* 4 */
-			pAtm[line_index].Nair = std::stod(token);
+			pAtm[Nlines-1 - line_index].Nair = std::stod(token);
 			line_index++;
 		}
+/*		ParamAtmosphere tmp = tmp_pAtm[0];
+		for(int i=0; i<Nlines; i++){
+			if(tmp.z < tmp_pAtm[j]
+*/
 	}
 	ifs.close();
 	return pAtm;/* don't forget deallocation */

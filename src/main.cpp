@@ -17,9 +17,10 @@
 constexpr double SUPERCOEFFICIENT {64};
 constexpr double BOTTOM_OF_BUFFER_HEIGHT { 0.0 - 1.0 - 0.5 };
 constexpr double TOP_OF_BUFFER_HEIGHT { 60.0 + 21.0 + 0.5 };/* 82 */
-constexpr int i_top    {59};/* 全体のどこかでは誤差計算に含める */
-constexpr int i_bottom {30};
+constexpr int i_top    {64};/* 全体のどこかでは誤差計算に含める */
+constexpr int i_bottom {35};
 constexpr int N_linear_atm {5}; /* この範囲の点数では数密度は指数的に変化するものとする(これごとに分割してもとめる) */
+constexpr double super_inv_10_scaleheight = 0.03;
 char input;
 
 /* ==== main ==== */
@@ -117,7 +118,7 @@ if(argc == 6){
 	PATH_ATMOSPHERE = "/home/sano/SANO/research/estimate-profile/atmmod-temporary/msis-atm.dat";
 */
 /* ==== 保存先ディレクトリ作成 ==== */
-	std::cout << "create_directory " << DIR_RESULT << std::endl;
+	std::cerr << "create_directory " << DIR_RESULT << std::endl;
 	std::filesystem::create_directory(DIR_RESULT);
 
 	if(DEBUG){ std::cin >> input; }
@@ -142,7 +143,7 @@ if(argc == 6){
 		double** otehon = fit::read_result("/lhome/sano2/SANO/research/estimate-profile/Result/Result-11-W5/for_optimize/plain_msis.dat", otehon_header, otehon_lines, otehon_columns);
 		std::cout << "Read Otehon." << std::endl;
 		Observed *obsds = new Observed[obs_index + 1];
-		obsds[obs_index].set(73.0, 82.0, otehon_lines, otehon[0], otehon[4]);
+		obsds[obs_index].set(73.0, 82.0, otehon_lines, otehon[0], otehon[4]);/* TODO TODO TODO HARD CODING !!! */
 		
 		for(int i=0; i<otehon_lines; i++){
 			std::cout << otehon[0][i] <<" "<< obsds[obs_index].Data()[i] << std::endl;
@@ -216,7 +217,6 @@ if(argc == 6){
 //			double supercoef = 1.0;
 //			double sigma_z = (pAtm[i_top].z - pAtm[i_bottom].z) / 3.0;
 //			supercoef = 2 * std::exp( -(pAtm[i].z - pAtm[i_bottom].z)*(pAtm[i].z - pAtm[i_bottom].z) / 2.0 / sigma_z/sigma_z );
-			double super_inv_10_scaleheight = 0.1;
 			pAtm[i].Nair = pAtm[i_top+1].Nair * std::pow(10.0, -super_inv_10_scaleheight * (pAtm[i].z - pAtm[i_top+1].z));
 			pAtm[i].set_p_from_Nair_T();
 		}
@@ -288,7 +288,7 @@ if(argc == 6){
 		/* -- 直線1つのみ -- */
 			int number_of_optimization_parameters = 1;
 			std::vector<double>x(number_of_optimization_parameters, -0.1);
-			x[0] = -0.1;/* 初期値 */
+			x[0] = -super_inv_10_scaleheight;/* 初期値 initial value */
 		/* -- 各点(下限を直上の層とする) -- */
 		//	int number_of_optimization_parameters = args.atm_i_top - args.atm_i_bottom + running_mean_extra;//1;//args.atm_i_top - args.atm_i_bottom + 1;
 		//	std::vector<double> x(number_of_optimization_parameters, 0.0);/* 初期値 */

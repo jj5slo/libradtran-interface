@@ -16,6 +16,7 @@ private:
 public:
 	/* Observed.cpp */
 	void set(double lat, double lon, int Nheights, double *heights, double *data);
+	void set(double lat, double lon, int Nheights);
 	double Latitude(void);
 	double Longitude(void);
 	double* Heights(void);/* [km] */

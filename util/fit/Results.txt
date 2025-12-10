@@ -1,1 +1,4 @@
-../../../Result/Result-11-W4/smoothing/smooth_to_fit/result_20220601_030000_a014.6_35__id1762935887.dat_runningmean.dat
+/lhome/sano2/SANO/research/estimate-profile/Result/Result-12-W1/for_optimize/60_to_30/merged/full-fittedto-1_99/N10/1765112969/run_once/result_20220601_030000_36__id1765112969_-1768898912.dat_fitted.dat_fitted.dat
+/lhome/sano2/SANO/research/estimate-profile/Result/Result-12-W1/for_optimize/60_to_30/merged/full-fittedto-1_99/N10/1765113014/run_once/result_20220601_030000_36__id1765113014_-1893458272.dat_fitted.dat_fitted.dat
+/lhome/sano2/SANO/research/estimate-profile/Result/Result-12-W1/for_optimize/60_to_30/merged/full-fittedto-1_99/N10/1765113068/run_once/result_20220601_030000_36__id1765113068_0.dat_fitted.dat_fitted.dat
+/lhome/sano2/SANO/research/estimate-profile/Result/Result-12-W1/for_optimize/60_to_30/merged/full-fittedto-1_99/N5/1765113327/run_once/result_20220601_030000_36__id1765113327_0.dat_fitted.dat_fitted.dat

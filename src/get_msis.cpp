@@ -228,7 +228,7 @@ double get_msis_average_molecular_weight(obsDateTime dt, Geocoordinate coord){
 }
 
 
-double get_msis_average_molecular_weight(/* 全質量密度を返す */
+double get_msis_average_molecular_weight(/* 平均分子量を返す */
 	obsDateTime dt, Geocoordinate coord1, Geocoordinate coord2
 ){
 	Geocoordinate coord ( coord1.planet(), coord1.satellite(), ( coord1.r() + coord2.r() ) / 2.0 );

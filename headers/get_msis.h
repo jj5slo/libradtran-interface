@@ -21,5 +21,5 @@ double get_msis_total_mass_density(/* 全質量密度を返す */
 	obsDateTime dt, Geocoordinate coord1, Geocoordinate coord2);
 double get_msis_average_molecular_weight(/* 平均分子量を返す */
 	obsDateTime dt, Geocoordinate coord);
-double get_msis_average_molecular_weight(/* 全質量密度を返す */
+double get_msis_average_molecular_weight(/* 平均分子量を返す */
 	obsDateTime dt, Geocoordinate coord1, Geocoordinate coord2);

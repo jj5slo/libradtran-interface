@@ -1,0 +1,1 @@
+wrapperargsを開放しているのに、Observedのでコンストラクタがないのが問題。

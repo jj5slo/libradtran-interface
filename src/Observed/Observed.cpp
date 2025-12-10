@@ -9,6 +9,15 @@ void Observed::set(double lat, double lon, int Nheights, double *heights, double
 	pData = new double[Nheights];
 	for(int i=0; i<Nheights; i++){ pData[i] = data[i]; }
 }
+void Observed::set(double lat, double lon, int Nheights){
+	pLat = lat;
+	pLon = lon;
+	pNheights = Nheights;
+	pHeights = new double[Nheights];
+	for(int i=0; i<Nheights; i++){ pHeights[i] = i*1.0; }
+	pData = new double[Nheights];
+	for(int i=0; i<Nheights; i++){ pData[i] = 0.0; }
+}
 
 double Observed::Latitude(void){
 	return pLat;

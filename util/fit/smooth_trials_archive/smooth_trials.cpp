@@ -1,4 +1,4 @@
-#include "../fit.h"
+#include "fit.h"
 
 
 int main(int argc, char* argv[]){

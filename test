@@ -1,0 +1,8 @@
+ERROR, pressure, temperature, and air density not
+                  consistent with ideal gas law at the following levels
+                  (assuming a Boltzmann constant 1.380649e-23):
+    z [km]  density [cm-3]  p/kT [cm-3]  difference  press[hPa]  T[K]
+     32.50  4.6073e+18      4.5395e+18       1.5%     37.15133    59.277
+*** Please check pressure, temperature, and air density in
+*** /lhome/sano2/SANO/research/estimate-profile/Result/Result-12-W1/for_optimize/60_to_30/N5/1764827900/4/1764827900_4_atm0.dat for consistency!
+
