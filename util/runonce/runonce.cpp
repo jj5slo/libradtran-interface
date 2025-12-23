@@ -14,8 +14,6 @@
 #include "read_config.h"
 #include "wrapper.h"
 
-constexpr int i_top    {64};
-constexpr int i_bottom {35};
 char input;
 
 /* ==== main ==== */
@@ -89,6 +87,9 @@ if(argc == 6){
 	std::string PATH_ATMOSPHERE = getConfig(configs, "PATH_ATMOSPHERE", std::string(std::getenv("HOME"))+"/SANO/research/LIBRARIES/libradtran/libRadtran-2.0.6/data/atmmod/afglus.dat");/* libRadtranに渡す大気ファイル */
 	
 	double wavelength = getConfig(configs, "wavelength", 470.0);/* 波長 [nm]. TODO 決まっているので指定方法を変える */
+	int i_top = getConfig(configs, "i_top", 64);/* 数密度を求める最高高度（index） */
+	int i_bottom = getConfig(configs, "i_bottom", 60);/* 数密度を求める最低高度（index） */
+	int N_exp_decay_atm = getConfig(configs, "N_exp_decay_atm", 5);/* 数密度を求める最低高度（index） */
 
 	std::string solver = getConfig(configs, "solver", "mystic");/* libRadtranのソルバ */
 
@@ -100,6 +101,7 @@ if(argc == 6){
 
 	int atmosphere_precision = getConfig(configs, "atmosphere_precision", 7);/* MSISから取得する大気の保存時の精度 */
 	
+	int FITTING_ADDITION = getConfig(configs, "FITTING_ADDITION", 0);/* フィッティングするために上の層の値を余計に計算する。破棄予定 */
 //	DIR_UVSPEC
 
 
@@ -124,30 +126,31 @@ if(argc == 6){
 	for(int HOUR_i = HOUR_START; HOUR_i <= HOUR_END; HOUR_i++){/* TODO 一時的に変更 */
 /* ==== 観測データ読み込み ==== */
 	
-//		dt.settime(HOUR_i, 0, 0);/* 観測時 */
-//		std::string path_obs = obs_path(DIR_OBS, dt);/* 観測日時からデータの名前 */
-//		std::cout << path_obs << std::endl;
-//		if(DEBUG){ std::cin >> input; }
-//		int Nobs = 0;
-//		Observed *obsds = read_obs( &Nobs, path_obs );/* 使うのはobsds[obs_index]だけ */
-//		std::cout << Nobs << "points" << std::endl;
+		dt.settime(HOUR_i, 0, 0);/* 観測時 */
+		std::string path_obs = obs_path(DIR_OBS, dt);/* 観測日時からデータの名前 */
+		std::cout << path_obs << std::endl;
+		if(DEBUG){ std::cin >> input; }
+		int Nobs = 0;
+		Observed *obsds = read_obs( &Nobs, path_obs );/* TODO 使うのはobsds[obs_index]だけ */
+		std::cout << Nobs << "points" << std::endl;
 
-		int otehon_lines;
-		int otehon_columns;
-		std::string otehon_header;
-		double** otehon = fit::read_result("/lhome/sano2/SANO/research/estimate-profile/Result/Result-11-W5/for_optimize/plain_msis.dat", otehon_header, otehon_lines, otehon_columns);
-		std::cout << "Read Otehon." << std::endl;
-		Observed *obsds = new Observed[obs_index + 1];
-		obsds[obs_index].set(73.0, 82.0, otehon_lines, otehon[0], otehon[4]);/* TODO TODO TODO HARD CODING !!! */
-		
-		for(int i=0; i<otehon_lines; i++){
-			std::cout << otehon[0][i] <<" "<< obsds[obs_index].Data()[i] << std::endl;
-		}
+//		int otehon_lines;
+//		int otehon_columns;
+//		std::string otehon_header;
+//		double** otehon = fit::read_result("/lhome/sano2/SANO/research/estimate-profile/Result/Result-11-W5/for_optimize/plain_msis.dat", otehon_header, otehon_lines, otehon_columns);
+//		std::cout << "Read Otehon." << std::endl;
+//		Observed *obsds = new Observed[obs_index + 1];
+//		obsds[obs_index].set(73.0, 82.0, otehon_lines, otehon[0], otehon[4]);/* TODO TODO TODO HARD CODING !!! */
+//		
+//		for(int i=0; i<otehon_lines; i++){
+//			std::cout << otehon[0][i] <<" "<< obsds[obs_index].Data()[i] << std::endl;
+//		}
 
 
 /* ==== */
 /* 諸定数の準備 */
 		WrapperArgs args;/* declared in wrapper.h */
+		args.TOA_height           = obsds[obs_index].maxHeight();
 		
 		std::filesystem::remove(DIR_LOG+"libRadtran.log");/* ログ容量溢れ防止 */
 
@@ -200,11 +203,11 @@ if(argc == 6){
 			ld.set( ld_alpha, heights[i]/m2km );/* 見る場所決め */
 			tparr[i] = ld.tangential_point( earth, himawari);/* tangential point の配列 */
 		}
-/* ==== atmosphere読み込み（今のところ使わない） ==== */
+/* ==== atmosphere読み込み ==== */
 		args.pAtm = readParamAtmosphere(PATH_ATMOSPHERE, args.Nheights);
-		args.heights = new double[args.Nheights];
+		args.atm_heights = new double[args.Nheights];
 		for(int i=0; i<args.Nheights; i++){
-			args.heights[i] = args.pAtm[i].z;
+			args.atm_heights[i] = args.pAtm[i].z;
 		}
 
 /* ==== 求める ==== */
@@ -220,7 +223,7 @@ if(argc == 6){
 		args.satellite      = himawari;
 		args.Nheights       = Nheights;
 		args.atm_Nheights   = Nheights;
-		args.heights        = args.obs.Heights();/* for save */
+		args.atm_heights    = args.obs.Heights();/* for save */
 		args.on_ground      = on_ground;/* for save */
 		args.sza_on_ground  = sza_on_ground;/* for save */
 		args.phi0_on_ground = phi0_on_ground;/* for save */
@@ -234,8 +237,9 @@ if(argc == 6){
 		args.DIR_LOG            = DIR_LOG;
 		args.i_bottom           = i_bottom;/* 誤差計算に含める最高 */
 		args.i_top              = i_top;   /* 誤差計算に含める最低 */
+		args.fit_i_bottom           = args.i_bottom;/* fitに含める最高 */
+		args.fit_i_top              = args.i_top + FITTING_ADDITION;   /* fitに含める最低 */
 		
-		args.TOA_height           = obsds[obs_index].maxHeight();
 		args.offset_bottom_height = 94.9;/* for fit *//* TODO TODO 89.9にする */
 		args.atmosphere_precision = atmosphere_precision;
 		args.obs_index            = obs_index;/* for save */

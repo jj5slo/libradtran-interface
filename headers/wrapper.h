@@ -22,6 +22,10 @@
 #include "read_config.h"
 #include "fit.h"
 
+/* -- optimize_util.cpp -- */
+std::string get_nlopt_result_description(nlopt::result res);
+std::string get_nlopt_result_string(nlopt::result res);
+
 /* MSIS_TO_GM_E */
 
 double* msis_to_gm_e(
@@ -41,16 +45,17 @@ public:
 	ParamStdin       pStdin;
 	ParamAtmosphere* pAtm;
 	obsDateTime      dt;
-	Observed         obs;/* for fitting (and save) */
+	Observed         obs;           /* for fitting (and save) */
 	PlanetParam      planet;
 	SatelliteParam   satellite;
 	int              Nheights;
-	int              atm_Nheights;
-	double*          heights;/* for fitting and save */
-	Geocoordinate    on_ground;/* for save */
-	double           sza_on_ground;/* for save */
+	int              atm_Nheights;  
+	double*          heights;       /* for fitting and save */
+	double*          atm_heights;   /* atmosphere */
+	Geocoordinate    on_ground;     /* for save */
+	double           sza_on_ground; /* for save */
 	double           phi0_on_ground;/* for save */
-	Geocoordinate*   tparr;/* tangential points */
+	Geocoordinate*   tparr;         /* tangential points */
 	std::string      DIR_UVSPEC;
 	std::string      PATH_STDIN;
 	std::string      PATH_STDOUT;
@@ -59,8 +64,10 @@ public:
 	std::string      PATH_CONFIG;/* for save */
 	int              FLAG_UNDISPLAY_LOG;
 	std::string      DIR_LOG;
-	int              i_bottom;/* for fit, error */
-	int              i_top;/* for fit, error */
+	int              i_bottom;/* for error */
+	int              i_top;   /* for error */
+	int              fit_i_bottom;/* for fit */
+	int              fit_i_top;   /* for fit */
 //	double min_height;/* for fit, けずれる */
 //	double max_height;/* for fit, けずれる */
 	int              atm_i_bottom;

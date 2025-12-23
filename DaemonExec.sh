@@ -8,10 +8,12 @@ cd /lhome/sano2/SANO/research/estimate-profile/libradtran-interface
 
 
 #cp configs/black.conf config.conf
-#for i in `seq 1 10`;do
+#./util/runonce/runonce 2022 6 1 3 36 1> /tmp/TEMPORARY/libradtran-interface.log
+
+for i in `seq 1 100`;do
 #	echo "Progress: $month $date, $i,"
-	./main 2022 6 1 3 36 1> /tmp/TEMPORARY/libradtran-interface.log
-#done
+	./main 2022 6 1 3 36  1>  /tmp/TEMPORARY/libradtran-interface.log
+done
 
 
 

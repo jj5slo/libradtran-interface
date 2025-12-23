@@ -1,0 +1,10 @@
+../../../Result/Result-12-W3/nlopt_result/64_to_30wp600k/merged/1766212481_6_atm49.dat
+../../../Result/Result-12-W3/nlopt_result/64_to_30wp600k/merged/1766222126_6_atm56.dat
+../../../Result/Result-12-W3/nlopt_result/64_to_30wp600k/merged/1766231963_6_atm49.dat
+../../../Result/Result-12-W3/nlopt_result/64_to_30wp600k/merged/1766241466_6_atm52.dat
+../../../Result/Result-12-W3/nlopt_result/64_to_30wp600k/merged/1766250826_6_atm52.dat
+../../../Result/Result-12-W3/nlopt_result/64_to_30wp600k/merged/1766260576_6_atm53.dat
+../../../Result/Result-12-W3/nlopt_result/64_to_30wp600k/merged/1766269964_6_atm48.dat
+../../../Result/Result-12-W3/nlopt_result/64_to_30wp600k/merged/1766279145_6_atm55.dat
+../../../Result/Result-12-W3/nlopt_result/64_to_30wp600k/merged/1766288735_6_atm54.dat
+../../../Result/Result-12-W3/nlopt_result/64_to_30wp600k/merged/1766298216_6_atm53.dat

@@ -15,7 +15,7 @@ int main(void){
 
 	Geocoordinate* coords = new Geocoordinate[Nheights];
 	for(int i=0; i<Nheights; i++){
-		coords[i].set(earth, himawari, lat, lon, (double)i*1.0);
+		coords[i].set(earth, himawari, lat, lon, (double)i*1.0e3);
 	}
 	
 	double* avr_mol_weights = new double[Nheights];

@@ -1,4 +1,4 @@
-OBJS = translate_coordinate.o LookingDirection.o Geocoordinate.o cross_point_at_altitude.o across_point_atmosphere.o solar_direction.o sensor_direction.o interface_stdin.o interface_atmosphere.o obsDateTime.o Observed.o execute.o read.o read_obs.o save.o get_msis.o read_config.o fit_readwrite.o obtain_fitting_coefficient.o apply_fitting.o leastsquare.o squareerr.o mean.o smoothing.o Nair_to_atmosphere.o core.o wrapper.o optimize_util.o runonce.o
+OBJS = translate_coordinate.o LookingDirection.o Geocoordinate.o cross_point_at_altitude.o across_point_atmosphere.o interface_atmosphere.o obsDateTime.o Observed.o read.o read_obs.o save.o get_msis.o Nair_to_atmosphere.o readwrite.o Nair_to_temperature.o
 OBJ_PATHS = $(addprefix ../../obj/, $(OBJS))
 
 HEADERS = coordinate.h interface.h solar_direction.h execute.h obsDateTime.h Observed.h save.h get_msis.h read_config.h fit.h wrapper.h
@@ -16,9 +16,9 @@ vpath %.cpp ../../src:../../src/Observed:../../src/coordinate:../../src/execute:
 
 .PHONY: all clean
 
-all: runonce
+all: Nair_to_temperature
 
-runonce: $(OBJ_PATHS)
+Nair_to_temperature: $(OBJ_PATHS)
 	g++ $(OBJ_PATHS) -o $@ $(LIB_PATHS) $(LIB_OPTS)
 # "$@"はターゲット（目的物）
 

@@ -224,7 +224,7 @@ double get_msis_average_molecular_weight(obsDateTime dt, Geocoordinate coord){
       n += Output.d[j];
     }
     n += Output.d[6] + Output.d[7]; /* [cm^{-3}] */
-	return Output.d[5] / n;
+	return Output.d[5] / n * NA;
 }
 
 

@@ -17,7 +17,6 @@
 
 
 double core(void* raw_Args){
-	constexpr int ITERATION_LIMIT = 5000;
 	WrapperArgs* args = static_cast<WrapperArgs*>(raw_Args);
 //	std::cout <<std::endl<< args->Nheights;
 //	std::cout <<std::endl<< args->atm_Nheights;
@@ -42,11 +41,9 @@ double core(void* raw_Args){
 //	std::cout <<std::endl<< args->number_of_iteration;/* NLopt */
 //	std::cout << std::endl;
 	const int running_mean_extra = args->N_running_mean / 2;/* ( N - 1 ) / 2 */
-	const int i_bottom_rad = args->i_bottom - running_mean_extra - 1;
-	const int i_top_rad = args->i_top + running_mean_extra + 1;
+	const int i_bottom_rad = args->fit_i_bottom - running_mean_extra;
+	const int i_top_rad = args->fit_i_top + running_mean_extra;
 	
-	std::cerr << "core: running libRadtran once." << std::endl;
-
 	double *radiance = new double [args->Nheights];/* シミュレーション結果 */
 	for(int j=0; j<args->Nheights; j++){
 		radiance[j] = 0.0;/* initialize */
@@ -89,7 +86,7 @@ double core(void* raw_Args){
 	}
 
 /* ==== saving results ==== */
-	std::string identifier = args->secid;// +"_"+ std::to_string(args->number_of_iteration);
+	std::string identifier = args->secid +"_"+ std::to_string(args->number_of_iteration);
 	std::cout << "saving results..." << std::endl;
 	std::string path_result = save_path(args->DIR_RESULT, identifier, args->dt, args->obs_index + 1);
 //	save_result(path_result, identifier, args->on_ground, args->Nheights, args->heights, radiance);/* TODO 最適化を回し始めたらいらない */
@@ -100,7 +97,7 @@ double core(void* raw_Args){
 /* ==== fitting results ==== */
 	std::cout << "fitting results..." << std::endl;
 	double offset = fit::mean(args->Nheights, args->heights, args->obs.Data(), args->offset_bottom_height, 99.1);// TODO NOW args->TOA_height); /* TODO TODO 観測値からオフセットをとる場合は、90 km - 100 km の 11点程度でやる!!! TODO TODO */
-	double* a_offset = fit::obtain_fitting_coefficient(args->obs.Data(), radiance, args->i_bottom, /*args->Nheights-1*/args->i_top, offset);/* TODO NOW i_top までではなく、TOAまでフィッティングしてみるみない */
+	double* a_offset = fit::obtain_fitting_coefficient(args->obs.Data(), radiance, args->fit_i_bottom, /*args->Nheights-1*/args->fit_i_top, offset);/* TODO NOW i_top までではなく、TOAまでフィッティングしてみるみない */
 	double* fitted = fit::apply_fitting(args-> Nheights, radiance, a_offset);
 	double* smoothed = fit::running_mean_log(args->Nheights, args->N_running_mean, fitted);/* 3 は移動平均をとる数 */
 	double** fitted_results = new double* [5];
@@ -128,17 +125,6 @@ double core(void* raw_Args){
 
 	double log_square_error = fit::root_mean_square_log_error( args->i_bottom, args->i_top, args->obs.Data(), smoothed );
 	
-	std::cerr << "wrapper: log_square_error = " << log_square_error << std::endl;
-	std::string path_save_lse = args->DIR_RESULT+"/log_square_error.dat";
-	std::ofstream save_lse (path_save_lse, std::ios::app);
-	if(!save_lse){
-		std::cerr << "wrapper: log_square_error cannot be saved!! path: " << path_save_lse << std::endl;
-	}
-	save_lse << args->number_of_iteration <<" "<< log_square_error << std::endl;
-	save_lse.close();
-
-//	double grad_err = 0;/* TODO(むり) */
-	args->number_of_iteration++;
 	return log_square_error;	
 }
 

@@ -14,13 +14,10 @@
 #include "read_config.h"
 #include "wrapper.h"
 
-constexpr double SUPERCOEFFICIENT {64};
-constexpr double BOTTOM_OF_BUFFER_HEIGHT { 0.0 - 1.0 - 0.5 };
-constexpr double TOP_OF_BUFFER_HEIGHT { 60.0 + 21.0 + 0.5 };/* 82 */
-constexpr int i_top    {64};/* 全体のどこかでは誤差計算に含める */
-constexpr int i_bottom {35};
-constexpr int N_linear_atm {5}; /* この範囲の点数では数密度は指数的に変化するものとする(これごとに分割してもとめる) */
-constexpr double super_inv_10_scaleheight = 0.03;
+//constexpr int i_top    {64};/* 全体のどこかでは誤差計算に含める */
+//constexpr int i_bottom {60};
+//constexpr int N_exp_decay_atm {5}; /* この範囲の点数では数密度は指数的に変化するものとする(これごとに分割してもとめる) */
+constexpr double super_inv_10_scaleheight = 0.03;/* 初期値 */
 char input;
 
 /* ==== main ==== */
@@ -91,8 +88,12 @@ if(argc == 6){
 	const std::string PATH_STDIN = getConfig(configs, "PATH_STDIN", "in");/* libRadtran標準入力を一時保存する場所 */
 	std::string PATH_STDOUT = getConfig(configs, "PATH_STDOUT", "out");/* libRadtranの標準出力を一時保存する場所 */
 	std::string PATH_ATMOSPHERE = getConfig(configs, "PATH_ATMOSPHERE", std::string(std::getenv("HOME"))+"/SANO/research/LIBRARIES/libradtran/libRadtran-2.0.6/data/atmmod/afglus.dat");/* libRadtranに渡す大気ファイル */
+	std::string PATH_ATMOSPHERE_INIT = getConfig(configs, "PATH_ATMOSPHERE_INIT", std::string(std::getenv("HOME"))+"/SANO/research/LIBRARIES/libradtran/libRadtran-2.0.6/data/atmmod/afglus.dat");/* libRadtranに渡す大気ファイル */
 	
 	double wavelength = getConfig(configs, "wavelength", 470.0);/* 波長 [nm]. TODO 決まっているので指定方法を変える */
+	int i_top = getConfig(configs, "i_top", 64);/* 数密度を求める最高高度（index） */
+	int i_bottom = getConfig(configs, "i_bottom", 60);/* 数密度を求める最低高度（index） */
+	int N_exp_decay_atm = getConfig(configs, "N_exp_decay_atm", 5);/* 数密度を求める最低高度（index） */
 
 	std::string solver = getConfig(configs, "solver", "mystic");/* libRadtranのソルバ */
 
@@ -103,8 +104,10 @@ if(argc == 6){
 	int mc_photons = getConfig(configs, "mc_photons", 60000);/* MYSTICの回数 デフォルトは300000 */
 
 	int atmosphere_precision = getConfig(configs, "atmosphere_precision", 7);/* MSISから取得する大気の保存時の精度 */
+
 	double XTOL_REL = getConfig(configs, "XTOL_REL", 1.0e-6);/* 最適化終了判定 */
-	
+	int FITTING_ADDITION = getConfig(configs, "FITTING_ADDITION", 0);/* フィッティングするために上の層の値を余計に計算する。破棄予定 */
+	std::string PATH_OTEHON = getConfig(configs, "PATH_OTEHON", "/lhome/sano2/SANO/research/estimate-profile/Result/Result-12-W5/OTEHON_2022_6_1_3_36.dat");
 //	DIR_UVSPEC
 
 
@@ -140,28 +143,29 @@ if(argc == 6){
 		int otehon_lines;
 		int otehon_columns;
 		std::string otehon_header;
-		double** otehon = fit::read_result("/lhome/sano2/SANO/research/estimate-profile/Result/Result-11-W5/for_optimize/plain_msis.dat", otehon_header, otehon_lines, otehon_columns);
+		double** otehon = fit::read_result(PATH_OTEHON, otehon_header, otehon_lines, otehon_columns);
 		std::cout << "Read Otehon." << std::endl;
 		Observed *obsds = new Observed[obs_index + 1];
 		obsds[obs_index].set(73.0, 82.0, otehon_lines, otehon[0], otehon[4]);/* TODO TODO TODO HARD CODING !!! */
 		
-		for(int i=0; i<otehon_lines; i++){
-			std::cout << otehon[0][i] <<" "<< obsds[obs_index].Data()[i] << std::endl;
-		}
+//		for(int i=0; i<otehon_lines; i++){
+//			std::cout << otehon[0][i] <<" "<< obsds[obs_index].Data()[i] << std::endl;
+//		}
 
 
 /* ==== */
 /* 諸定数の準備 */
 		WrapperArgs args;/* declared in wrapper.h */
+		args.TOA_height           = obsds[obs_index].maxHeight();
 		
 		std::filesystem::remove(DIR_LOG+"libRadtran.log");/* ログ容量溢れ防止 */
 
 		double *heights = obsds[obs_index].Heights();
 		int Nheights = obsds[obs_index].Nheights();
 		std::cout << "lat" << obsds[obs_index].Latitude() << " "  << "lon" << obsds[obs_index].Longitude() << " " << obsds[obs_index].Nheights() << "heights max:" << args.TOA_height << std::endl;
-		for(int i=0; i<obsds[obs_index].Nheights(); i++){
-			std::cout << heights[i] << " " << obsds[obs_index].Data(heights[i]) << "\n";
-		}
+//		for(int i=0; i<obsds[obs_index].Nheights(); i++){
+//			std::cout << heights[i] << " " << obsds[obs_index].Data(heights[i]) << "\n";
+//		}
 		std::cout << std::endl;
 	
 		if(DEBUG){ std::cin >> input; }
@@ -208,33 +212,29 @@ if(argc == 6){
 			ld.set( ld_alpha, heights[i]/m2km );/* 見る場所決め */
 			tparr[i] = ld.tangential_point( earth, himawari);/* tangential point の配列 */
 		}
-		ParamAtmosphere *pAtm = get_msis(dt, tparr, Nheights);/* tangential point でのMSIS大気から求めたパラメタを取得 */
-		std::cout << "# MSIS\nz Nair p T" << std::endl;
+//		ParamAtmosphere *pAtm = get_msis(dt, tparr, Nheights);/* tangential point でのMSIS大気から求めたパラメタを取得 */
+		ParamAtmosphere* pAtm = readParamAtmosphere(PATH_ATMOSPHERE_INIT, Nheights);
+		std::cout << "# Atmosphere\nz Nair p T" << std::endl;
 		for(int i=0; i<Nheights; i++){
 			std::cout << " " << pAtm[i].z << " " << pAtm[i].Nair << " " << pAtm[i].p << " " <<  pAtm[i].T << std::endl;
 		}
-		for(int i=i_bottom; i<=i_top; i++){/* TODO NOW MSISから考えている高度範囲だけはずらした上で最適化で戻るかどうか */
-//			double supercoef = 1.0;
-//			double sigma_z = (pAtm[i_top].z - pAtm[i_bottom].z) / 3.0;
-//			supercoef = 2 * std::exp( -(pAtm[i].z - pAtm[i_bottom].z)*(pAtm[i].z - pAtm[i_bottom].z) / 2.0 / sigma_z/sigma_z );
-			pAtm[i].Nair = pAtm[i_top+1].Nair * std::pow(10.0, -super_inv_10_scaleheight * (pAtm[i].z - pAtm[i_top+1].z));
-			pAtm[i].set_p_from_Nair_T();
-		}
-		std::cout << "# Modified Atmosphere\nz Nair p T" << std::endl;
-		for(int i=0; i<Nheights; i++){
-			std::cout << " " << pAtm[i].z << " " << pAtm[i].Nair << " " << pAtm[i].p << " " <<  pAtm[i].T << std::endl;
-		}
-		
+
 //		saveParamAtmosphere(PATH_ATMOSPHERE, pAtm, Nheights, atmosphere_precision);
-		args.pAtm           = pAtm;/* 最初だけ初期値 */
+
+//		saveParamAtmosphere(PATH_ATMOSPHERE, pAtm, Nheights, atmosphere_precision);
+		args.pAtm           = pAtm;/* 初期値 */
+		args.atm_heights = new double[Nheights];
+		for(int i=0; i<Nheights; i++){
+			args.atm_heights[i] = args.pAtm[i].z;
+		}
 /* ==== */
 
 /* ==== 上から求める ==== */
-		int N_repeating_optimization = ((i_top - i_bottom) + N_linear_atm-1) / N_linear_atm;/* 切り上げ除算 *//* 最適化を走らせる回数 */
+		int N_repeating_optimization = ((i_top - i_bottom) + N_exp_decay_atm-1) / N_exp_decay_atm;/* 切り上げ除算 *//* 最適化を走らせる回数 */
 		double* inv_10_scaleheights = new double[N_repeating_optimization];/* 最適化して求めた係数を保存する */
 		for(int i_stage=0; i_stage<N_repeating_optimization; i_stage++){
-			int i_top_opt = i_top - i_stage*N_linear_atm;
-			int i_bottom_opt = i_top_opt - N_linear_atm+1;
+			int i_top_opt = i_top - i_stage*N_exp_decay_atm;
+			int i_bottom_opt = i_top_opt - N_exp_decay_atm+1;
 			if( i_bottom_opt < i_bottom ){ i_bottom_opt = i_bottom; }
 			
 			args.DIR_RESULT = DIR_RESULT+"/"+std::to_string(i_stage);/* for save */
@@ -250,7 +250,7 @@ if(argc == 6){
 			args.satellite      = himawari;
 			args.Nheights       = Nheights;
 			args.atm_Nheights   = Nheights;
-			args.heights        = args.obs.Heights();/* for save */
+			args.heights    = args.obs.Heights();/* for save */
 			args.on_ground      = on_ground;/* for save */
 			args.sza_on_ground  = sza_on_ground;/* for save */
 			args.phi0_on_ground = phi0_on_ground;/* for save */
@@ -264,8 +264,9 @@ if(argc == 6){
 			args.DIR_LOG            = DIR_LOG;
 			args.i_bottom           = i_bottom_opt;/* 誤差計算に含める最高 */
 			args.i_top              = i_top_opt;   /* 誤差計算に含める最低 */
+			args.fit_i_bottom           = args.i_bottom;/* fitに含める最高 */
+			args.fit_i_top              = args.i_top + FITTING_ADDITION;   /* fitに含める最低 */
 			
-			args.TOA_height           = obsds[obs_index].maxHeight();
 			args.offset_bottom_height = 94.9;/* for fit *//* TODO TODO 89.9にする */
 			args.atmosphere_precision = atmosphere_precision;
 			args.obs_index            = obs_index;/* for save */
@@ -275,7 +276,7 @@ if(argc == 6){
 		*/
 			int running_mean_extra = args.N_running_mean / 2;/* ( N - 1 ) / 2 */
 		
-			args.atm_i_bottom = args.i_bottom - running_mean_extra;	
+			args.atm_i_bottom = 0; /* TODO 今は 地表まで	*/
 			args.atm_i_top    = args.i_top   ;// + running_mean_extra;
 		
 		/* ==== Optimize ==== */
@@ -301,29 +302,34 @@ if(argc == 6){
 			opt.set_min_objective( wrapper, (void*)(&args) ); 
 			double minf;
 			opt.set_xtol_rel(XTOL_REL);/* TODO */
+			//opt.set_xtol_abs(XTOL_REL);/* TODO */
 		//	opt.set_lower_bounds(10);/* TODO */
 			opt.set_upper_bounds(0.0);/* 必ず上が減少 */
+			opt.set_lower_bounds(-0.21);/* TODO 今は MSISの4倍程度 */
 		
 		
 			try {
 				args.number_of_iteration = 0;
 				nlopt::result result = opt.optimize(x, minf);
+				std::string nlopt_result = get_nlopt_result_description(result);
+				std::string nlopt_result_code = get_nlopt_result_string(result);
+				std::cerr << nlopt_result << std::endl;
+				std::string path_save_vector = args.DIR_RESULT+"/optimized_vector.dat";
+				std::ofstream save_vector (path_save_vector);
+				if(!save_vector){
+					std::cerr << "main: optimized vector_error cannot be saved!! path: " << path_save_vector << std::endl;
+				}
+				inv_10_scaleheights[i_stage] = x[0];
+				for(int i=0; i<N_repeating_optimization; i++){
+		//			for(number_of_optimization_parameters)
+					save_vector << i <<" "<< inv_10_scaleheights[i] <<" "<< nlopt_result_code << std::endl;
+				}
+				save_vector.close();
 			} catch (std::exception &e){
 				std::cout << "NLopt failed : " << e.what() << std::endl;
 			}
-			inv_10_scaleheights[i_stage] = x[0];
 		}	
 
-		std::string path_save_vector = args.DIR_RESULT+"/optimized_vector.dat";
-		std::ofstream save_vector (path_save_vector);
-		if(!save_vector){
-			std::cerr << "main: optimized vector_error cannot be saved!! path: " << path_save_vector << std::endl;
-		}
-		for(int i=0; i<N_repeating_optimization; i++){
-//			for(number_of_optimization_parameters)
-			save_vector << i <<" "<< inv_10_scaleheights[i] << std::endl;
-		}
-		save_vector.close();
 	}	
 
 //	delete[] radiance;
