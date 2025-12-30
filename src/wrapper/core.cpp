@@ -41,8 +41,8 @@ double core(void* raw_Args){
 //	std::cout <<std::endl<< args->number_of_iteration;/* NLopt */
 //	std::cout << std::endl;
 	const int running_mean_extra = args->N_running_mean / 2;/* ( N - 1 ) / 2 */
-	const int i_bottom_rad = args->fit_i_bottom - running_mean_extra;
-	const int i_top_rad = args->fit_i_top + running_mean_extra;
+	const int i_bottom_rad = args->i_bottom - running_mean_extra;/* TODO TODO NOW fitは上は計算済みのものを使う */
+	const int i_top_rad    = args->i_top    + running_mean_extra;
 	
 	double *radiance = new double [args->Nheights];/* シミュレーション結果 */
 	for(int j=0; j<args->Nheights; j++){
@@ -85,7 +85,7 @@ double core(void* raw_Args){
 		std::cout << "Tangential height: " << tp.altitude() << " [m]\nRadiance: " << radiance[i] << "\n----" << std::endl;
 	}
 
-/* ==== saving results ==== */
+/* ==== saving parameters ==== */
 	std::string identifier = args->secid +"_"+ std::to_string(args->number_of_iteration);
 	std::cout << "saving results..." << std::endl;
 	std::string path_result = save_path(args->DIR_RESULT, identifier, args->dt, args->obs_index + 1);
@@ -93,6 +93,20 @@ double core(void* raw_Args){
 	save_params(args->DIR_RESULT, args->secid, args->PATH_ATMOSPHERE, "_atm"+std::to_string(args->number_of_iteration)+".dat");/* atmosphereも保存しておく */
 	save_params(args->DIR_RESULT, args->secid, args->PATH_STDIN, "_stdin.txt");
 	save_params(args->DIR_RESULT, args->secid, args->PATH_CONFIG, "_config.conf");
+/* ==== */
+/* ==== merging radiance (including upper stage) ==== */
+	/* running_mean_extra(通常1)だけ範囲外も計算しているので、その端点i_top_radが一致するように過去の結果(上の層束)を合わせ直す(running_mean_extraが1より大きいのときは平均とかにしたほうがい) */
+	double fit_radiance_of_upper_stage_coefficient = 1.0;
+	if(1.0e-12 <= std::abs(args->upper_radiance[i_top_rad]+args->upper_radiance[i_top_rad-1])){/* TODO */
+		fit_radiance_of_upper_stage_coefficient = (radiance[i_top_rad] + radiance[i_top_rad-1]) / (args->upper_radiance[i_top_rad] + args->upper_radiance[i_top_rad-1]);
+		std::cout << "coefficient to connect upper radiance: " << fit_radiance_of_upper_stage_coefficient << std::endl;
+	}
+	for(int i=i_top_rad+1; i<args->Nheights; i++){
+		radiance[i] = args->upper_radiance[i] * fit_radiance_of_upper_stage_coefficient;
+	}
+	for(int i=i_bottom_rad; i<=i_top_rad; i++){
+		args->radiance[i] = radiance[i];
+	}
 /* ==== */
 /* ==== fitting results ==== */
 	std::cout << "fitting results..." << std::endl;
@@ -120,7 +134,7 @@ double core(void* raw_Args){
 		+ "# a: " + std::to_string(a_offset[0]) + ", offset: " + std::to_string(a_offset[1]) + "\n"
 		+ "# N_running_mean: " + std::to_string(args->N_running_mean) + "\n"
 		+ "# height observed sumulated fitted smoothed\n";
-	fit::save_data(path_result+"_fitted.dat", header, args->Nheights,  5, fitted_results);/* 最適化を回し始めたら不要、/tmp/に入れてもいいかも */
+	fit::save_data(path_result, header, args->Nheights,  5, fitted_results);/* 最適化を回し始めたら不要、/tmp/に入れてもいいかも */
 	delete[] fitted_results;
 
 	double log_square_error = fit::root_mean_square_log_error( args->i_bottom, args->i_top, args->obs.Data(), smoothed );

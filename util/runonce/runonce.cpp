@@ -85,6 +85,7 @@ if(argc == 6){
 	const std::string PATH_STDIN = getConfig(configs, "PATH_STDIN", "in");/* libRadtran標準入力を一時保存する場所 */
 	std::string PATH_STDOUT = getConfig(configs, "PATH_STDOUT", "out");/* libRadtranの標準出力を一時保存する場所 */
 	std::string PATH_ATMOSPHERE = getConfig(configs, "PATH_ATMOSPHERE", std::string(std::getenv("HOME"))+"/SANO/research/LIBRARIES/libradtran/libRadtran-2.0.6/data/atmmod/afglus.dat");/* libRadtranに渡す大気ファイル */
+	std::string PATH_ATMOSPHERE_INIT = getConfig(configs, "PATH_ATMOSPHERE_INIT", std::string(std::getenv("HOME"))+"/SANO/research/LIBRARIES/libradtran/libRadtran-2.0.6/data/atmmod/afglus.dat");/* libRadtranに渡す大気ファイル */
 	
 	double wavelength = getConfig(configs, "wavelength", 470.0);/* 波長 [nm]. TODO 決まっているので指定方法を変える */
 	int i_top = getConfig(configs, "i_top", 64);/* 数密度を求める最高高度（index） */
@@ -101,7 +102,9 @@ if(argc == 6){
 
 	int atmosphere_precision = getConfig(configs, "atmosphere_precision", 7);/* MSISから取得する大気の保存時の精度 */
 	
+	double XTOL_REL = getConfig(configs, "XTOL_REL", 1.0e-6);/* 最適化終了判定 */
 	int FITTING_ADDITION = getConfig(configs, "FITTING_ADDITION", 0);/* フィッティングするために上の層の値を余計に計算する。破棄予定 */
+	std::string PATH_OTEHON = getConfig(configs, "PATH_OTEHON", "/lhome/sano2/SANO/research/estimate-profile/Result/Result-12-W5/OTEHON_2022_6_1_3_36.dat");
 //	DIR_UVSPEC
 
 
@@ -131,17 +134,17 @@ if(argc == 6){
 		std::cout << path_obs << std::endl;
 		if(DEBUG){ std::cin >> input; }
 		int Nobs = 0;
-		Observed *obsds = read_obs( &Nobs, path_obs );/* TODO 使うのはobsds[obs_index]だけ */
+		Observed *obsds = read_obs( &Nobs, path_obs );/* 使うのはobsds[obs_index]だけ */
 		std::cout << Nobs << "points" << std::endl;
 
 //		int otehon_lines;
 //		int otehon_columns;
 //		std::string otehon_header;
-//		double** otehon = fit::read_result("/lhome/sano2/SANO/research/estimate-profile/Result/Result-11-W5/for_optimize/plain_msis.dat", otehon_header, otehon_lines, otehon_columns);
+//		double** otehon = fit::read_result(PATH_OTEHON, otehon_header, otehon_lines, otehon_columns);
 //		std::cout << "Read Otehon." << std::endl;
 //		Observed *obsds = new Observed[obs_index + 1];
 //		obsds[obs_index].set(73.0, 82.0, otehon_lines, otehon[0], otehon[4]);/* TODO TODO TODO HARD CODING !!! */
-//		
+		
 //		for(int i=0; i<otehon_lines; i++){
 //			std::cout << otehon[0][i] <<" "<< obsds[obs_index].Data()[i] << std::endl;
 //		}
@@ -223,7 +226,7 @@ if(argc == 6){
 		args.satellite      = himawari;
 		args.Nheights       = Nheights;
 		args.atm_Nheights   = Nheights;
-		args.atm_heights    = args.obs.Heights();/* for save */
+		args.heights        = args.obs.Heights();/* for save */
 		args.on_ground      = on_ground;/* for save */
 		args.sza_on_ground  = sza_on_ground;/* for save */
 		args.phi0_on_ground = phi0_on_ground;/* for save */

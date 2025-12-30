@@ -6,11 +6,25 @@ cd /lhome/sano2/SANO/research/estimate-profile/libradtran-interface
 # ./main 2022 6 2 3
 # ./main 2022 6 6 6 &> /tmp/libradtran-interface.log
 
+cp config.conf __config.conf
 
-#cp configs/black.conf config.conf
-#./util/runonce/runonce 2022 6 1 3 36 1> /tmp/TEMPORARY/libradtran-interface.log
+#cp CONFIGS/UPPER/0 config.conf
+#./util/runonce/runonce 2022 6 1 3 36  1> /tmp/TEMPORARY/libradtran-interface.log
+#cp CONFIGS/UPPER/1 config.conf
+#./util/runonce/runonce 2022 6 1 3 36  1> /tmp/TEMPORARY/libradtran-interface.log
+#cp CONFIGS/UPPER/2 config.conf
+#./util/runonce/runonce 2022 6 1 3 36  1> /tmp/TEMPORARY/libradtran-interface.log
+#cp CONFIGS/UPPER/3 config.conf
+#./util/runonce/runonce 2022 6 1 3 36  1> /tmp/TEMPORARY/libradtran-interface.log
+#cp CONFIGS/UPPER/4 config.conf
+#./util/runonce/runonce 2022 6 1 3 36  1> /tmp/TEMPORARY/libradtran-interface.log
+#cp CONFIGS/UPPER/5 config.conf
+#./util/runonce/runonce 2022 6 1 3 36  1> /tmp/TEMPORARY/libradtran-interface.log
+#cp CONFIGS/UPPER/6 config.conf
+#./util/runonce/runonce 2022 6 1 3 36  1> /tmp/TEMPORARY/libradtran-interface.log
 
-for i in `seq 1 100`;do
+
+for i in `seq 1 50`;do
 #	echo "Progress: $month $date, $i,"
 	./main 2022 6 1 3 36  1>  /tmp/TEMPORARY/libradtran-interface.log
 done

@@ -45,29 +45,29 @@ public:
 	ParamStdin       pStdin;
 	ParamAtmosphere* pAtm;
 	obsDateTime      dt;
-	Observed         obs;           /* for fitting (and save) */
+	Observed         obs;              /* for fitting (and save) */
 	PlanetParam      planet;
 	SatelliteParam   satellite;
 	int              Nheights;
-	int              atm_Nheights;  
-	double*          heights;       /* for fitting and save */
-	double*          atm_heights;   /* atmosphere */
-	Geocoordinate    on_ground;     /* for save */
-	double           sza_on_ground; /* for save */
-	double           phi0_on_ground;/* for save */
-	Geocoordinate*   tparr;         /* tangential points */
+	int              atm_Nheights;     
+	double*          heights;          /* for fitting and save */
+	double*          atm_heights;      /* atmosphere */
+	Geocoordinate    on_ground;        /* for save */
+	double           sza_on_ground;    /* for save */
+	double           phi0_on_ground;   /* for save */
+	Geocoordinate*   tparr;            /* tangential points */
 	std::string      DIR_UVSPEC;
 	std::string      PATH_STDIN;
 	std::string      PATH_STDOUT;
 	std::string      PATH_ATMOSPHERE;
-	std::string      DIR_RESULT;/* for save */
-	std::string      PATH_CONFIG;/* for save */
+	std::string      DIR_RESULT;       /* for save */
+	std::string      PATH_CONFIG;      /* for save */
 	int              FLAG_UNDISPLAY_LOG;
 	std::string      DIR_LOG;
-	int              i_bottom;/* for error */
-	int              i_top;   /* for error */
-	int              fit_i_bottom;/* for fit */
-	int              fit_i_top;   /* for fit */
+	int              i_bottom;         /* for error */
+	int              i_top;            /* for error */
+	int              fit_i_bottom;     /* for fit */
+	int              fit_i_top;        /* for fit */
 //	double min_height;/* for fit, けずれる */
 //	double max_height;/* for fit, けずれる */
 	int              atm_i_bottom;
@@ -75,10 +75,12 @@ public:
 	double           TOA_height;
 	double           offset_bottom_height;/* for fit */
 	int              atmosphere_precision;
-	std::string      secid;/* for save */
-	int              obs_index;/* for save */
-	int              N_running_mean;/* for fit */
-	int              number_of_iteration;/* NLopt */
+	std::string      secid;               /* for save */
+	int              obs_index;           /* for save */
+	int              N_running_mean;      /* for fit */
+	int              number_of_iteration; /* NLopt */
+	double*          radiance;
+	double*          upper_radiance;
 };
 
 //	args->pStdin;

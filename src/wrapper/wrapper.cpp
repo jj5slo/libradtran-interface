@@ -17,7 +17,7 @@
 
 
 double wrapper(const std::vector<double> &Coef, std::vector<double> &grad, void* raw_Args){
-	constexpr int ITERATION_LIMIT = 5000;
+	constexpr int ITERATION_LIMIT = 3;
 	WrapperArgs* args = static_cast<WrapperArgs*>(raw_Args);
 //	std::cout <<std::endl<< args->Nheights;
 //	std::cout <<std::endl<< args->atm_Nheights;
