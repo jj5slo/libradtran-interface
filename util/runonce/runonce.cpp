@@ -207,46 +207,54 @@ if(argc == 6){
 			tparr[i] = ld.tangential_point( earth, himawari);/* tangential point の配列 */
 		}
 /* ==== atmosphere読み込み ==== */
-		args.pAtm = readParamAtmosphere(PATH_ATMOSPHERE, args.Nheights);
-		args.atm_heights = new double[args.Nheights];
-		for(int i=0; i<args.Nheights; i++){
+		args.pAtm = readParamAtmosphere(PATH_ATMOSPHERE, Nheights);
+		args.Nheights               = Nheights;
+		args.atm_Nheights           = Nheights;
+		args.atm_heights = new double[Nheights];
+		for(int i=0; i<Nheights; i++){
 			args.atm_heights[i] = args.pAtm[i].z;
 		}
-
 /* ==== 求める ==== */
+		args.upper_radiance       = new double[args.Nheights];
+		for(int i=0; i<args.Nheights; i++){
+			args.upper_radiance[i] = 0.0;
+		}
+
 		args.secid = secid;	
 		args.DIR_RESULT = DIR_RESULT+"/run_once";/* for save */
 		std::cout << "create_directory " << args.DIR_RESULT << std::endl;
 		std::filesystem::create_directory(args.DIR_RESULT);
 	/* ==== prepare for wrapper ==== */
 	//	args.pStdin = pStdin;
-		args.dt             = dt;
-		args.obs            = obsds[obs_index];/* for fitting (and save) */
-		args.planet         = earth;
-		args.satellite      = himawari;
-		args.Nheights       = Nheights;
-		args.atm_Nheights   = Nheights;
-		args.heights        = args.obs.Heights();/* for save */
-		args.on_ground      = on_ground;/* for save */
-		args.sza_on_ground  = sza_on_ground;/* for save */
-		args.phi0_on_ground = phi0_on_ground;/* for save */
-		args.tparr          = tparr;/* tangential points */
-		args.DIR_UVSPEC      = DIR_UVSPEC;
-		args.PATH_STDIN      = PATH_STDIN;
-		args.PATH_STDOUT     = PATH_STDOUT;
-		args.PATH_ATMOSPHERE = PATH_ATMOSPHERE;
-		args.PATH_CONFIG     = PATH_CONFIG;/* for save */
-		args.FLAG_UNDISPLAY_LOG = FLAG_UNDISPLAY_LOG;
-		args.DIR_LOG            = DIR_LOG;
-		args.i_bottom           = i_bottom;/* 誤差計算に含める最高 */
-		args.i_top              = i_top;   /* 誤差計算に含める最低 */
+		args.dt                     = dt;
+		args.obs                    = obsds[obs_index];/* for fitting (and save) */
+		args.planet                 = earth;
+		args.satellite              = himawari;
+		args.heights                = args.obs.Heights();/* for save */
+		args.on_ground              = on_ground;/* for save */
+		args.sza_on_ground          = sza_on_ground;/* for save */
+		args.phi0_on_ground         = phi0_on_ground;/* for save */
+		args.tparr                  = tparr;/* tangential points */
+		args.DIR_UVSPEC             = DIR_UVSPEC;
+		args.PATH_STDIN             = PATH_STDIN;
+		args.PATH_STDOUT            = PATH_STDOUT;
+		args.PATH_ATMOSPHERE        = PATH_ATMOSPHERE;
+		args.PATH_CONFIG            = PATH_CONFIG;/* for save */
+		args.FLAG_UNDISPLAY_LOG     = FLAG_UNDISPLAY_LOG;
+		args.DIR_LOG                = DIR_LOG;
+		args.i_bottom               = i_bottom;/* 誤差計算に含める最高 */
+		args.i_top                  = i_top;   /* 誤差計算に含める最低 */
 		args.fit_i_bottom           = args.i_bottom;/* fitに含める最高 */
-		args.fit_i_top              = args.i_top + FITTING_ADDITION;   /* fitに含める最低 */
+		args.fit_i_top              = i_top;/* TODO 上はフィッティングに全部含める *///args.i_top + FITTING_ADDITION;   /* fitに含める最低 */
 		
 		args.offset_bottom_height = 94.9;/* for fit *//* TODO TODO 89.9にする */
 		args.atmosphere_precision = atmosphere_precision;
 		args.obs_index            = obs_index;/* for save */
-		args.N_running_mean       = 3;/*移動平均*/
+		args.N_running_mean       = 1;/*移動平均*/
+		args.radiance             = new double[args.Nheights];
+		for(int i=0; i<args.Nheights; i++){
+			args.radiance[i] = 0.0;
+		}
 	/* ==== */
 	/* MSISで求めた大気をNLoptの初期値に代入する。最小化する評価関数はwrapperとして実装するが、
 	*/
@@ -254,6 +262,7 @@ if(argc == 6){
 	
 		args.atm_i_bottom = args.i_bottom;// - running_mean_extra;	
 		args.atm_i_top    = args.i_top   ;// + running_mean_extra;
+		args.number_of_iteration = 0;
 	
 		double lerr = core((void*)(&args));
 

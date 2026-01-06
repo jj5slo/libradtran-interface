@@ -8,26 +8,52 @@ cd /lhome/sano2/SANO/research/estimate-profile/libradtran-interface
 
 cp config.conf __config.conf
 
-#cp CONFIGS/UPPER/0 config.conf
+#echo "100M_all start"
+#cp CONFIGS/PHOTONS/100M_all.conf config.conf
 #./util/runonce/runonce 2022 6 1 3 36  1> /tmp/TEMPORARY/libradtran-interface.log
-#cp CONFIGS/UPPER/1 config.conf
-#./util/runonce/runonce 2022 6 1 3 36  1> /tmp/TEMPORARY/libradtran-interface.log
-#cp CONFIGS/UPPER/2 config.conf
-#./util/runonce/runonce 2022 6 1 3 36  1> /tmp/TEMPORARY/libradtran-interface.log
-#cp CONFIGS/UPPER/3 config.conf
-#./util/runonce/runonce 2022 6 1 3 36  1> /tmp/TEMPORARY/libradtran-interface.log
-#cp CONFIGS/UPPER/4 config.conf
-#./util/runonce/runonce 2022 6 1 3 36  1> /tmp/TEMPORARY/libradtran-interface.log
-#cp CONFIGS/UPPER/5 config.conf
-#./util/runonce/runonce 2022 6 1 3 36  1> /tmp/TEMPORARY/libradtran-interface.log
-#cp CONFIGS/UPPER/6 config.conf
-#./util/runonce/runonce 2022 6 1 3 36  1> /tmp/TEMPORARY/libradtran-interface.log
+#echo "100M_all finished"
 
+#cp CONFIGS/PHOTONS/1M_60.conf config.conf
+#for i in `seq 1 700`;do
+#	echo "Progress: 1M_60 $i,"
+#	./util/runonce/runonce 2022 6 1 3 36  1> /tmp/TEMPORARY/libradtran-interface.log
+#done
+#
+#cp CONFIGS/PHOTONS/1M_30.conf config.conf
+#for i in `seq 1 900`;do
+#	echo "Progress: 1M_30 $i,"
+#	./util/runonce/runonce 2022 6 1 3 36  1> /tmp/TEMPORARY/libradtran-interface.log
+#done
+#
+#cp CONFIGS/PHOTONS/10M_60.conf config.conf
+#for i in `seq 1 100`;do
+#	echo "Progress: 10M_60 $i,"
+#	./util/runonce/runonce 2022 6 1 3 36  1> /tmp/TEMPORARY/libradtran-interface.log
+#done
 
-for i in `seq 1 50`;do
-#	echo "Progress: $month $date, $i,"
+#cp CONFIGS/PHOTONS/config.conf config.conf
+for i in `seq 1 91`;do
+	echo "Progress: $i,"
 	./main 2022 6 1 3 36  1>  /tmp/TEMPORARY/libradtran-interface.log
 done
+
+#cp CONFIGS/600k_64-60_N5_golden.conf config.conf
+#for i in `seq 1 100`;do
+#	echo "600k Progress: $i,"
+#	./main 2022 6 1 3 36  1>  /tmp/TEMPORARY/libradtran-interface.log
+#done
+#
+#cp CONFIGS/600k_64-60_N5_golden.conf config.conf
+#for i in `seq 1 100`;do
+#	echo "1M Progress: $i,"
+#	./main 2022 6 1 3 36  1>  /tmp/TEMPORARY/libradtran-interface.log
+#done
+
+#cp CONFIGS/PHOTONS/config.conf config.conf
+#for i in `seq 1 84`;do
+#	echo "Progress: $i,"
+#	./main 2022 6 1 3 36  1>  /tmp/TEMPORARY/libradtran-interface.log
+#done
 
 
 

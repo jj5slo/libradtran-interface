@@ -1,7 +1,7 @@
-OBJS = translate_coordinate.o LookingDirection.o Geocoordinate.o cross_point_at_altitude.o across_point_atmosphere.o solar_direction.o sensor_direction.o interface_stdin.o interface_atmosphere.o obsDateTime.o Observed.o execute.o read.o read_obs.o save.o get_msis.o read_config.o fit_readwrite.o obtain_fitting_coefficient.o apply_fitting.o leastsquare.o squareerr.o mean.o smoothing.o Nair_to_atmosphere.o core.o wrapper.o optimize_util.o main.o
+OBJS = translate_coordinate.o LookingDirection.o Geocoordinate.o cross_point_at_altitude.o across_point_atmosphere.o solar_direction.o sensor_direction.o interface_stdin.o interface_atmosphere.o obsDateTime.o Observed.o execute.o read.o read_obs.o save.o get_msis.o read_config.o fit_readwrite.o obtain_fitting_coefficient.o apply_fitting.o leastsquare.o squareerr.o mean.o smoothing.o Nair_to_atmosphere.o core.o wrapper.o optimize_util.o golden_section_search.o avoid_dupe.o main.o
 OBJ_PATHS = $(addprefix obj/, $(OBJS))
 
-HEADERS = coordinate.h interface.h solar_direction.h execute.h obsDateTime.h Observed.h save.h get_msis.h read_config.h fit.h wrapper.h
+HEADERS = coordinate.h interface.h solar_direction.h execute.h obsDateTime.h Observed.h save.h get_msis.h read_config.h fit.h wrapper.h golden_section_search.h avoid_dupe.h
 HEADER_PATHS = $(addprefix headers/, $(HEADERS))
 
 INC_DIR = /lhome/sano2/include headers
@@ -12,7 +12,7 @@ LIB_PATHS = $(addprefix -L, $(LIB_DIR))
 LIB_OPTS = -lnrlmsise00 -lnlopt -lm -Wl,-rpath,$(LIB_DIR)
 OPTS = -Wall -O3
 
-vpath %.cpp src:src/Observed:src/coordinate:src/execute:src/interface:src/fit:src/wrapper
+vpath %.cpp src:src/Observed:src/coordinate:src/execute:src/interface:src/fit:src/wrapper:src/golden_section_search
 
 .PHONY: all clean
 

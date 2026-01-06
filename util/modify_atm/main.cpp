@@ -13,8 +13,6 @@
 #include "get_msis.h"
 #include "read_config.h"
 #include "wrapper.h"
-#include "golden_section_search.h"
-#include "avoid_dupe.h"
 
 //constexpr int i_top    {64};/* 全体のどこかでは誤差計算に含める */
 //constexpr int i_bottom {60};
@@ -107,12 +105,9 @@ if(argc == 6){
 
 	int atmosphere_precision = getConfig(configs, "atmosphere_precision", 7);/* MSISから取得する大気の保存時の精度 */
 
-	double XTOL = getConfig(configs, "XTOL", 1.0e-6);/* 最適化終了判定 */
 	double XTOL_REL = getConfig(configs, "XTOL_REL", 1.0e-6);/* 最適化終了判定 */
 	int FITTING_ADDITION = getConfig(configs, "FITTING_ADDITION", 0);/* フィッティングするために上の層の値を余計に計算する。破棄予定 */
 	std::string PATH_OTEHON = getConfig(configs, "PATH_OTEHON", "/lhome/sano2/SANO/research/estimate-profile/Result/Result-12-W5/OTEHON_2022_6_1_3_36.dat");
-
-	std::string OPTIMIZER = getConfig(configs, "OPTIMIZER", "NL");
 //	DIR_UVSPEC
 
 
@@ -128,10 +123,8 @@ if(argc == 6){
 /* ==== 保存先ディレクトリ作成 ==== */
 	
 	int ifdupe = avoid_dupe(DIR_RESULT);
-	if(ifdupe){
-		DIR_RESULT = DIR_RESULT +"_"+ std::to_string(ifdupe);
-		secid = secid + std::to_string(ifdupe);
-	}
+	DIR_RESULT = DIR_RESULT + std::to_string(ifdupe);
+	secid = secid + std::to_string(ifdupe);
 	std::cerr << "create_directory " << DIR_RESULT << std::endl;
 	std::filesystem::create_directory(DIR_RESULT);
 
@@ -280,8 +273,7 @@ if(argc == 6){
 			args.i_bottom               = i_bottom_opt;/* 誤差計算に含める最高 */
 			args.i_top                  = i_top_opt;   /* 誤差計算に含める最低 */
 			args.fit_i_bottom           = args.i_bottom;/* fitに含める最高 */
-//			args.fit_i_top              = i_top;/* TODO 上はフィッティングに全部含める *///args.i_top + FITTING_ADDITION;   /* fitに含める最低 */
-			args.fit_i_top              = args.i_top;/* TODO 上はフィッティングに全部含める *///args.i_top + FITTING_ADDITION;   /* fitに含める最低 */
+			args.fit_i_top              = i_top;/* TODO 上はフィッティングに全部含める *///args.i_top + FITTING_ADDITION;   /* fitに含める最低 */
 			
 			args.offset_bottom_height = 94.9;/* for fit *//* TODO TODO 89.9にする */
 			args.atmosphere_precision = atmosphere_precision;
@@ -317,64 +309,40 @@ if(argc == 6){
 		//		x[i - args.atm_i_bottom] = std::log10(pAtm[i].Nair) - std::log10(pAtm[i-1].Nair);/* Coef は対数 */
 		//		if(x[i - args.atm_i_bottom] > 0.0){ x[i - args.atm_i_bottom] = 0.0; }
 		//	}
-
-
-
-/* ==== optimization ==== */
+		
+			nlopt::opt opt( nlopt::LN_NELDERMEAD, number_of_optimization_parameters );
+			opt.set_min_objective( wrapper, (void*)(&args) ); 
 			double minf;
-			
-			if(OPTIMIZER == "NL"){
-				nlopt::opt opt( nlopt::LN_NELDERMEAD, number_of_optimization_parameters );
-				opt.set_min_objective( wrapper, (void*)(&args) ); 
-				opt.set_xtol_rel(XTOL_REL);/* TODO */
-				//opt.set_xtol_abs(XTOL_REL);/* TODO */
-			//	opt.set_lower_bounds(10);/* TODO */
-				opt.set_upper_bounds(0.0);/* 必ず上が減少 */
-				opt.set_lower_bounds(-0.21);/* TODO 今は MSISの4倍程度 */
-				try {
-					args.number_of_iteration = 0;
-					/* ---- NLopt ---- */
-					nlopt::result result = opt.optimize(x, minf);
-					std::string nlopt_result = get_nlopt_result_description(result);
-					std::string nlopt_result_code = get_nlopt_result_string(result);
-					std::cerr << nlopt_result << std::endl;
-					/* ---- */
-					std::string path_save_vector = args.DIR_RESULT+"/optimized_vector.dat";
-					std::ofstream save_vector (path_save_vector);
-					if(!save_vector){
-						std::cerr << "main: optimized vector_error cannot be saved!! path: " << path_save_vector << std::endl;
-					}
-					inv_10_scaleheights[i_stage] = x[0];
-					for(int i=0; i<N_repeating_optimization; i++){
-			//			for(number_of_optimization_parameters)
-						save_vector << i <<" "<< inv_10_scaleheights[i] << nlopt_result_code << std::endl;
-					}
-					save_vector.close();
-				} catch (std::exception &e){
-					std::cout << "NLopt failed : " << e.what() << std::endl;
-				}
-			}
-			else if(OPTIMIZER == "golden"){
-				double x_opt;
-				double lower_bound = 2.0 * -0.0523572;
-				/* ---- golden section search ---- */
-				minf = golden_section_search( x_opt, lower_bound, 0.0, XTOL, wrapper, (void*)(&args) );
-				/* ---- */
+			opt.set_xtol_rel(XTOL_REL);/* TODO */
+			//opt.set_xtol_abs(XTOL_REL);/* TODO */
+		//	opt.set_lower_bounds(10);/* TODO */
+			opt.set_upper_bounds(0.0);/* 必ず上が減少 */
+			opt.set_lower_bounds(-0.21);/* TODO 今は MSISの4倍程度 */
+		
+		
+			try {
+				args.number_of_iteration = 0;
+				nlopt::result result = opt.optimize(x, minf);
+				std::string nlopt_result = get_nlopt_result_description(result);
+				std::string nlopt_result_code = get_nlopt_result_string(result);
+				std::cerr << nlopt_result << std::endl;
 				std::string path_save_vector = args.DIR_RESULT+"/optimized_vector.dat";
 				std::ofstream save_vector (path_save_vector);
 				if(!save_vector){
 					std::cerr << "main: optimized vector_error cannot be saved!! path: " << path_save_vector << std::endl;
 				}
-				inv_10_scaleheights[i_stage] = x_opt;
+				inv_10_scaleheights[i_stage] = x[0];
 				for(int i=0; i<N_repeating_optimization; i++){
-					save_vector << i <<" "<< inv_10_scaleheights[i] << std::endl;
+		//			for(number_of_optimization_parameters)
+					save_vector << i <<" "<< inv_10_scaleheights[i] <<" "<< nlopt_result_code << std::endl;
 				}
+				save_vector.close();
+			} catch (std::exception &e){
+				std::cout << "NLopt failed : " << e.what() << std::endl;
 			}
-/* ==== */
 			for(int i=0; i<args.Nheights; i++){
-//TODO				args.upper_radiance[i] = args.radiance[i];
+				args.upper_radiance[i] = args.radiance[i];
 			}
-			
 		}	
 
 	}	

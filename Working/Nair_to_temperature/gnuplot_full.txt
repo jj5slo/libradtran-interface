@@ -37,9 +37,9 @@ Solar azimuth 120.35 on ground\n\
 #	file_list=system(sprintf("ls ../result_20220601_030000_a014.6*.dat"))
 
 #plot for[i=1:21] sprintf("1764302454_atm%d0.dat", i*2) u 4:1 w l,
-plot "result.txt" u 4:1 w l lc "grey30"     title "MSIS",\
-     "result.txt" u 8:1 w l lc "dark-red"   title "old method" ,\
-     "result.txt" u 12:1 w l lc "dark-blue"  title "new method(Hauchecorn's formula)",\
+plot "MSISatm.dat_temp.dat" u 4:1 w l lc "grey30"     title "MSIS",\
+     "MSISatm.dat_temp.dat" u 7:1 w l lc "dark-red"   title "using interpolated Nair" ,\
+     "MSISatm.dat_temp.dat" u 10:1 w l lc "dark-blue"  title "using pressures at midpoints",\
 
 
 

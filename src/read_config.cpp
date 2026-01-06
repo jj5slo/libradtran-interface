@@ -61,7 +61,7 @@ std::string getConfig(const std::map<std::string, std::string> configs,
 		return raw->second;
 	}
 	else{
-		std::cout << "Notice: read_config: No value in configure file. Default value is used. key=" << key << ", value=" << defaultValue << std::endl;
+		std::cerr << "Notice: read_config: No value in configure file. Default value is used. key=" << key << ", value=" << defaultValue << std::endl;
 		return defaultValue;
 	}
 }
