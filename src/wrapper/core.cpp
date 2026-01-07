@@ -110,16 +110,16 @@ double core(void* raw_Args){
 /* ==== */
 /* ==== fitting results ==== */
 	std::cout << "fitting results..." << std::endl;
-	double offset = fit::mean(args->Nheights, args->heights, args->obs.Data(), args->offset_bottom_height, 99.1);// TODO NOW args->TOA_height); /* TODO TODO 観測値からオフセットをとる場合は、90 km - 100 km の 11点程度でやる!!! TODO TODO */
-	double* a_offset = fit::obtain_fitting_coefficient(args->obs.Data(), radiance, args->fit_i_bottom, /*args->Nheights-1*/args->fit_i_top, offset);/* TODO NOW i_top までではなく、TOAまでフィッティングしてみるみない */
-	double* fitted = fit::apply_fitting(args-> Nheights, radiance, a_offset);
-	double* smoothed = fit::running_mean_log(args->Nheights, args->N_running_mean, fitted);/* 3 は移動平均をとる数 */
+	double* smoothed = fit::running_mean_log(args->Nheights, args->N_running_mean, radiance);
+	double offset = fit::mean(args->Nheights, args->heights, args->obs.Data(), args->offset_bottom_height, args->offset_top_height);
+	double* a_offset = fit::obtain_fitting_coefficient(args->obs.Data(), smoothed, args->fit_i_bottom, args->fit_i_top, offset);
+	double* fitted = fit::apply_fitting(args-> Nheights, smoothed, a_offset);
 	double** fitted_results = new double* [5];
 	fitted_results[0] = args->heights;
 	fitted_results[1] = args->obs.Data();
 	fitted_results[2] = radiance;
-	fitted_results[3] = fitted;
-	fitted_results[4] = smoothed;
+	fitted_results[3] = smoothed;
+	fitted_results[4] = fitted;
 	double ld_alpha = args->on_ground.alpha();
 	std::string header = 
 		"# secid: " + args->secid + "\n"
@@ -133,7 +133,7 @@ double core(void* raw_Args){
 		+ "# atm_i_bottom: " + std::to_string(args->atm_i_bottom) + ", atm_i_top: " + std::to_string(args->atm_i_top) + "\n"
 		+ "# a: " + std::to_string(a_offset[0]) + ", offset: " + std::to_string(a_offset[1]) + "\n"
 		+ "# N_running_mean: " + std::to_string(args->N_running_mean) + "\n"
-		+ "# height observed sumulated fitted smoothed\n";
+		+ "# height observed sumulated smoothed fitted\n";
 	fit::save_data(path_result, header, args->Nheights,  5, fitted_results);/* 最適化を回し始めたら不要、/tmp/に入れてもいいかも */
 	delete[] fitted_results;
 

@@ -283,7 +283,9 @@ if(argc == 6){
 //			args.fit_i_top              = i_top;/* TODO 上はフィッティングに全部含める *///args.i_top + FITTING_ADDITION;   /* fitに含める最低 */
 			args.fit_i_top              = args.i_top;/* TODO 上はフィッティングに全部含める *///args.i_top + FITTING_ADDITION;   /* fitに含める最低 */
 			
-			args.offset_bottom_height = 94.9;/* for fit *//* TODO TODO 89.9にする */
+			args.offset_bottom_height = getConfig(configs, "offset_bottom_height", 89.9);/* for fit */
+			args.offset_top_height    = getConfig(configs, "offset_bottom_height", 100.1);/* for fit */
+
 			args.atmosphere_precision = atmosphere_precision;
 			args.obs_index            = obs_index;/* for save */
 			args.N_running_mean       = 3;/*移動平均*/

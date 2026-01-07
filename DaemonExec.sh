@@ -32,7 +32,7 @@ cp config.conf __config.conf
 #done
 
 #cp CONFIGS/PHOTONS/config.conf config.conf
-for i in `seq 1 91`;do
+for i in `seq 1 100`;do
 	echo "Progress: $i,"
 	./main 2022 6 1 3 36  1>  /tmp/TEMPORARY/libradtran-interface.log
 done

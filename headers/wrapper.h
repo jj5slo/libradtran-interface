@@ -74,6 +74,7 @@ public:
 	int              atm_i_top;
 	double           TOA_height;
 	double           offset_bottom_height;/* for fit */
+	double           offset_top_height;/* for fit */
 	int              atmosphere_precision;
 	std::string      secid;               /* for save */
 	int              obs_index;           /* for save */
