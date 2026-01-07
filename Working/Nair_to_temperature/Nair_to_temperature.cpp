@@ -94,20 +94,20 @@ ParamAtmosphere* Nair_to_atmosphere_new(
 	for(int i=atm_Nheights-3; 0<=i; i--){
 		double radius = earth.radius() + heights[i]/m2km;/* [m] */
 		double graviational_acceleration = GM_E / radius / radius;
-		double Dz = atm[i+2].z - atm[i+1].z;/* TODO */
+		double Dz = (atm[i+2].z - atm[i].z) / 2.0 / m2km;/* [m] */
 		
 		pressure_at_midpoint[i] 
 			= pressure_at_midpoint[i+1] 
-				+ ATM_MOL_W * atm[i+1].Nair * graviational_acceleration * Dz;
+				+ ATM_MOL_W*1.0e-3 * (atm[i+1].Nair*1.0e6)  / NA * graviational_acceleration * Dz * 1.0e-2;
 		pressure_at_midpoint_log[i] = std::log(pressure_at_midpoint[i]);
 	}
 
 	for(int i=1; i<atm_Nheights-1; i++){
 		double radius = earth.radius() + heights[i]/m2km;/* [m] */
 		double graviational_acceleration = GM_E / radius / radius;
-		double Dz = atm[i].z - atm[i-1].z;
-		atm[i].T = - (ATM_MOL_W * graviational_acceleration * Dz) / (GAS_CONSTANT * (pressure_at_midpoint_log[i] - pressure_at_midpoint_log[i-1]));
-		atm[i].p = (atm[i].T) * (atm[i].Nair * 1.0e6) * BOLTZMANN_CONSTANT / 1.0e2;/* 状態方程式 */
+		double Dz = (atm[i].z - atm[i-1].z) / m2km;
+		atm[i].T = - (ATM_MOL_W*1.0e-3 * graviational_acceleration * Dz) / (GAS_CONSTANT * (pressure_at_midpoint_log[i] - pressure_at_midpoint_log[i-1]));
+		atm[i].p = (atm[i].T) * (atm[i].Nair * 1.0e6) * BOLTZMANN_CONSTANT * 1.0e-2;/* 状態方程式 */
 	}
 	return atm;
 }
@@ -139,7 +139,7 @@ ParamAtmosphere* Nair_to_atmosphere_old(
 	for(int i=atm_Nheights-1; 0<i; i--){
 		double radius = earth.radius() + (heights[i]/m2km + heights[i-1]/m2km)/2.0;/* [m] */
 		double graviational_acceleration = GM_E / radius / radius;
-		double air_mass_density = ATM_MOL_W/*get_msis_average_molecular_weight( dt, coord[i-1] , coord[i])*/ * std::pow(10, ((std::log10(atm[i-1].Nair) + std::log10(atm[i].Nair))/2))  * 1.0e3;/* [kg m-3] */
+		double air_mass_density = ATM_MOL_W*1.0e-3/*get_msis_average_molecular_weight( dt, coord[i-1] , coord[i])*/ * std::pow(10, ((std::log10(atm[i-1].Nair) + std::log10(atm[i].Nair))/2))  * 1.0e6;/* [kg m-3] */
 //		std::cerr << air_mass_density << std::endl;
 		atm[i-1].p = atm[i].p + graviational_acceleration * air_mass_density / NA * (atm[i].z - atm[i-1].z)*1.0e3 * 1.0e-2;/* [hPa] *//* 静水圧平衡 *//* dz にマイナスを入れ込んだので問題ない */
 		atm[i-1].T = (atm[i-1].p * 1.0e2)/ (atm[i-1].Nair * 1.0e6)  / BOLTZMANN_CONSTANT;/* 状態方程式 */
