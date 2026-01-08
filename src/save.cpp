@@ -24,7 +24,15 @@ std::string save_path(
 	const int line_index
 ){/* 結果の保存名 */
 	std::ostringstream filename;
-	filename << "result_" << std::setw(4) << std::setfill('0') << dt.Year() << std::setw(2) << std::setfill('0') << dt.Month() <<  std::setw(2) << std::setfill('0') << dt.Date() << "_" <<   std::setw(2) << std::setfill('0') << dt.Hour() <<  std::setw(2) << std::setfill('0') << dt.Minute() <<  std::setw(2) << std::setfill('0') << dt.Second() << "_" << line_index <<"_" << "_id" << secid << ".dat";
+	filename << "result_" 
+		<< std::setw(4) << std::setfill('0') << dt.Year() 
+		<< std::setw(2) << std::setfill('0') << dt.Month() 
+		<<  std::setw(2) << std::setfill('0') << dt.Date() 
+		<< "_" <<   std::setw(2) << std::setfill('0') << dt.Hour() 
+		<<  std::setw(2) << std::setfill('0') << dt.Minute() 
+		<<  std::setw(2) << std::setfill('0') << dt.Second() 
+		<< "_" << line_index 
+		<<"_" << "_id" << secid << ".dat";
 	std::string path = data_dir + "/" + filename.str();
 	return path;
 }

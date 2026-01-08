@@ -242,15 +242,15 @@ if(argc == 6){
 		args.PATH_CONFIG            = PATH_CONFIG;/* for save */
 		args.FLAG_UNDISPLAY_LOG     = FLAG_UNDISPLAY_LOG;
 		args.DIR_LOG                = DIR_LOG;
-		args.i_bottom               = i_bottom;/* 誤差計算に含める最高 */
-		args.i_top                  = i_top;   /* 誤差計算に含める最低 */
-		args.fit_i_bottom           = args.i_bottom;/* fitに含める最高 */
-		args.fit_i_top              = i_top;/* TODO 上はフィッティングに全部含める *///args.i_top + FITTING_ADDITION;   /* fitに含める最低 */
-		
+		args.i_bottom               = i_bottom;/* 誤差計算に含める最低 */
+		args.i_top                  = i_top;   /* 誤差計算に含める最高 */
+		args.fit_i_bottom           = args.i_bottom;/* fitに含める最低 */
+		args.fit_i_top              = args.i_top;
+
 		args.offset_bottom_height = 94.9;/* for fit *//* TODO TODO 89.9にする */
 		args.atmosphere_precision = atmosphere_precision;
 		args.obs_index            = obs_index;/* for save */
-		args.N_running_mean       = 1;/*移動平均*/
+		args.N_running_mean       = 3;/*移動平均*/
 		args.radiance             = new double[args.Nheights];
 		for(int i=0; i<args.Nheights; i++){
 			args.radiance[i] = 0.0;

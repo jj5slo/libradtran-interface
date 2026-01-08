@@ -110,16 +110,22 @@ double core(void* raw_Args){
 /* ==== */
 /* ==== fitting results ==== */
 	std::cout << "fitting results..." << std::endl;
+	char input;
 	double* smoothed = fit::running_mean_log(args->Nheights, args->N_running_mean, radiance);
 	double offset = fit::mean(args->Nheights, args->heights, args->obs.Data(), args->offset_bottom_height, args->offset_top_height);
+	std::cerr << args->offset_bottom_height << " " << args->offset_top_height << std::endl;
+	std::cerr << offset << std::endl;
 	double* a_offset = fit::obtain_fitting_coefficient(args->obs.Data(), smoothed, args->fit_i_bottom, args->fit_i_top, offset);
-	double* fitted = fit::apply_fitting(args-> Nheights, smoothed, a_offset);
-	double** fitted_results = new double* [5];
-	fitted_results[0] = args->heights;
-	fitted_results[1] = args->obs.Data();
-	fitted_results[2] = radiance;
-	fitted_results[3] = smoothed;
-	fitted_results[4] = fitted;
+	std::cerr << a_offset[0] << " " << a_offset[1] << std::endl << ">..";
+	std::cin >> input;
+	return 0.0;
+	double* fitted = fit::apply_fitting(args->Nheights, smoothed, a_offset);
+	double** processed_results = new double* [5];
+	processed_results[0] = args->heights;
+	processed_results[1] = args->obs.Data();
+	processed_results[2] = radiance;
+	processed_results[3] = smoothed;
+	processed_results[4] = fitted;
 	double ld_alpha = args->on_ground.alpha();
 	std::string header = 
 		"# secid: " + args->secid + "\n"
@@ -134,8 +140,8 @@ double core(void* raw_Args){
 		+ "# a: " + std::to_string(a_offset[0]) + ", offset: " + std::to_string(a_offset[1]) + "\n"
 		+ "# N_running_mean: " + std::to_string(args->N_running_mean) + "\n"
 		+ "# height observed sumulated smoothed fitted\n";
-	fit::save_data(path_result, header, args->Nheights,  5, fitted_results);/* 最適化を回し始めたら不要、/tmp/に入れてもいいかも */
-	delete[] fitted_results;
+	fit::save_data(path_result, header, args->Nheights,  5, processed_results);/* 最適化を回し始めたら不要、/tmp/に入れてもいいかも */
+	delete[] processed_results;
 
 	double log_square_error = fit::root_mean_square_log_error( args->i_bottom, args->i_top, args->obs.Data(), smoothed );
 	
