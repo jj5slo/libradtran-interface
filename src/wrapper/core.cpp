@@ -94,31 +94,25 @@ double core(void* raw_Args){
 	save_params(args->DIR_RESULT, args->secid, args->PATH_STDIN, "_stdin.txt");
 	save_params(args->DIR_RESULT, args->secid, args->PATH_CONFIG, "_config.conf");
 /* ==== */
-/* ==== merging radiance (including upper stage) ==== */
-	/* running_mean_extra(通常1)だけ範囲外も計算しているので、その端点i_top_radが一致するように過去の結果(上の層束)を合わせ直す(running_mean_extraが1より大きいのときは平均とかにしたほうがい) */
-	double fit_radiance_of_upper_stage_coefficient = 1.0;
-	if(1.0e-12 <= std::abs(args->upper_radiance[i_top_rad]+args->upper_radiance[i_top_rad-1])){/* TODO */
-		fit_radiance_of_upper_stage_coefficient = (radiance[i_top_rad] + radiance[i_top_rad-1]) / (args->upper_radiance[i_top_rad] + args->upper_radiance[i_top_rad-1]);
-		std::cout << "coefficient to connect upper radiance: " << fit_radiance_of_upper_stage_coefficient << std::endl;
-	}
-	for(int i=i_top_rad+1; i<args->Nheights; i++){
-		radiance[i] = args->upper_radiance[i] * fit_radiance_of_upper_stage_coefficient;
-	}
-	for(int i=i_bottom_rad; i<=i_top_rad; i++){
-		args->radiance[i] = radiance[i];
-	}
-/* ==== */
 /* ==== fitting results ==== */
 	std::cout << "fitting results..." << std::endl;
-	char input;
 	double* smoothed = fit::running_mean_log(args->Nheights, args->N_running_mean, radiance);
+/* -- merging radiance (including upper stage) -- */
+	/* running_mean_extra(通常1)だけ範囲外も計算しているので、その端点i_top_rad - 1が一致するように過去の結果(上の層束)を合わせ直す(running_mean_extraが1より大きいのときは平均とかにしたほうがい) */
+	double fit_radiance_of_upper_stage_coefficient = 1.0;
+	if(1.0e-12 <= std::abs(args->upper_radiance_smoothed[i_top_rad-1])){/* TODO */
+		fit_radiance_of_upper_stage_coefficient = smoothed[i_top_rad-1]  / args->upper_radiance_smoothed[i_top_rad-1];
+		std::cout << "coefficient to connect upper radiance: " << fit_radiance_of_upper_stage_coefficient << std::endl;
+	}
+//	for(int i=i_top_rad; i<args->Nheights; i++){
+//		smoothed[i] = args->upper_radiance_smoothed[i] * fit_radiance_of_upper_stage_coefficient;
+//	}
+//	for(int i=i_bottom_rad; i<args->Nheights; i++){
+//		args->radiance_smoothed[i] = smoothed[i];
+//	}
+/* -- */
 	double offset = fit::mean(args->Nheights, args->heights, args->obs.Data(), args->offset_bottom_height, args->offset_top_height);
-	std::cerr << args->offset_bottom_height << " " << args->offset_top_height << std::endl;
-	std::cerr << offset << std::endl;
 	double* a_offset = fit::obtain_fitting_coefficient(args->obs.Data(), smoothed, args->fit_i_bottom, args->fit_i_top, offset);
-	std::cerr << a_offset[0] << " " << a_offset[1] << std::endl << ">..";
-	std::cin >> input;
-	return 0.0;
 	double* fitted = fit::apply_fitting(args->Nheights, smoothed, a_offset);
 	double** processed_results = new double* [5];
 	processed_results[0] = args->heights;
@@ -143,7 +137,7 @@ double core(void* raw_Args){
 	fit::save_data(path_result, header, args->Nheights,  5, processed_results);/* 最適化を回し始めたら不要、/tmp/に入れてもいいかも */
 	delete[] processed_results;
 
-	double log_square_error = fit::root_mean_square_log_error( args->i_bottom, args->i_top, args->obs.Data(), smoothed );
+	double log_square_error = fit::root_mean_square_log_error( args->i_bottom, args->i_top, args->obs.Data(), fitted );
 	
 	return log_square_error;	
 }

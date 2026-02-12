@@ -19,8 +19,8 @@ int main(int argc, char *argv[]){
 	int YEAR;
 	int MONTH;
 	int DAY;
-	int HOUR_START;
-	int HOUR_END;
+	int HOUR;
+	int MINUTE;
 	int obs_index;
 //	if(argc == 5){
 //		YEAR = atoi(argv[1]);
@@ -31,22 +31,22 @@ int main(int argc, char *argv[]){
 //		obs_index = atoi(argv[4]) - 1;/* 観測データの何行目を読むか */
 //	}
 //	else
-if(argc == 6){
-		YEAR = atoi(argv[1]);
-		MONTH = atoi(argv[2]);
-		DAY = atoi(argv[3]);
-		HOUR_START = atoi(argv[4]);
-		HOUR_END = HOUR_START;
-		obs_index = atoi(argv[5]) - 1;/* 観測データの何行目を読むか */
+if(argc == 7){
+		YEAR      = atoi(argv[1]);
+		MONTH     = atoi(argv[2]);
+		DAY       = atoi(argv[3]);
+		HOUR      = atoi(argv[4]);
+		MINUTE    = atoi(argv[5]);
+		obs_index = atoi(argv[6]) - 1;/* 観測データの何行目を読むか */
 	}
 	else{
-		std::cerr << "Usage: ./main YEAR MONTH DAY OBS_INDEX\nUsage: ./main YEAR MONTH DAY HOUR OBS_INDEX" << std::endl;
+		std::cerr << "Usage: ./getmsisatm YEAR MONTH DAY HOUR MINUTE OBS_INDEX\n" << std::endl;
 		return 0;
 	}
 
 /* ==== */
 
-	obsDateTime dt(YEAR, MONTH, DAY, HOUR_START, 0, 0);/* 観測日 *//* TODO HOUR */
+	obsDateTime dt(YEAR, MONTH, DAY, HOUR, MINUTE, 0);/* 観測日 */
 
 /* ==== id付け ==== */
 	/* 現在時刻（シミュレーション開始時刻）を取得、保持 */
@@ -92,7 +92,6 @@ if(argc == 6){
 
 	double XTOL_REL = getConfig(configs, "XTOL_REL", 1.0e-6);/* 最適化終了判定 */
 	int FITTING_ADDITION = getConfig(configs, "FITTING_ADDITION", 0);/* フィッティングするために上の層の値を余計に計算する。破棄予定 */
-	std::string PATH_OTEHON = getConfig(configs, "PATH_OTEHON", "/lhome/sano2/SANO/research/estimate-profile/Result/Result-12-W5/OTEHON_2022_6_1_3_36.dat");
 //	DIR_UVSPEC
 
 
@@ -106,102 +105,69 @@ if(argc == 6){
 	PATH_ATMOSPHERE = "/home/sano/SANO/research/estimate-profile/atmmod-temporary/msis-atm.dat";
 */
 /* ==== 保存先ディレクトリ作成 ==== */
-	std::cout << "create_directory " << DIR_RESULT << std::endl;
-	std::filesystem::create_directory(DIR_RESULT);
-
-	if(DEBUG){ std::cin >> input; }
 
 //	std::string path_result = "result.txt";
 
 /* ==== */
-	for(int HOUR_i = HOUR_START; HOUR_i <= HOUR_END; HOUR_i++){/* TODO 一時的に変更 */
 /* ==== 観測データ読み込み ==== */
-	
-//		dt.settime(HOUR_i, 0, 0);/* 観測時 */
-//		std::string path_obs = obs_path(DIR_OBS, dt);/* 観測日時からデータの名前 */
-//		std::cout << path_obs << std::endl;
-//		if(DEBUG){ std::cin >> input; }
-//		int Nobs = 0;
-//		Observed *obsds = read_obs( &Nobs, path_obs );/* 使うのはobsds[obs_index]だけ */
-//		std::cout << Nobs << "points" << std::endl;
-
-		int otehon_lines;
-		int otehon_columns;
-		std::string otehon_header;
-		double** otehon = fit::read_result(PATH_OTEHON, otehon_header, otehon_lines, otehon_columns);
-		std::cout << "Read Otehon." << std::endl;
-		Observed *obsds = new Observed[obs_index + 1];
-		obsds[obs_index].set(73.0, 82.0, otehon_lines, otehon[0], otehon[4]);/* TODO TODO TODO HARD CODING !!! */
-		
-//		for(int i=0; i<otehon_lines; i++){
-//			std::cout << otehon[0][i] <<" "<< obsds[obs_index].Data()[i] << std::endl;
-//		}
-
-
+	std::string path_obs = obs_path(DIR_OBS, dt);/* 観測日時からデータの名前 */
+	std::cout << path_obs << std::endl;
+	if(DEBUG){ std::cin >> input; }
+	int Nobs = 0;
+	Observed *obsds = read_obs( &Nobs, path_obs );/* 使うのはobsds[obs_index]だけ */
+	std::cout << Nobs << "points" << std::endl;
 /* ==== */
 /* 諸定数の準備 */
-		WrapperArgs args;/* declared in wrapper.h */
-		args.TOA_height           = obsds[obs_index].maxHeight();
-		
-		std::filesystem::remove(DIR_LOG+"libRadtran.log");/* ログ容量溢れ防止 */
+	
+	std::filesystem::remove(DIR_LOG+"libRadtran.log");/* ログ容量溢れ防止 */
 
-		double *heights = obsds[obs_index].Heights();
-		int Nheights = obsds[obs_index].Nheights();
-		std::cout << "lat" << obsds[obs_index].Latitude() << " "  << "lon" << obsds[obs_index].Longitude() << " " << obsds[obs_index].Nheights() << "heights max:" << args.TOA_height << std::endl;
+	double *heights = obsds[obs_index].Heights();
+	int Nheights = obsds[obs_index].Nheights();
+	std::cout << "lat" << obsds[obs_index].Latitude() << " "  << "lon" << obsds[obs_index].Longitude() << " " << obsds[obs_index].Nheights() << "heights max:" << obsds[obs_index].maxHeight() << std::endl;
 //		for(int i=0; i<obsds[obs_index].Nheights(); i++){
 //			std::cout << heights[i] << " " << obsds[obs_index].Data(heights[i]) << "\n";
 //		}
-		std::cout << std::endl;
-	
-		if(DEBUG){ std::cin >> input; }
+	std::cout << std::endl;
+
+	if(DEBUG){ std::cin >> input; }
 /* ==== 地球、衛星の設定 ==== */
 	
-		auto earth = PlanetParam( 6370.e3 );
-		auto himawari = SatelliteParam( 35790.e3 + earth.radius(), 0.0, 140.7 );
-		/* TODO configに入れる */
-	
+	auto earth = PlanetParam( 6370.e3 );
+	auto himawari = SatelliteParam( 35790.e3 + earth.radius(), 0.0, 140.7 );
+	/* TODO configに入れる */
+
 /* ==== */
 
 
-		args.pStdin.mc_photons = mc_photons;/* default is 300000 */
-		args.pStdin.solver = solver;
-		args.pStdin.additional = additional_option;//\npseudospherical";
-	/*
-		std::cout << &args.pStdin << " " << &args.pStdin.sza << std::endl;
-		return 0;
-	*/
-		
-		args.pStdin.atmosphere_file = PATH_ATMOSPHERE;
-		
-		args.pStdin.SURFACE_TYPE = SURFACE_TYPE;
-		args.pStdin.brdf_cam_u10 = brdf_cam_u10;
-		args.pStdin.albedo = albedo;/* 地球平均は0.3 */
-
-		args.pStdin.wavelength = wavelength;
-		
-		Geocoordinate on_ground(earth, himawari, obsds[obs_index].Latitude(), obsds[obs_index].Longitude(), 0.0);/* 観測データにある緯度経度の高度0km 地点のGeocoordinate */
-		double ld_alpha = on_ground.alpha()*Rad2deg;
-		double sza_on_ground;
-		double phi0_on_ground;
-		AndoLab::solar_direction(on_ground.latitude(), on_ground.longitude(), dt.DOY(), dt.Hour(), &sza_on_ground, &phi0_on_ground);/* on_ground での太陽方向 */
-		
-		std::cout << "ld_alpha : " <<  ld_alpha << std::endl;
-		std::cout << "sza_on_ground : " <<  sza_on_ground << std::endl;
-		std::cout << "phi0_on_ground : " <<  phi0_on_ground << std::endl;
+/*
+	std::cout << &args.pStdin << " " << &args.pStdin.sza << std::endl;
+	return 0;
+*/
+	
+	
+	Geocoordinate on_ground(earth, himawari, obsds[obs_index].Latitude(), obsds[obs_index].Longitude(), 0.0);/* 観測データにある緯度経度の高度0km 地点のGeocoordinate */
+	double ld_alpha = on_ground.alpha()*Rad2deg;
+	double sza_on_ground;
+	double phi0_on_ground;
+	AndoLab::solar_direction(on_ground.latitude(), on_ground.longitude(), dt.DOY(), dt.Hour(), &sza_on_ground, &phi0_on_ground);/* on_ground での太陽方向 */
+	
+	std::cout << "ld_alpha : " <<  ld_alpha << std::endl;
+	std::cout << "sza_on_ground : " <<  sza_on_ground << std::endl;
+	std::cout << "phi0_on_ground : " <<  phi0_on_ground << std::endl;
 
 /* ==== MSIS ==== */
 
-		Geocoordinate *tparr = new Geocoordinate[Nheights];
-		LookingDirection ld;
-		for(int i=0; i<Nheights; i++){
-			ld.set( ld_alpha, heights[i]/m2km );/* 見る場所決め */
-			tparr[i] = ld.tangential_point( earth, himawari);/* tangential point の配列 */
-		}
-		ParamAtmosphere *pAtm = get_msis(dt, tparr, Nheights);/* tangential point でのMSIS大気から求めたパラメタを取得 */
-		std::cout << "# MSIS\nz Nair p T" << std::endl;
-		for(int i=0; i<Nheights; i++){
-			std::cout << " " << pAtm[i].z << " " << pAtm[i].Nair << " " << pAtm[i].p << " " <<  pAtm[i].T << std::endl;
-		}
+	Geocoordinate *tparr = new Geocoordinate[Nheights];
+	LookingDirection ld;
+	for(int i=0; i<Nheights; i++){
+		ld.set( ld_alpha, heights[i]/m2km );/* 見る場所決め */
+		tparr[i] = ld.tangential_point( earth, himawari);/* tangential point の配列 */
+	}
+	ParamAtmosphere *pAtm = get_msis(dt, tparr, Nheights);/* tangential point でのMSIS大気から求めたパラメタを取得 */
+	std::cout << "# MSIS\nz Nair p T" << std::endl;
+	for(int i=0; i<Nheights; i++){
+		std::cout << " " << pAtm[i].z << " " << pAtm[i].Nair << " " << pAtm[i].p << " " <<  pAtm[i].T << std::endl;
+	}
 //		for(int i=i_bottom; i<=i_top; i++){/* TODO NOW MSISから考えている高度範囲だけはずらした上で最適化で戻るかどうか */
 ////			double supercoef = 1.0;
 ////			double sigma_z = (pAtm[i_top].z - pAtm[i_bottom].z) / 3.0;
@@ -210,12 +176,11 @@ if(argc == 6){
 //			pAtm[i].Nair = pAtm[i_top+1].Nair * std::pow(10.0, -super_inv_10_scaleheight * (pAtm[i].z - pAtm[i_top+1].z));
 //			pAtm[i].set_p_from_Nair_T();
 //		}
-		std::cout << "# Modified Atmosphere\nz Nair p T" << std::endl;
-		for(int i=0; i<Nheights; i++){
-			std::cout << " " << pAtm[i].z << " " << pAtm[i].Nair << " " << pAtm[i].p << " " <<  pAtm[i].T << std::endl;
-		}
-		
-		saveParamAtmosphere(PATH_ATMOSPHERE, pAtm, Nheights, atmosphere_precision);
+	std::cout << "# Modified Atmosphere\nz Nair p T" << std::endl;
+	for(int i=0; i<Nheights; i++){
+		std::cout << " " << pAtm[i].z << " " << pAtm[i].Nair << " " << pAtm[i].p << " " <<  pAtm[i].T << std::endl;
 	}
+	
+	saveParamAtmosphere(PATH_ATMOSPHERE, pAtm, Nheights, atmosphere_precision);
 	return 0;
 }

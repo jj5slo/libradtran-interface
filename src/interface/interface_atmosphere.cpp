@@ -35,6 +35,7 @@ void saveParamAtmosphere(std::string filename, ParamAtmosphere *params, int Nlin
 		ofs << "\n";
 	}
 	ofs.close();
+	std::cout << "saved: " << filename << std::endl;
 	AndoLab::deallocate_memory2d(data);
 }
 

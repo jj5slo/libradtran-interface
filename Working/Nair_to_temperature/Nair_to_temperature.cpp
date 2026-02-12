@@ -52,8 +52,11 @@ int main(int argc, char* argv[]){
 			heights[i] = pAtm[i].z;
 			x[i] = pAtm[i].Nair;
 		}
-		ParamAtmosphere* oldatm = Nair_to_atmosphere_old(Nheights, earth, heights, x, pAtm[Nheights-1].p);
-		ParamAtmosphere* newatm = Nair_to_atmosphere_new(Nheights, earth, heights, x, std::pow(10, (std::log10(pAtm[Nheights-1].p) + std::log10(pAtm[Nheights-2].p))/2.0));
+		double pressure_at_top;
+		pressure_at_top = 2 * pAtm[Nheights-1].p;
+			ParamAtmosphere* oldatm = Nair_to_atmosphere_old(Nheights, earth, heights, x, pressure_at_top);
+		pressure_at_top = 2 * std::pow(10, (std::log10(pAtm[Nheights-1].p) + std::log10(pAtm[Nheights-2].p))/2.0);
+			ParamAtmosphere* newatm = Nair_to_atmosphere_new(Nheights, earth, heights, x, pressure_at_top);
 		
 		std::ofstream ofs(paths[file_i]+"_temp.dat");
 

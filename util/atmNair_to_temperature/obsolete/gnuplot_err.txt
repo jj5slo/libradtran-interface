@@ -1,0 +1,52 @@
+reset
+set terminal png size 1280, 960 linewidth 3 font ",36"
+
+#angle="a014.6"
+#date="20220601"
+#hour=3
+
+#do for [j=1-$10):11]{
+	pho=60000
+	
+#set format x "%.0t{/Symbol \264}10^{%T}"
+	set output sprintf("zoom_err.png")
+	set ytics 10
+	set mytics 2
+	set yrange [30:60]
+	set xrange [0:1.5]
+	set mxtics 2
+	set grid xtics ytics mxtics mytics
+	unset label
+	set key right top font ",24"
+	set xlabel "Absolute value of Temperature Error [K]"
+	set ylabel "Altitude [km]"
+#	file_list=system(sprintf("ls ../result_20220601_030000_a014.6*_runningmean*.dat"))
+#	file_i=0
+#	do for [file in file_list]{
+#		file_i = file_i+1
+#	}
+	file_i = 10
+#	set label sprintf("Fitted result", pho) left at graph 0.05, 0.40 font ",32"
+	set label sprintf("\
+3:00 UTC\n2022/06/01\n\
+82.0E, 73.0N\n\
+SZA 58.38 on ground\n\
+Solar azimuth 120.35 on ground\n\
+", pho, file_i)\
+		left at graph 0.05, 0.20 font ",24"
+	
+#	file_list=system(sprintf("ls ../result_20220601_030000_a014.6*.dat"))
+
+#plot for[i=1:21] sprintf("1764302454_atm%d0.dat", i*2) u 4:1 w l,
+plot "MSISatm.dat_temp.dat" u (abs($7-$4)):1 w l lc "dark-red"   title "using interpolated Nair" ,\
+     "MSISatm.dat_temp.dat" u (abs($10-$4)):1 w l lc "dark-blue"  title "using interpolated pressure(Hauchecorn's formula)",\
+
+
+
+# plot "plain_msis/plain_msis.dat" u 5:1 w lp     title "MSIS",
+# "merged/hb_1_alp_0.1.dat" u 5:1 w l title "MSIS {/Symbol \264} 0.1 (> 61 km)", \
+# "merged/hb_1_alp_2.dat" u 5:1 w l title "MSIS {/Symbol \264} 2 (> 61 km)", \
+# "merged/hb_1_alp_8.dat" u 5:1 w l title "MSIS {/Symbol \264} 8 (> 61 km)"
+	
+	set output
+#}	

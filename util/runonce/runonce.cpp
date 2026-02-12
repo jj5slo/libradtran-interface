@@ -13,7 +13,13 @@
 #include "get_msis.h"
 #include "read_config.h"
 #include "wrapper.h"
+#include "golden_section_search.h"
+#include "avoid_dupe.h"
 
+//constexpr int i_top    {64};/* 全体のどこかでは誤差計算に含める */
+//constexpr int i_bottom {60};
+//constexpr int N_exp_decay_atm {5}; /* この範囲の点数では数密度は指数的に変化するものとする(これごとに分割してもとめる) */
+constexpr double super_inv_10_scaleheight = 0.03;/* 初期値 */
 char input;
 
 /* ==== main ==== */
@@ -25,14 +31,13 @@ char input;
 /* ==== */
 
 
-double core(void* raw_Args);
 int main(int argc, char *argv[]){
 /* ==== 引数処理 ==== */
 	int YEAR;
 	int MONTH;
 	int DAY;
-	int HOUR_START;
-	int HOUR_END;
+	int HOUR;
+	int MINUTE;
 	int obs_index;
 //	if(argc == 5){
 //		YEAR = atoi(argv[1]);
@@ -43,22 +48,22 @@ int main(int argc, char *argv[]){
 //		obs_index = atoi(argv[4]) - 1;/* 観測データの何行目を読むか */
 //	}
 //	else
-if(argc == 6){
-		YEAR = atoi(argv[1]);
-		MONTH = atoi(argv[2]);
-		DAY = atoi(argv[3]);
-		HOUR_START = atoi(argv[4]);
-		HOUR_END = HOUR_START;
-		obs_index = atoi(argv[5]) - 1;/* 観測データの何行目を読むか */
+if(argc == 7){
+		YEAR      = atoi(argv[1]);
+		MONTH     = atoi(argv[2]);
+		DAY       = atoi(argv[3]);
+		HOUR      = atoi(argv[4]);
+		MINUTE    = atoi(argv[5]);
+		obs_index = atoi(argv[6]) - 1;/* 観測データの何行目を読むか */
 	}
 	else{
-		std::cerr << "Usage: ./main YEAR MONTH DAY OBS_INDEX\nUsage: ./main YEAR MONTH DAY HOUR OBS_INDEX" << std::endl;
+		std::cerr << "Usage: ./main YEAR MONTH DAY HOUR MINUTE OBS_INDEX\n" << std::endl;
 		return 0;
 	}
 
 /* ==== */
 
-	obsDateTime dt(YEAR, MONTH, DAY, HOUR_START, 0, 0);/* 観測日 *//* TODO HOUR */
+	obsDateTime dt(YEAR, MONTH, DAY, HOUR, MINUTE, 0);/* 観測日 *//* TODO HOUR */
 
 /* ==== id付け ==== */
 	/* 現在時刻（シミュレーション開始時刻）を取得、保持 */
@@ -90,6 +95,8 @@ if(argc == 6){
 	double wavelength = getConfig(configs, "wavelength", 470.0);/* 波長 [nm]. TODO 決まっているので指定方法を変える */
 	int i_top = getConfig(configs, "i_top", 64);/* 数密度を求める最高高度（index） */
 	int i_bottom = getConfig(configs, "i_bottom", 60);/* 数密度を求める最低高度（index） */
+	int fit_i_top    = getConfig(configs, "fit_i_top", 64);/* 数密度を求める最高高度（index） */
+	int fit_i_bottom = getConfig(configs, "fit_i_bottom", 60);/* 数密度を求める最低高度（index） */
 	int N_exp_decay_atm = getConfig(configs, "N_exp_decay_atm", 5);/* 数密度を求める最低高度（index） */
 
 	std::string solver = getConfig(configs, "solver", "mystic");/* libRadtranのソルバ */
@@ -101,14 +108,18 @@ if(argc == 6){
 	int mc_photons = getConfig(configs, "mc_photons", 60000);/* MYSTICの回数 デフォルトは300000 */
 
 	int atmosphere_precision = getConfig(configs, "atmosphere_precision", 7);/* MSISから取得する大気の保存時の精度 */
-	
+
+	double XTOL = getConfig(configs, "XTOL", 1.0e-6);/* 最適化終了判定 */
 	double XTOL_REL = getConfig(configs, "XTOL_REL", 1.0e-6);/* 最適化終了判定 */
 	int FITTING_ADDITION = getConfig(configs, "FITTING_ADDITION", 0);/* フィッティングするために上の層の値を余計に計算する。破棄予定 */
 	std::string PATH_OTEHON = getConfig(configs, "PATH_OTEHON", "/lhome/sano2/SANO/research/estimate-profile/Result/Result-12-W5/OTEHON_2022_6_1_3_36.dat");
+
+	std::string OPTIMIZER = getConfig(configs, "OPTIMIZER", "NL");
 //	DIR_UVSPEC
 
-
-
+/* !!!! */
+	PATH_ATMOSPHERE = PATH_ATMOSPHERE_INIT;
+/* !!!! */
 
 
 /* ==== */
@@ -118,7 +129,13 @@ if(argc == 6){
 	PATH_ATMOSPHERE = "/home/sano/SANO/research/estimate-profile/atmmod-temporary/msis-atm.dat";
 */
 /* ==== 保存先ディレクトリ作成 ==== */
-	std::cout << "create_directory " << DIR_RESULT << std::endl;
+	
+	int ifdupe = avoid_dupe(DIR_RESULT);
+	if(ifdupe){
+		DIR_RESULT = DIR_RESULT +"_"+ std::to_string(ifdupe);
+		secid = secid + std::to_string(ifdupe);
+	}
+	std::cerr << "create_directory " << DIR_RESULT << std::endl;
 	std::filesystem::create_directory(DIR_RESULT);
 
 	if(DEBUG){ std::cin >> input; }
@@ -126,149 +143,161 @@ if(argc == 6){
 //	std::string path_result = "result.txt";
 
 /* ==== */
-	for(int HOUR_i = HOUR_START; HOUR_i <= HOUR_END; HOUR_i++){/* TODO 一時的に変更 */
 /* ==== 観測データ読み込み ==== */
 	
-		dt.settime(HOUR_i, 0, 0);/* 観測時 */
-		std::string path_obs = obs_path(DIR_OBS, dt);/* 観測日時からデータの名前 */
-		std::cout << path_obs << std::endl;
-		if(DEBUG){ std::cin >> input; }
-		int Nobs = 0;
-		Observed *obsds = read_obs( &Nobs, path_obs );/* 使うのはobsds[obs_index]だけ */
-		std::cout << Nobs << "points" << std::endl;
+	std::string path_obs = obs_path(DIR_OBS, dt);/* 観測日時からデータの名前 */
+	std::cout << path_obs << std::endl;
+	if(DEBUG){ std::cin >> input; }
+	int Nobs = 0;
+	Observed *obsds = read_obs( &Nobs, path_obs );/* 使うのはobsds[obs_index]だけ */
+	std::cout << Nobs << "points" << std::endl;
 
-//		int otehon_lines;
-//		int otehon_columns;
-//		std::string otehon_header;
-//		double** otehon = fit::read_result(PATH_OTEHON, otehon_header, otehon_lines, otehon_columns);
-//		std::cout << "Read Otehon." << std::endl;
-//		Observed *obsds = new Observed[obs_index + 1];
-//		obsds[obs_index].set(73.0, 82.0, otehon_lines, otehon[0], otehon[4]);/* TODO TODO TODO HARD CODING !!! */
-		
-//		for(int i=0; i<otehon_lines; i++){
-//			std::cout << otehon[0][i] <<" "<< obsds[obs_index].Data()[i] << std::endl;
-//		}
+//	int otehon_lines;
+//	int otehon_columns;
+//	std::string otehon_header;
+//	double** otehon = fit::read_result(PATH_OTEHON, otehon_header, otehon_lines, otehon_columns);
+//	std::cout << "Read Otehon." << std::endl;
+//	Observed *obsds = new Observed[obs_index + 1];
+//	obsds[obs_index].set(62.0, 69.6, otehon_lines, otehon[0], otehon[4]);/* TODO TODO TODO HARD CODING !!! */
+	
+//	for(int i=0; i<otehon_lines; i++){
+//		std::cout << otehon[0][i] <<" "<< obsds[obs_index].Data()[i] << std::endl;
+//	}
 
 
 /* ==== */
 /* 諸定数の準備 */
-		WrapperArgs args;/* declared in wrapper.h */
-		args.TOA_height           = obsds[obs_index].maxHeight();
-		
-		std::filesystem::remove(DIR_LOG+"libRadtran.log");/* ログ容量溢れ防止 */
-
-		double *heights = obsds[obs_index].Heights();
-		int Nheights = obsds[obs_index].Nheights();
-		std::cout << "lat" << obsds[obs_index].Latitude() << " "  << "lon" << obsds[obs_index].Longitude() << " " << obsds[obs_index].Nheights() << "heights max:" << args.TOA_height << std::endl;
-		for(int i=0; i<obsds[obs_index].Nheights(); i++){
-			std::cout << heights[i] << " " << obsds[obs_index].Data(heights[i]) << "\n";
-		}
-		std::cout << std::endl;
+	WrapperArgs args;/* declared in wrapper.h */
+	args.TOA_height           = obsds[obs_index].maxHeight();
 	
-		if(DEBUG){ std::cin >> input; }
+	std::filesystem::remove(DIR_LOG+"libRadtran.log");/* ログ容量溢れ防止 */
+
+	double *heights = obsds[obs_index].Heights();
+	int Nheights = obsds[obs_index].Nheights();
+	std::cout << "lat" << obsds[obs_index].Latitude() << " "  << "lon" << obsds[obs_index].Longitude() << " " << obsds[obs_index].Nheights() << "heights max:" << args.TOA_height << std::endl;
+//	for(int i=0; i<obsds[obs_index].Nheights(); i++){
+//		std::cout << heights[i] << " " << obsds[obs_index].Data(heights[i]) << "\n";
+//	}
+	std::cout << std::endl;
+	
+	if(DEBUG){ std::cin >> input; }
 /* ==== 地球、衛星の設定 ==== */
 	
-		auto earth = PlanetParam( 6370.e3 );
-		auto himawari = SatelliteParam( 35790.e3 + earth.radius(), 0.0, 140.7 );
-		/* TODO configに入れる */
+	auto earth = PlanetParam( 6370.e3 );
+	auto himawari = SatelliteParam( 35790.e3 + earth.radius(), 0.0, 140.7 );
+	/* TODO configに入れる */
 	
 /* ==== */
 
 
-		args.pStdin.mc_photons = mc_photons;/* default is 300000 */
-		args.pStdin.solver = solver;
-		args.pStdin.additional = additional_option;//\npseudospherical";
+	args.pStdin.mc_photons = mc_photons;/* default is 300000 */
+	args.pStdin.solver = solver;
+	args.pStdin.additional = additional_option;//\npseudospherical";
 	/*
 		std::cout << &args.pStdin << " " << &args.pStdin.sza << std::endl;
 		return 0;
 	*/
 		
-		args.pStdin.atmosphere_file = PATH_ATMOSPHERE;
-		
-		args.pStdin.SURFACE_TYPE = SURFACE_TYPE;
-		args.pStdin.brdf_cam_u10 = brdf_cam_u10;
-		args.pStdin.albedo = albedo;/* 地球平均は0.3 */
-
-		args.pStdin.wavelength = wavelength;
-		
-		Geocoordinate on_ground(earth, himawari, obsds[obs_index].Latitude(), obsds[obs_index].Longitude(), 0.0);/* 観測データにある緯度経度の高度0km 地点のGeocoordinate */
-		double ld_alpha = on_ground.alpha()*Rad2deg;
-		double sza_on_ground;
-		double phi0_on_ground;
-		AndoLab::solar_direction(on_ground.latitude(), on_ground.longitude(), dt.DOY(), dt.Hour(), &sza_on_ground, &phi0_on_ground);/* on_ground での太陽方向 */
-		
-		std::cout << "ld_alpha : " <<  ld_alpha << std::endl;
-		std::cout << "sza_on_ground : " <<  sza_on_ground << std::endl;
-		std::cout << "phi0_on_ground : " <<  phi0_on_ground << std::endl;
-		Geocoordinate *tparr = new Geocoordinate[Nheights];
-		LookingDirection ld;
-		for(int i=0; i<Nheights; i++){
-			ld.set( ld_alpha, heights[i]/m2km );/* 見る場所決め */
-			tparr[i] = ld.tangential_point( earth, himawari);/* tangential point の配列 */
-		}
-/* ==== atmosphere読み込み ==== */
-		args.pAtm = readParamAtmosphere(PATH_ATMOSPHERE, Nheights);
-		args.Nheights               = Nheights;
-		args.atm_Nheights           = Nheights;
-		args.atm_heights = new double[Nheights];
-		for(int i=0; i<Nheights; i++){
-			args.atm_heights[i] = args.pAtm[i].z;
-		}
-/* ==== 求める ==== */
-		args.upper_radiance       = new double[args.Nheights];
-		for(int i=0; i<args.Nheights; i++){
-			args.upper_radiance[i] = 0.0;
-		}
-
-		args.secid = secid;	
-		args.DIR_RESULT = DIR_RESULT+"/run_once";/* for save */
-		std::cout << "create_directory " << args.DIR_RESULT << std::endl;
-		std::filesystem::create_directory(args.DIR_RESULT);
-	/* ==== prepare for wrapper ==== */
-	//	args.pStdin = pStdin;
-		args.dt                     = dt;
-		args.obs                    = obsds[obs_index];/* for fitting (and save) */
-		args.planet                 = earth;
-		args.satellite              = himawari;
-		args.heights                = args.obs.Heights();/* for save */
-		args.on_ground              = on_ground;/* for save */
-		args.sza_on_ground          = sza_on_ground;/* for save */
-		args.phi0_on_ground         = phi0_on_ground;/* for save */
-		args.tparr                  = tparr;/* tangential points */
-		args.DIR_UVSPEC             = DIR_UVSPEC;
-		args.PATH_STDIN             = PATH_STDIN;
-		args.PATH_STDOUT            = PATH_STDOUT;
-		args.PATH_ATMOSPHERE        = PATH_ATMOSPHERE;
-		args.PATH_CONFIG            = PATH_CONFIG;/* for save */
-		args.FLAG_UNDISPLAY_LOG     = FLAG_UNDISPLAY_LOG;
-		args.DIR_LOG                = DIR_LOG;
-		args.i_bottom               = i_bottom;/* 誤差計算に含める最低 */
-		args.i_top                  = i_top;   /* 誤差計算に含める最高 */
-		args.fit_i_bottom           = args.i_bottom;/* fitに含める最低 */
-		args.fit_i_top              = args.i_top;
-
-		args.offset_bottom_height = 94.9;/* for fit *//* TODO TODO 89.9にする */
-		args.atmosphere_precision = atmosphere_precision;
-		args.obs_index            = obs_index;/* for save */
-		args.N_running_mean       = 3;/*移動平均*/
-		args.radiance             = new double[args.Nheights];
-		for(int i=0; i<args.Nheights; i++){
-			args.radiance[i] = 0.0;
-		}
-	/* ==== */
-	/* MSISで求めた大気をNLoptの初期値に代入する。最小化する評価関数はwrapperとして実装するが、
-	*/
-		int running_mean_extra = args.N_running_mean / 2;/* ( N - 1 ) / 2 */
+	args.pStdin.atmosphere_file = PATH_ATMOSPHERE;
 	
-		args.atm_i_bottom = args.i_bottom;// - running_mean_extra;	
-		args.atm_i_top    = args.i_top   ;// + running_mean_extra;
-		args.number_of_iteration = 0;
-	
-		double lerr = core((void*)(&args));
+	args.pStdin.SURFACE_TYPE = SURFACE_TYPE;
+	args.pStdin.brdf_cam_u10 = brdf_cam_u10;
+	args.pStdin.albedo = albedo;/* 地球平均は0.3 */
 
-		std::cerr << "lerr: " << lerr << std::endl;
+	args.pStdin.wavelength = wavelength;
+	
+	Geocoordinate on_ground(earth, himawari, obsds[obs_index].Latitude(), obsds[obs_index].Longitude(), 0.0);/* 観測データにある緯度経度の高度0km 地点のGeocoordinate */
+	double ld_alpha = on_ground.alpha()*Rad2deg;
+	double sza_on_ground;
+	double phi0_on_ground;
+	AndoLab::solar_direction(on_ground.latitude(), on_ground.longitude(), dt.DOY(), dt.Hour(), &sza_on_ground, &phi0_on_ground);/* on_ground での太陽方向 */
+	
+	std::cout << "ld_alpha : " <<  ld_alpha << std::endl;
+	std::cout << "sza_on_ground : " <<  sza_on_ground << std::endl;
+	std::cout << "phi0_on_ground : " <<  phi0_on_ground << std::endl;
+
+/* ==== MSIS ==== */
+
+	Geocoordinate *tparr = new Geocoordinate[Nheights];
+	LookingDirection ld;
+	for(int i=0; i<Nheights; i++){
+		ld.set( ld_alpha, heights[i]/m2km );/* 見る場所決め */
+		tparr[i] = ld.tangential_point( earth, himawari);/* tangential point の配列 */
 	}
-//	delete[] radiance;
+//	ParamAtmosphere *pAtm = get_msis(dt, tparr, Nheights);/* tangential point でのMSIS大気から求めたパラメタを取得 */
+	ParamAtmosphere* pAtm = readParamAtmosphere(PATH_ATMOSPHERE_INIT, Nheights);/* 初期大気は自分で指定する *//* try-catchが望ましい */
+	std::cout << "# Atmosphere\nz Nair p T" << std::endl;
+	for(int i=0; i<Nheights; i++){
+		std::cout << " " << pAtm[i].z << " " << pAtm[i].Nair << " " << pAtm[i].p << " " <<  pAtm[i].T << std::endl;
+	}
+
+	saveParamAtmosphere(PATH_ATMOSPHERE, pAtm, Nheights, atmosphere_precision);
+
+//	saveParamAtmosphere(PATH_ATMOSPHERE, pAtm, Nheights, atmosphere_precision);
+	args.Nheights               = Nheights;
+	args.atm_Nheights           = Nheights;
+	args.pAtm           = pAtm;/* 初期値 */
+	args.atm_heights = new double[Nheights];
+	for(int i=0; i<Nheights; i++){
+		args.atm_heights[i] = args.pAtm[i].z;
+	}
+	args.upper_radiance_smoothed       = new double[args.Nheights];
+	args.radiance_smoothed             = new double[args.Nheights];
+	for(int i=0; i<args.Nheights; i++){
+		args.upper_radiance_smoothed[i] = 0.0;
+	}
+	args.offset_bottom_height = getConfig(configs, "offset_bottom_height", 89.9);/* for fit */
+	args.offset_top_height    = getConfig(configs, "offset_top_height", 100.1);/* for fit */
+/* ==== */
+
+		
+	args.secid = secid;	
+	args.DIR_RESULT = DIR_RESULT+"/run_once";/* for save */
+	std::cout << "create_directory " << args.DIR_RESULT << std::endl;
+	std::filesystem::create_directory(args.DIR_RESULT);
+
+/* ==== prepare for wrapper ==== */
+//	args.pStdin = pStdin;
+	args.dt                     = dt;
+	args.obs                    = obsds[obs_index];/* for fitting (and save) */
+	args.planet                 = earth;
+	args.satellite              = himawari;
+	args.heights                = args.obs.Heights();/* for save */
+	args.on_ground              = on_ground;/* for save */
+	args.sza_on_ground          = sza_on_ground;/* for save */
+	args.phi0_on_ground         = phi0_on_ground;/* for save */
+	args.tparr                  = tparr;/* tangential points */
+	args.DIR_UVSPEC             = DIR_UVSPEC;
+	args.PATH_STDIN             = PATH_STDIN;
+	args.PATH_STDOUT            = PATH_STDOUT;
+	args.PATH_ATMOSPHERE        = PATH_ATMOSPHERE;
+	args.PATH_CONFIG            = PATH_CONFIG;/* for save */
+	args.FLAG_UNDISPLAY_LOG     = FLAG_UNDISPLAY_LOG;
+	args.DIR_LOG                = DIR_LOG;
+	args.i_bottom               = i_bottom;/* 誤差計算に含める最低 */
+	args.i_top                  = i_top;   /* 誤差計算に含める最高 */
+	args.fit_i_bottom           = fit_i_bottom;/* fitに含める最高 */
+	args.fit_i_top              = fit_i_top;	
+
+	args.atmosphere_precision = atmosphere_precision;
+	args.obs_index            = obs_index;/* for save */
+	args.N_running_mean       = 3;/*移動平均*/
+	for(int i=0; i<args.Nheights; i++){
+		args.radiance_smoothed[i] = 0.0;
+	}
+/* ==== */
+/* MSISで求めた大気をNLoptの初期値に代入する。最小化する評価関数はwrapperとして実装するが、
+*/
+	int running_mean_extra = args.N_running_mean / 2;/* ( N - 1 ) / 2 */
+
+	args.atm_i_bottom = args.i_bottom;// - running_mean_extra;	
+	args.atm_i_top    = args.i_top   ;// + running_mean_extra;
+	args.number_of_iteration = 0;
+
+	double lerr = core((void*)(&args));
+
+	std::cerr << "lerr: " << lerr << std::endl;
+
 	return 0;
 }
 

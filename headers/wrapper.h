@@ -80,8 +80,8 @@ public:
 	int              obs_index;           /* for save */
 	int              N_running_mean;      /* for fit */
 	int              number_of_iteration; /* NLopt */
-	double*          radiance;
-	double*          upper_radiance;
+	double*          radiance_smoothed;
+	double*          upper_radiance_smoothed;
 };
 
 //	args->pStdin;

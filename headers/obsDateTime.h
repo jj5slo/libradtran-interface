@@ -38,6 +38,7 @@ public:
 	int Month() const;
 	int Date() const;
 	int Hour() const;
+	double HourWithDecimal() const;
 	int Minute() const;
 	int Second() const;
 

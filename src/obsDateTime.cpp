@@ -42,6 +42,9 @@ int obsDateTime::Date() const{
 int obsDateTime::Hour() const{
 	return pHour;
 }
+double obsDateTime::HourWithDecimal() const{
+	return pHour + 1.0/60.0*(double)pMinute + 1.0/60.0/60.0*(double)pSecond;
+}
 int obsDateTime::Minute() const{
 	return pMinute;
 }
