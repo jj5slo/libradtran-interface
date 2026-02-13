@@ -62,7 +62,7 @@ double core(void* raw_Args){
 
 		std::cout << "crosspoint_of_atmosphere:\n\tlat:" << crosspt.latitude() << "\n\tlon:" << crosspt.longitude() << "\n\taltitude:" << crosspt.altitude() << std::endl;
 		
-		AndoLab::solar_direction(crosspt.latitude(), crosspt.longitude(), args->dt.DOY(), args->dt.Hour(), &args->pStdin.sza, &args->pStdin.phi0);/* tangential point での太陽方向を求める */
+		AndoLab::solar_direction(crosspt.latitude(), crosspt.longitude(), args->dt.DOY(), args->dt.HourWithDecimal(), &args->pStdin.sza, &args->pStdin.phi0);/* tangential point での太陽方向を求める */
 		std::cout << "sza:" << args->pStdin.sza << " phi0:" << args->pStdin.phi0 << std::endl;
 		sensor_direction(args->satellite, crosspt.r(), &args->pStdin.umu, &args->pStdin.phi);/* crosspt からみた衛星方向を元に、視線方向の局所鉛直からの角（オフナディア角）を求める */
 		double sensor_theta;
@@ -127,6 +127,9 @@ double core(void* raw_Args){
 		+ "# longitude: " + std::to_string(args->on_ground.longitude()) + "\n"
 		+ "# latitude: " + std::to_string(args->on_ground.latitude()) + "\n"
 		+ "# ld_alpha: " + std::to_string(ld_alpha) + "[rad] = " + std::to_string(ld_alpha*Rad2Deg) + "deg" + "\n"
+		+ "# date: " + std::to_string(args->dt.Year())+" "+std::to_string(args->dt.Month())+" "+std::to_string(args->dt.Date()) +"\n"
+		+ "# time: " + std::to_string(args->dt.Hour())+":"+std::to_string(args->dt.Minute())+":"+std::to_string(args->dt.Second())+" UT, Hour="+std::to_string(args->dt.HourWithDecimal())
+		+ "# sza_on_ground: " + std::to_string(args->sza_on_ground) +"\n"
 		+ "# sza_on_ground: " + std::to_string(args->sza_on_ground) +"\n"
 		+ "# phi0_on_ground: " + std::to_string(args->phi0_on_ground) + "\n"
 		+ "# i_bottom: " + std::to_string(args->i_bottom) + ", i_top: " + std::to_string(args->i_top) + "\n"

@@ -118,7 +118,7 @@ if(argc == 7){
 //	DIR_UVSPEC
 
 /* !!!! */
-	PATH_ATMOSPHERE = PATH_ATMOSPHERE_INIT;
+//	PATH_ATMOSPHERE = PATH_ATMOSPHERE_INIT;
 /* !!!! */
 
 
@@ -210,7 +210,7 @@ if(argc == 7){
 	double ld_alpha = on_ground.alpha()*Rad2deg;
 	double sza_on_ground;
 	double phi0_on_ground;
-	AndoLab::solar_direction(on_ground.latitude(), on_ground.longitude(), dt.DOY(), dt.Hour(), &sza_on_ground, &phi0_on_ground);/* on_ground での太陽方向 */
+	AndoLab::solar_direction(on_ground.latitude(), on_ground.longitude(), dt.DOY(), dt.HourWithDecimal(), &sza_on_ground, &phi0_on_ground);/* on_ground での太陽方向 */
 	
 	std::cout << "ld_alpha : " <<  ld_alpha << std::endl;
 	std::cout << "sza_on_ground : " <<  sza_on_ground << std::endl;

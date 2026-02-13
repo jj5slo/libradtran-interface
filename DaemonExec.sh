@@ -12,21 +12,21 @@ cp config.conf __config.conf
 #	./util/runonce/runonce 2019 01 01 07 50 25 1> /tmp/TEMPORARY/libradtran-interface.log
 
 
-for i in `seq 0 23`; do
-	for j in `seq 0 20 59`; do
-		echo "$i $j"
-		cp CONFIGS/sita.conf config.conf
-		./util/runonce/runonce 2022 06 01 "$i" "$j" 36 1> /tmp/TEMPORARY/libradtran-interface.log
-	done
-done
-
-for i in `seq 0 23`; do
-	for j in `seq 0 20 59`; do
-		echo "$i $j"
-		cp CONFIGS/sita2.conf config.conf
-		./util/runonce/runonce 2022 06 01 "$i" "$j" 36 1> /tmp/TEMPORARY/libradtran-interface.log
-	done
-done
+#for i in `seq 0 23`; do
+#	for j in `seq 0 20 59`; do
+#		echo "$i $j"
+#		cp CONFIGS/sita.conf config.conf
+#		./util/runonce/runonce 2022 06 01 "$i" "$j" 36 1> /tmp/TEMPORARY/libradtran-interface.log
+#	done
+#done
+#
+#for i in `seq 0 23`; do
+#	for j in `seq 0 20 59`; do
+#		echo "$i $j"
+#		cp CONFIGS/sita2.conf config.conf
+#		./util/runonce/runonce 2022 06 01 "$i" "$j" 36 1> /tmp/TEMPORARY/libradtran-interface.log
+#	done
+#done
 
 #cp CONFIGS/sita2.conf config.conf
 #	./util/runonce/runonce 2022 06 01 03 00 36 1> /tmp/TEMPORARY/libradtran-interface.log
@@ -38,15 +38,15 @@ done
 #cp CONFIGS/16ji.conf config.conf
 #	./util/runonce/runonce 2022 06 01 16 00 15 1> /tmp/TEMPORARY/libradtran-interface.log
 
-#cp CONFIGS/20190101_0750_N5.conf config.conf
-#for i in `seq 1 3`; do
-#	echo "$i / 3 times repeating"
-#	
-#	echo "started"
-#		./main 2019 01 01 07 50 25  1> /tmp/TEMPORARY/libradtran-interface.log
-#	echo "finished"
-#
-#done
+cp CONFIGS/20190101_0750_N5.conf config.conf
+for i in `seq 1 3`; do
+	echo "$i / 3 times repeating"
+	
+	echo "started"
+		./main 2019 01 01 07 50 25  1> /tmp/TEMPORARY/libradtran-interface.log
+	echo "finished"
+
+done
 
 #for i in `seq 1 3`; do
 #	echo "$i / 3 times repeating"
