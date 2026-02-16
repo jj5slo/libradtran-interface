@@ -27,7 +27,7 @@ int main(int argc, char *argv[]){
 
 /* ==== MODIFY HERE ==== */
 
-	for(int i=i_bottom; i<=i_top; i++){/* TODO NOW MSISから考えている高度範囲だけはずらした上で最適化で戻るかどうか */
+	for(int i=i_top; i<Nheights; i++){
 		pAtm[i].Nair = pAtm[i].Nair * coef;
 		pAtm[i].set_p_from_Nair_T();
 	}

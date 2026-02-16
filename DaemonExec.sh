@@ -8,10 +8,41 @@ cd /lhome/sano2/SANO/research/estimate-profile/libradtran-interface
 
 cp config.conf __config.conf
 
-#cp CONFIGS/msisonce.conf config.conf
-#	./util/runonce/runonce 2019 01 01 07 50 25 1> /tmp/TEMPORARY/libradtran-interface.log
+#cp CONFIGS/20190101_0750_MSIS.conf config.conf
+#	./main 2019 01 01 07 50 25 1> /tmp/TEMPORARY/libradtran-interface.log
+
+cp CONFIGS/opt_to_MSIS_N5.conf config.conf
+for i in `seq 1 3`; do
+	echo "$i / 3 times repeating"
+	
+	echo "started"
+		./main 2019 01 01 07 50 25  1> /tmp/TEMPORARY/libradtran-interface.log
+	echo "finished"
+
+done
 
 
+for i in `seq 1 2`; do
+	echo "$i / 2 times repeating"
+
+cp CONFIGS/20190101_0750_65up_0.5.conf config.conf
+	echo "started"
+		./main 2019 01 01 07 50 25  1> /tmp/TEMPORARY/libradtran-interface.log
+	echo "finished"
+#cp CONFIGS/20190101_0750_65up_1.2.conf config.conf
+#	echo "started"
+#		./main 2019 01 01 07 50 25  1> /tmp/TEMPORARY/libradtran-interface.log
+#	echo "finished"
+#cp CONFIGS/20190101_0750_65up_1.5.conf config.conf
+#	echo "started"
+#		./main 2019 01 01 07 50 25  1> /tmp/TEMPORARY/libradtran-interface.log
+#	echo "finished"
+cp CONFIGS/20190101_0750_65up_2.conf config.conf
+	echo "started"
+		./main 2019 01 01 07 50 25  1> /tmp/TEMPORARY/libradtran-interface.log
+	echo "finished"
+
+done
 #for i in `seq 0 23`; do
 #	for j in `seq 0 20 59`; do
 #		echo "$i $j"
@@ -38,15 +69,6 @@ cp config.conf __config.conf
 #cp CONFIGS/16ji.conf config.conf
 #	./util/runonce/runonce 2022 06 01 16 00 15 1> /tmp/TEMPORARY/libradtran-interface.log
 
-cp CONFIGS/20190101_0750_N5.conf config.conf
-for i in `seq 1 3`; do
-	echo "$i / 3 times repeating"
-	
-	echo "started"
-		./main 2019 01 01 07 50 25  1> /tmp/TEMPORARY/libradtran-interface.log
-	echo "finished"
-
-done
 
 #for i in `seq 1 3`; do
 #	echo "$i / 3 times repeating"

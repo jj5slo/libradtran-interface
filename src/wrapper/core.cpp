@@ -130,7 +130,6 @@ double core(void* raw_Args){
 		+ "# date: " + std::to_string(args->dt.Year())+" "+std::to_string(args->dt.Month())+" "+std::to_string(args->dt.Date()) +"\n"
 		+ "# time: " + std::to_string(args->dt.Hour())+":"+std::to_string(args->dt.Minute())+":"+std::to_string(args->dt.Second())+" UT, Hour="+std::to_string(args->dt.HourWithDecimal())
 		+ "# sza_on_ground: " + std::to_string(args->sza_on_ground) +"\n"
-		+ "# sza_on_ground: " + std::to_string(args->sza_on_ground) +"\n"
 		+ "# phi0_on_ground: " + std::to_string(args->phi0_on_ground) + "\n"
 		+ "# i_bottom: " + std::to_string(args->i_bottom) + ", i_top: " + std::to_string(args->i_top) + "\n"
 		+ "# atm_i_bottom: " + std::to_string(args->atm_i_bottom) + ", atm_i_top: " + std::to_string(args->atm_i_top) + "\n"

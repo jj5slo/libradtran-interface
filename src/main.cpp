@@ -78,9 +78,15 @@ if(argc == 7){
 	std::string PATH_CONFIG = "./config.conf";
 	std::map<std::string, std::string> configs = readConfigFile(PATH_CONFIG);
 	
+	const int FORCESTOP = getConfig(configs, "FORCESTOP", 0);
+	if(FORCESTOP){
+		return 1;
+	}
+
 	const int DEBUG = getConfig(configs, "DEBUG", 0);
 	const int FLAG_UNDISPLAY_LOG = getConfig(configs, "FLAG_UNDISPLAY_LOG", 0);
 	const std::string DIR_LOG = getConfig(configs, "DIR_LOG", "/tmp/");/* libRadtranの標準エラーを、標準出力に出さないとき(FLAG_UNDISPLAY_LOG=1)にログとして保存するディレクトリ */
+	const int FLAG_SINGLESHOT = getConfig(configs, "FLAG_SINGLESHOT", 0);
 
 	const std::string DIR_INTERFACE = getConfig(configs, "DIR_INTERFACE", std::string(std::getenv("HOME"))+"/SANO/research/estimate-profile/libradtran-interface/");/* このプログラムが置かれるディレクトリ */
 	const std::string DIR_UVSPEC = getConfig(configs, "DIR_UVSPEC", std::string(std::getenv("HOME"))+"/SANO/research/LIBRARIES/libradtran/libRadtran-2.0.6/bin/");/* uvspec(libRadtran本体)の置かれたディレクトリ */
@@ -95,6 +101,8 @@ if(argc == 7){
 	double wavelength = getConfig(configs, "wavelength", 470.0);/* 波長 [nm]. TODO 決まっているので指定方法を変える */
 	int i_top = getConfig(configs, "i_top", 64);/* 数密度を求める最高高度（index） */
 	int i_bottom = getConfig(configs, "i_bottom", 60);/* 数密度を求める最低高度（index） */
+	int fit_i_top    = getConfig(configs, "fit_i_top", i_top);/* SINGLESHOT */
+	int fit_i_bottom = getConfig(configs, "fit_i_bottom", i_bottom);/* SINGLESHOT */
 	int N_exp_decay_atm = getConfig(configs, "N_exp_decay_atm", 5);/* 数密度を求める最低高度（index） */
 
 	std::string solver = getConfig(configs, "solver", "mystic");/* libRadtranのソルバ */
@@ -110,7 +118,10 @@ if(argc == 7){
 	double XTOL = getConfig(configs, "XTOL", 1.0e-6);/* 最適化終了判定 */
 	double XTOL_REL = getConfig(configs, "XTOL_REL", 1.0e-6);/* 最適化終了判定 */
 	int FITTING_ADDITION = getConfig(configs, "FITTING_ADDITION", 0);/* フィッティングするために上の層の値を余計に計算する。破棄予定 */
+	const int FLAG_OTEHON = getConfig(configs, "FLAG_OTEHON", 0);
 	std::string PATH_OTEHON = getConfig(configs, "PATH_OTEHON", "/lhome/sano2/SANO/research/estimate-profile/Result/Result-12-W5/OTEHON_2022_6_1_3_36.dat");
+	double OTEHON_LAT = getConfig(configs, "OTEHON_LAT", 0.0);
+	double OTEHON_LON = getConfig(configs, "OTEHON_LON", 0.0);
 
 	std::string OPTIMIZER = getConfig(configs, "OPTIMIZER", "NL");
 //	DIR_UVSPEC
@@ -141,25 +152,30 @@ if(argc == 7){
 
 /* ==== */
 /* ==== 観測データ読み込み ==== */
-	
-	std::string path_obs = obs_path(DIR_OBS, dt);/* 観測日時からデータの名前 */
-	std::cout << path_obs << std::endl;
-	if(DEBUG){ std::cin >> input; }
-	int Nobs = 0;
-	Observed *obsds = read_obs( &Nobs, path_obs );/* 使うのはobsds[obs_index]だけ */
-	std::cout << Nobs << "points" << std::endl;
 
-//	int otehon_lines;
-//	int otehon_columns;
-//	std::string otehon_header;
-//	double** otehon = fit::read_result(PATH_OTEHON, otehon_header, otehon_lines, otehon_columns);
-//	std::cout << "Read Otehon." << std::endl;
-//	Observed *obsds = new Observed[obs_index + 1];
-//	obsds[obs_index].set(62.0, 69.6, otehon_lines, otehon[0], otehon[4]);/* TODO TODO TODO HARD CODING !!! */
-//
-//	for(int i=0; i<otehon_lines; i++){
-//		std::cout << otehon[0][i] <<" "<< obsds[obs_index].Data()[i] << std::endl;
-//	}
+	Observed *obsds;
+	if(FLAG_OTEHON){
+		int otehon_lines;
+		int otehon_columns;
+		std::string otehon_header;
+		double** otehon = fit::read_result(PATH_OTEHON, otehon_header, otehon_lines, otehon_columns);
+		std::cout << "Read Otehon." << std::endl;
+		obsds = new Observed[obs_index + 1];
+		obsds[obs_index].set(OTEHON_LAT, OTEHON_LON, otehon_lines, otehon[0], otehon[4]);/* TODO TODO TODO HARD CODING !!! */
+	
+	//	for(int i=0; i<otehon_lines; i++){
+	//		std::cout << otehon[0][i] <<" "<< obsds[obs_index].Data()[i] << std::endl;
+	//	}
+	}
+	else{
+		std::string path_obs = obs_path(DIR_OBS, dt);/* 観測日時からデータの名前 */
+		std::cout << path_obs << std::endl;
+		if(DEBUG){ std::cin >> input; }
+		int Nobs = 0;
+		obsds = read_obs( &Nobs, path_obs );/* 使うのはobsds[obs_index]だけ */
+		std::cout << Nobs << "points" << std::endl;
+	}
+
 
 
 /* ==== */
@@ -229,8 +245,6 @@ if(argc == 7){
 	}
 
 //	saveParamAtmosphere(PATH_ATMOSPHERE, pAtm, Nheights, atmosphere_precision);
-
-//	saveParamAtmosphere(PATH_ATMOSPHERE, pAtm, Nheights, atmosphere_precision);
 	args.Nheights               = Nheights;
 	args.atm_Nheights           = Nheights;
 	args.pAtm           = pAtm;/* 初期値 */
@@ -247,6 +261,55 @@ if(argc == 7){
 	args.offset_top_height    = getConfig(configs, "offset_top_height", 100.1);/* for fit */
 /* ==== */
 
+
+	args.dt                     = dt;
+	args.obs                    = obsds[obs_index];/* for fitting (and save) */
+	args.planet                 = earth;
+	args.satellite              = himawari;
+	args.heights                = args.obs.Heights();/* for save */
+	args.on_ground              = on_ground;/* for save */
+	args.sza_on_ground          = sza_on_ground;/* for save */
+	args.phi0_on_ground         = phi0_on_ground;/* for save */
+	args.tparr                  = tparr;/* tangential points */
+	args.DIR_UVSPEC             = DIR_UVSPEC;
+	args.PATH_STDIN             = PATH_STDIN;
+	args.PATH_STDOUT            = PATH_STDOUT;
+	args.PATH_ATMOSPHERE        = PATH_ATMOSPHERE;
+	args.PATH_CONFIG            = PATH_CONFIG;/* for save */
+	args.FLAG_UNDISPLAY_LOG     = FLAG_UNDISPLAY_LOG;
+	args.DIR_LOG                = DIR_LOG;
+	args.atmosphere_precision = atmosphere_precision;
+	args.obs_index            = obs_index;/* for save */
+	args.N_running_mean       = 3;/*移動平均*/
+
+
+	if(FLAG_SINGLESHOT){
+		saveParamAtmosphere(PATH_ATMOSPHERE, pAtm, Nheights, atmosphere_precision);
+		args.secid = secid;	
+		args.DIR_RESULT = DIR_RESULT+"/run_once";/* for save */
+		std::cout << "create_directory " << args.DIR_RESULT << std::endl;
+		std::filesystem::create_directory(args.DIR_RESULT);
+		args.i_bottom               = i_bottom;/* 誤差計算に含める最低 */
+		args.i_top                  = i_top;   /* 誤差計算に含める最高 */
+		args.fit_i_bottom           = fit_i_bottom;/* fitに含める最高 */
+		args.fit_i_top              = fit_i_top;	
+		for(int i=0; i<args.Nheights; i++){
+			args.radiance_smoothed[i] = 0.0;
+		}
+		int running_mean_extra = args.N_running_mean / 2;/* ( N - 1 ) / 2 */
+
+		args.atm_i_bottom = args.i_bottom;// - running_mean_extra;	
+		args.atm_i_top    = args.i_top   ;// + running_mean_extra;
+		args.number_of_iteration = 0;
+
+		double lerr = core((void*)(&args));
+
+		std::cerr << "lerr: " << lerr << std::endl;
+
+		return 0;
+	}
+
+
 /* ==== 上から求める ==== */
 	int N_repeating_optimization = ((i_top - i_bottom) + N_exp_decay_atm-1) / N_exp_decay_atm;/* 切り上げ除算 *//* 最適化を走らせる回数 */
 	double* inv_10_scaleheights = new double[N_repeating_optimization];/* 最適化して求めた係数を保存する */
@@ -262,31 +325,11 @@ if(argc == 7){
 	
 	/* ==== prepare for wrapper ==== */
 	//	args.pStdin = pStdin;
-		args.dt                     = dt;
-		args.obs                    = obsds[obs_index];/* for fitting (and save) */
-		args.planet                 = earth;
-		args.satellite              = himawari;
-		args.heights                = args.obs.Heights();/* for save */
-		args.on_ground              = on_ground;/* for save */
-		args.sza_on_ground          = sza_on_ground;/* for save */
-		args.phi0_on_ground         = phi0_on_ground;/* for save */
-		args.tparr                  = tparr;/* tangential points */
-		args.DIR_UVSPEC             = DIR_UVSPEC;
-		args.PATH_STDIN             = PATH_STDIN;
-		args.PATH_STDOUT            = PATH_STDOUT;
-		args.PATH_ATMOSPHERE        = PATH_ATMOSPHERE;
-		args.PATH_CONFIG            = PATH_CONFIG;/* for save */
-		args.FLAG_UNDISPLAY_LOG     = FLAG_UNDISPLAY_LOG;
-		args.DIR_LOG                = DIR_LOG;
 		args.i_bottom               = i_bottom_opt;/* 誤差計算に含める最低 */
 		args.i_top                  = i_top_opt;   /* 誤差計算に含める最高 */
 		args.fit_i_bottom           = args.i_bottom;/* fitに含める最高 */
-//		args.fit_i_top              = i_top;/* TODO 上はフィッティングに全部含める *///args.i_top + FITTING_ADDITION;   /* fitに含める最低 */
 		args.fit_i_top              = args.i_top;	
 
-		args.atmosphere_precision = atmosphere_precision;
-		args.obs_index            = obs_index;/* for save */
-		args.N_running_mean       = 3;/*移動平均*/
 		for(int i=0; i<args.Nheights; i++){
 			args.radiance_smoothed[i] = 0.0;
 		}
@@ -297,7 +340,8 @@ if(argc == 7){
 	
 		args.atm_i_bottom = 0; /* TODO 今は 地表まで	*/
 		args.atm_i_top    = args.i_top   ;// + running_mean_extra;
-	
+
+
 	/* ==== Optimize ==== */
 	/* -- 各点 -- */
 	//	int number_of_optimization_parameters = args.atm_i_top - args.atm_i_bottom + running_mean_extra;//1;//args.atm_i_top - args.atm_i_bottom + 1;
