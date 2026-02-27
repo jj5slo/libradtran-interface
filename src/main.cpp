@@ -99,10 +99,11 @@ if(argc == 7){
 	std::string PATH_ATMOSPHERE_INIT = getConfig(configs, "PATH_ATMOSPHERE_INIT", std::string(std::getenv("HOME"))+"/SANO/research/LIBRARIES/libradtran/libRadtran-2.0.6/data/atmmod/afglus.dat");/* libRadtranに渡す大気ファイル */
 	
 	double wavelength = getConfig(configs, "wavelength", 470.0);/* 波長 [nm]. TODO 決まっているので指定方法を変える */
-	int i_top = getConfig(configs, "i_top", 64);/* 数密度を求める最高高度（index） */
-	int i_bottom = getConfig(configs, "i_bottom", 60);/* 数密度を求める最低高度（index） */
-	int fit_i_top    = getConfig(configs, "fit_i_top", i_top);/* SINGLESHOT */
-	int fit_i_bottom = getConfig(configs, "fit_i_bottom", i_bottom);/* SINGLESHOT */
+//	std::string PATH_WAVELENGTHS = getConfig(configs, "PATH_WAVELENGTHS", std::string(std::getenv("HOME"))+"/SANO/research/estimate-profile/ObsEquip/Himawari-AHI/AHI-blue.dat");
+	int i_top           = getConfig(configs, "i_top", 64);/* 数密度を求める最高高度（index） */
+	int i_bottom        = getConfig(configs, "i_bottom", 60);/* 数密度を求める最低高度（index） */
+	int fit_i_top       = getConfig(configs, "fit_i_top", i_top);/* SINGLESHOT */
+	int fit_i_bottom    = getConfig(configs, "fit_i_bottom", i_bottom);/* SINGLESHOT */
 	int N_exp_decay_atm = getConfig(configs, "N_exp_decay_atm", 5);/* 数密度を求める最低高度（index） */
 
 	std::string solver = getConfig(configs, "solver", "mystic");/* libRadtranのソルバ */
@@ -114,6 +115,8 @@ if(argc == 7){
 	int mc_photons = getConfig(configs, "mc_photons", 60000);/* MYSTICの回数 デフォルトは300000 */
 
 	int atmosphere_precision = getConfig(configs, "atmosphere_precision", 7);/* MSISから取得する大気の保存時の精度 */
+	
+	std::string OPTIMIZER = getConfig(configs, "OPTIMIZER", "NL");
 
 	double XTOL = getConfig(configs, "XTOL", 1.0e-6);/* 最適化終了判定 */
 	double XTOL_REL = getConfig(configs, "XTOL_REL", 1.0e-6);/* 最適化終了判定 */
@@ -123,7 +126,6 @@ if(argc == 7){
 	double OTEHON_LAT = getConfig(configs, "OTEHON_LAT", 0.0);
 	double OTEHON_LON = getConfig(configs, "OTEHON_LON", 0.0);
 
-	std::string OPTIMIZER = getConfig(configs, "OPTIMIZER", "NL");
 //	DIR_UVSPEC
 
 

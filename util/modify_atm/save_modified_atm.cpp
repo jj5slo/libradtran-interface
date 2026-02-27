@@ -27,7 +27,7 @@ int main(int argc, char *argv[]){
 
 /* ==== MODIFY HERE ==== */
 
-	for(int i=i_top; i<Nheights; i++){
+	for(int i=i_top+1; i<Nheights; i++){
 		pAtm[i].Nair = pAtm[i].Nair * coef;
 		pAtm[i].set_p_from_Nair_T();
 	}

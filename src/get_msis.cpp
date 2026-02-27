@@ -22,8 +22,6 @@ ParamAtmosphere* get_msis(obsDateTime dt, Geocoordinate* coord, int N){
   NRLMSISE_Flag Flag;
   NRLMSISE_Output Output;
 	
-	/* TODO 各分子数密度から大気分子数密度 */
-
   for(int i = 0; i < 7; i++){
     Xp.a[i] = 100.0;/* 磁気指数 標準的な値 */
   }
@@ -37,7 +35,6 @@ ParamAtmosphere* get_msis(obsDateTime dt, Geocoordinate* coord, int N){
   Input.year = dt.Year(); /* 年は機能していないと思う */
   Input.doy = dt.DOY(); /* Day of Year; 1月1日を1、2月1日を32、...、12月31日を365とする(除く閏年) */
   Input.sec = dt.DaySecond(); /* 0時0分を 0、23時59分を86400-1 */
-  Input.lst = Input.sec / 3600 + Input.g_long / 15; /* [hours] local apparent solar time, lst = sec/3600 + g_long/15 にする */
   Input.f107A = 150.; /* F10.7フラックスの81日平均。標準的な値 */
   Input.f107 = 150.; /* 当日のF10.7フラックス。標準的な値 */
   Input.ap = 4.0; /* 磁気指数。標準的な値 */
@@ -55,7 +52,8 @@ ParamAtmosphere* get_msis(obsDateTime dt, Geocoordinate* coord, int N){
 	  Input.g_lat = coord[i].latitude(); /* [deg] 緯度 */
 	  Input.g_long = coord[i].longitude();/* [deg] 経度、西経は負 */
 	  Input.alt = coord[i].altitude() * m2km; /* [km] 高度 */
-	
+  	Input.lst = Input.sec / 3600 + Input.g_long / 15; /* [hours] local apparent solar time, lst = sec/3600 + g_long/15 にする */
+
 	  gtd7(&Input, &Flag, &Output);/* Neutral Atmosphere Empircial Model from the surface to lower exosphere. */
 	
 		/* TODO */
