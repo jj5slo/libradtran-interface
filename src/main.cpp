@@ -98,8 +98,8 @@ if(argc == 7){
 	std::string PATH_ATMOSPHERE = getConfig(configs, "PATH_ATMOSPHERE", std::string(std::getenv("HOME"))+"/SANO/research/LIBRARIES/libradtran/libRadtran-2.0.6/data/atmmod/afglus.dat");/* libRadtranに渡す大気ファイル */
 	std::string PATH_ATMOSPHERE_INIT = getConfig(configs, "PATH_ATMOSPHERE_INIT", std::string(std::getenv("HOME"))+"/SANO/research/LIBRARIES/libradtran/libRadtran-2.0.6/data/atmmod/afglus.dat");/* libRadtranに渡す大気ファイル */
 	
-	double wavelength = getConfig(configs, "wavelength", 470.0);/* 波長 [nm]. TODO 決まっているので指定方法を変える */
-//	std::string PATH_WAVELENGTHS = getConfig(configs, "PATH_WAVELENGTHS", std::string(std::getenv("HOME"))+"/SANO/research/estimate-profile/ObsEquip/Himawari-AHI/AHI-blue.dat");
+//	double wavelength = getConfig(configs, "wavelength", 470.0);/* 波長 [nm]. TODO 決まっているので指定方法を変える */
+	std::string PATH_WAVELENGTHS = getConfig(configs, "PATH_WAVELENGTHS", std::string(std::getenv("HOME"))+"/SANO/research/estimate-profile/ObsEquip/Himawari-AHI/AHI-blue.dat");
 	int i_top           = getConfig(configs, "i_top", 64);/* 数密度を求める最高高度（index） */
 	int i_bottom        = getConfig(configs, "i_bottom", 60);/* 数密度を求める最低高度（index） */
 	int fit_i_top       = getConfig(configs, "fit_i_top", i_top);/* SINGLESHOT */
@@ -219,7 +219,8 @@ if(argc == 7){
 	args.pStdin.brdf_cam_u10 = brdf_cam_u10;
 	args.pStdin.albedo = albedo;/* 地球平均は0.3 */
 
-	args.pStdin.wavelength = wavelength;
+//	args.pStdin.wavelength = wavelength;
+	args.SRWeights = read_SRWeights(PATH_WAVELENGTHS, args.Nwavelengths);
 	
 	Geocoordinate on_ground(earth, himawari, obsds[obs_index].Latitude(), obsds[obs_index].Longitude(), 0.0);/* 観測データにある緯度経度の高度0km 地点のGeocoordinate */
 	double ld_alpha = on_ground.alpha()*Rad2deg;
