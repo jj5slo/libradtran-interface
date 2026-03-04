@@ -21,7 +21,8 @@ cp config.conf __config.conf
 #
 #done
 
-cp CONFIGS/20190101_0750_w_srf_N5.conf config.conf
+#cp CONFIGS/20190101_0750_w_srf_N5.conf config.conf
+cp CONFIGS/20190101_0750_shot.conf config.conf
 	echo "started spectrum"
 	./main 2019 01 01 07 50 25  1> /tmp/TEMPORARY/libradtran-interface.log
 

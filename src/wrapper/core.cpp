@@ -45,8 +45,15 @@ double core(void* raw_Args){
 	const int i_top_rad    = args->i_top    + running_mean_extra;
 	
 	double *radiance = new double [args->Nheights];/* シミュレーション結果 */
-	for(int j=0; j<args->Nheights; j++){
-		radiance[j] = 0.0;/* initialize */
+	double** radiance_each_wl = new double*[args->SRWeights.N()];
+	for(int ii=0; ii<args->SRWeights.N(); ii++){
+		radiance_each_wl[ii] = new double[args->Nheights];
+	}
+	for(int i=0; i<args->Nheights; i++){
+		radiance[i] = 0.0;/* initialize */
+		for(int ii=0; ii<args->SRWeights.N(); ii++){
+			radiance_each_wl[ii][i] = 0.0;
+		}
 	}
 	for(int i=i_bottom_rad; i<=i_top_rad; i++){
 	/* ==== setting sensor ==== */
@@ -70,10 +77,6 @@ double core(void* raw_Args){
 		std::cout << "sonsor_direction:\n\tsensor_theta:" << sensor_theta <<"\n\tphi:" << args->pStdin.phi << std::endl;
 		std::cout << "cos(sensor_theta) = umu = " << args->pStdin.umu << std::endl;
 
-		radiance[i] = 0.0;
-//		for(int ii=0; ii<args->SRWeights.N(); ii++){
-//			std::cout << args->SRWeights.wavelength(ii) << " " << args->SRWeights.weight(ii) << std::endl;
-//		}
 		for(int j=0; j<args->SRWeights.N(); j++){
 			double rad_wavlength = 0.0;
 			args->pStdin.wavelength = args->SRWeights.wavelength(j);
@@ -90,9 +93,9 @@ double core(void* raw_Args){
 			}	
 	/* ==== */
 			std::cout << "Tangential height: " << tp.altitude() << " [m]\nWavelength: " << args->pStdin.wavelength << "[nm], Weight: " << args->SRWeights.weight(j) << ", Radiance: " << rad_wavlength << "\n----" << std::endl;
+			radiance_each_wl[j][i] = rad_wavlength;
 			radiance[i] += args->SRWeights.weight(j) / args->SRWeights.sum_weights() * rad_wavlength;
 		}
-
 
 		std::cout << "Sum: Tangential height: " << tp.altitude() << " [m]\nRadiance: " << radiance[i] << "\n----" << std::endl;
 
@@ -106,7 +109,13 @@ double core(void* raw_Args){
 	save_params(args->DIR_RESULT, args->secid, args->PATH_ATMOSPHERE, "_atm"+std::to_string(args->number_of_iteration)+".dat");/* atmosphereも保存しておく */
 	save_params(args->DIR_RESULT, args->secid, args->PATH_STDIN, "_stdin.txt");
 	save_params(args->DIR_RESULT, args->secid, args->PATH_CONFIG, "_config.conf");
-	args->SRWeights.save(args->DIR_RESULT+"/"+args->secid+"SRF.dat");
+	args->SRWeights.save(args->DIR_RESULT+"/"+args->secid+"_SRF.dat");
+	std::string RawEachWL_header = "# ";
+	for(int ii=0; ii<args->SRWeights.N(); ii++){
+		RawEachWL_header += std::to_string(args->SRWeights.wavelength(ii)) + " ";
+	}
+	RawEachWL_header += "[nm]\n";
+	readwrite::save_data(args->DIR_RESULT+"/"+args->secid+"_RawEachWL.dat", RawEachWL_header, args->Nheights, args->SRWeights.N(), radiance_each_wl);
 /* ==== */
 /* ==== fitting results ==== */
 	std::cout << "fitting results..." << std::endl;
@@ -152,9 +161,15 @@ double core(void* raw_Args){
 		+ "# height observed sumulated smoothed fitted\n";
 	fit::save_data(path_result, header, args->Nheights,  5, processed_results);/* 最適化を回し始めたら不要、/tmp/に入れてもいいかも */
 	delete[] processed_results;
-
+	
 	double log_square_error = fit::root_mean_square_log_error( args->i_bottom, args->i_top, args->obs.Data(), fitted );
 	
+	delete[] radiance;
+	for(int ii=0; ii<args->SRWeights.N(); ii++){
+		delete[] radiance_each_wl[ii];
+	}
+	delete[] radiance_each_wl;
+	delete[] fitted;
 	return log_square_error;	
 }
 
