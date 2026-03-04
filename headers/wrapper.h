@@ -62,7 +62,6 @@ public:
 	std::string      PATH_STDOUT;
 	std::string      PATH_ATMOSPHERE;
 	SpectralResponseWeights SRWeights;
-	int                     Nwavelength;
 	std::string      DIR_RESULT;       /* for save */
 	std::string      PATH_CONFIG;      /* for save */
 	int              FLAG_UNDISPLAY_LOG;
@@ -103,7 +102,6 @@ public:
 //	args->PATH_STDOUT;
 //	args->PATH_ATMOSPHERE;
 //	args->SRWeights;
-//	args->Nwavelengths;
 //	args->DIR_RESULT;/* for save */
 //	args-> PATH_CONFIG;/* for save */
 //	args->FLAG_UNDISPLAY_LOG;

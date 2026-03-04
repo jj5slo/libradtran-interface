@@ -69,30 +69,44 @@ double core(void* raw_Args){
 		sensor_theta = acos(args->pStdin.umu) * Rad2deg;
 		std::cout << "sonsor_direction:\n\tsensor_theta:" << sensor_theta <<"\n\tphi:" << args->pStdin.phi << std::endl;
 		std::cout << "cos(sensor_theta) = umu = " << args->pStdin.umu << std::endl;
-	
-		save_stdin(args->PATH_STDIN, args->pStdin);/* 座標情報を入力ファイルにセーブ */
+
+		radiance[i] = 0.0;
+//		for(int ii=0; ii<args->SRWeights.N(); ii++){
+//			std::cout << args->SRWeights.wavelength(ii) << " " << args->SRWeights.weight(ii) << std::endl;
+//		}
+		for(int j=0; j<args->SRWeights.N(); j++){
+			double rad_wavlength = 0.0;
+			args->pStdin.wavelength = args->SRWeights.wavelength(j);
+			save_stdin(args->PATH_STDIN, args->pStdin);/* 座標情報を入力ファイルにセーブ */
+		/* ==== */
+		/* ==== acquiring radiance from libRadtran ==== */	
+		std::cout << "acquiring radiance from libRadtran..." << std::endl;	
+			/* delete_mystic_rad(); */
+			execute_uvspec(args->DIR_UVSPEC, args->PATH_STDIN, args->PATH_STDOUT, args->FLAG_UNDISPLAY_LOG, args->DIR_LOG);
+			if(args->pStdin.solver == "mystic"){
+				rad_wavlength = read_mystic_rad(args->DIR_UVSPEC, 105);/* TODO この層番号の決め方がいまいちわからない 0から100km, 1kmごとであればTOAで105 */
+			}else{
+				rad_wavlength = read_stdout(args->PATH_STDOUT, 0);
+			}	
 	/* ==== */
-	/* ==== acquiring radiance from libRadtran ==== */	
-	std::cout << "acquiring radiance from libRadtran..." << std::endl;	
-		/* delete_mystic_rad(); */
-		execute_uvspec(args->DIR_UVSPEC, args->PATH_STDIN, args->PATH_STDOUT, args->FLAG_UNDISPLAY_LOG, args->DIR_LOG);
-		if(args->pStdin.solver == "mystic"){
-			radiance[i] = read_mystic_rad(args->DIR_UVSPEC, 105);/* TODO この層番号の決め方がいまいちわからない 0から100km, 1kmごとであればTOAで105 */
-		}else{
-			radiance[i] = read_stdout(args->PATH_STDOUT, 0);
-		}	
-	/* ==== */
-		std::cout << "Tangential height: " << tp.altitude() << " [m]\nRadiance: " << radiance[i] << "\n----" << std::endl;
+			std::cout << "Tangential height: " << tp.altitude() << " [m]\nWavelength: " << args->pStdin.wavelength << "[nm], Weight: " << args->SRWeights.weight(j) << ", Radiance: " << rad_wavlength << "\n----" << std::endl;
+			radiance[i] += args->SRWeights.weight(j) / args->SRWeights.sum_weights() * rad_wavlength;
+		}
+
+
+		std::cout << "Sum: Tangential height: " << tp.altitude() << " [m]\nRadiance: " << radiance[i] << "\n----" << std::endl;
+
 	}
 
 /* ==== saving parameters ==== */
 	std::string identifier = args->secid +"_"+ std::to_string(args->number_of_iteration);
 	std::cout << "saving results..." << std::endl;
 	std::string path_result = save_path(args->DIR_RESULT, identifier, args->dt, args->obs_index + 1);
-//	save_result(path_result, identifier, args->on_ground, args->Nheights, args->heights, radiance);/* TODO 最適化を回し始めたらいらない */
+	
 	save_params(args->DIR_RESULT, args->secid, args->PATH_ATMOSPHERE, "_atm"+std::to_string(args->number_of_iteration)+".dat");/* atmosphereも保存しておく */
 	save_params(args->DIR_RESULT, args->secid, args->PATH_STDIN, "_stdin.txt");
 	save_params(args->DIR_RESULT, args->secid, args->PATH_CONFIG, "_config.conf");
+	args->SRWeights.save(args->DIR_RESULT+"/"+args->secid+"SRF.dat");
 /* ==== */
 /* ==== fitting results ==== */
 	std::cout << "fitting results..." << std::endl;

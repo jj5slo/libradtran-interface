@@ -21,13 +21,17 @@ cp config.conf __config.conf
 #
 #done
 
+cp CONFIGS/20190101_0750_w_srf_N5.conf config.conf
+	echo "started spectrum"
+	./main 2019 01 01 07 50 25  1> /tmp/TEMPORARY/libradtran-interface.log
+
 
 #for i in `seq 1 2`; do
 #	echo "$i / 2 times repeating"
-	cp CONFIGS/20190101_0750_65up_0.5.conf config.conf
-		echo "started 0.5"
-			./main 2019 01 01 07 50 25  1> /tmp/TEMPORARY/libradtran-interface.log
-		echo "finished"
+#	cp CONFIGS/20190101_0750_65up_0.5.conf config.conf
+#		echo "started 0.5"
+#			./main 2019 01 01 07 50 25  1> /tmp/TEMPORARY/libradtran-interface.log
+#		echo "finished"
 	#cp CONFIGS/20190101_0750_65up_0.7.conf config.conf
 	#	echo "started 0.7"
 	#		./main 2019 01 01 07 50 25  1> /tmp/TEMPORARY/libradtran-interface.log
@@ -36,10 +40,10 @@ cp config.conf __config.conf
 	#	echo "started"
 	#		./main 2019 01 01 07 50 25  1> /tmp/TEMPORARY/libradtran-interface.log
 	#	echo "finished"
-	cp CONFIGS/20190101_0750_N5.conf config.conf
-		echo "started"
-			./main 2019 01 01 07 50 25  1> /tmp/TEMPORARY/libradtran-interface.log
-		echo "finished"
+#	cp CONFIGS/20190101_0750_N5.conf config.conf
+#		echo "started"
+#			./main 2019 01 01 07 50 25  1> /tmp/TEMPORARY/libradtran-interface.log
+#		echo "finished"
 #	cp CONFIGS/20190101_0750_65up_1.2.conf config.conf
 #		echo "started"
 #			./main 2019 01 01 07 50 25  1> /tmp/TEMPORARY/libradtran-interface.log
@@ -48,10 +52,10 @@ cp config.conf __config.conf
 #		echo "started"
 #			./main 2019 01 01 07 50 25  1> /tmp/TEMPORARY/libradtran-interface.log
 #		echo "finished"
-	cp CONFIGS/20190101_0750_65up_2.conf config.conf
-		echo "started"
-			./main 2019 01 01 07 50 25  1> /tmp/TEMPORARY/libradtran-interface.log
-		echo "finished"
+#	cp CONFIGS/20190101_0750_65up_2.conf config.conf
+#		echo "started"
+#			./main 2019 01 01 07 50 25  1> /tmp/TEMPORARY/libradtran-interface.log
+#		echo "finished"
 #done
 #for i in `seq 0 23`; do
 #	for j in `seq 0 20 59`; do

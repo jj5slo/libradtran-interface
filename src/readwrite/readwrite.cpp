@@ -1,10 +1,4 @@
 
-#include <memory_allocate.h> /* AndoLab */
-#include <iostream>
-#include <string>
-#include <fstream>
-#include <sstream>
-
 #include "readwrite.h"
 
 namespace readwrite{

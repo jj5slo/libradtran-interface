@@ -220,7 +220,10 @@ if(argc == 7){
 	args.pStdin.albedo = albedo;/* 地球平均は0.3 */
 
 //	args.pStdin.wavelength = wavelength;
-	args.SRWeights = read_SRWeights(PATH_WAVELENGTHS, args.Nwavelengths);
+	args.SRWeights = read_SRWeights(PATH_WAVELENGTHS);
+	for(int ii=0; ii<args.SRWeights.N(); ii++){
+		std::cout << args.SRWeights.wavelength(ii) << " " << args.SRWeights.weight(ii) << std::endl;
+	}
 	
 	Geocoordinate on_ground(earth, himawari, obsds[obs_index].Latitude(), obsds[obs_index].Longitude(), 0.0);/* 観測データにある緯度経度の高度0km 地点のGeocoordinate */
 	double ld_alpha = on_ground.alpha()*Rad2deg;
@@ -287,6 +290,7 @@ if(argc == 7){
 
 
 	if(FLAG_SINGLESHOT){
+		std::cout << "SINGLESHOT" << std::endl;
 		saveParamAtmosphere(PATH_ATMOSPHERE, pAtm, Nheights, atmosphere_precision);
 		args.secid = secid;	
 		args.DIR_RESULT = DIR_RESULT+"/run_once";/* for save */

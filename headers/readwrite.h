@@ -1,3 +1,10 @@
+#include <memory_allocate.h> /* AndoLab */
+#include <iostream>
+#include <string>
+#include <fstream>
+#include <sstream>
+
+
 namespace readwrite{
 	std::string* read_list(std::string path, int &Nelements);
 	double** read_data(std::string path, std::string &header, int &Nlines, int &Ncolumns);/* 参照渡し */
