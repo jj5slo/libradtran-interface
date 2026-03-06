@@ -21,7 +21,7 @@ int main(int argc, char *argv[]){
 	int DAY;
 	int HOUR;
 	int MINUTE;
-	int obs_index;
+	int OBS_INDEX;
 //	if(argc == 5){
 //		YEAR = atoi(argv[1]);
 //		MONTH = atoi(argv[2]);
@@ -31,79 +31,67 @@ int main(int argc, char *argv[]){
 //		obs_index = atoi(argv[4]) - 1;/* 観測データの何行目を読むか */
 //	}
 //	else
-if(argc == 7){
-		YEAR      = atoi(argv[1]);
-		MONTH     = atoi(argv[2]);
-		DAY       = atoi(argv[3]);
-		HOUR      = atoi(argv[4]);
-		MINUTE    = atoi(argv[5]);
-		obs_index = atoi(argv[6]) - 1;/* 観測データの何行目を読むか */
+
+	int atmosphere_precision = 7;/* MSISから取得する大気の保存時の精度 */
+	int FLAG_OBS    = 0;
+	int FLAG_OUTPUT = 0;
+	std::string DIR_OBS = "";
+	std::string PATH_OUT = "";
+	
+	int option_number = 0;
+	for(int i=1; i<argc; i++){
+		if(std::string(argv[i]) == "-h"){
+			std::cerr << "Usage: ./save_msis_atm YEAR MONTH DAY HOUR MINUTE OBS_INDEX -i DIR_OBS [-o OUTPUT] [-p PRECISION]\n" << std::endl;
+			return 0;
+		}
+		else if(std::string(argv[i]) == "-i"){
+			FLAG_OBS = 1;
+			DIR_OBS = std::string(argv[++i]);
+		}
+		else if(std::string(argv[i]) == "-o"){
+			FLAG_OUTPUT = 1;
+			PATH_OUT = std::string(argv[++i]);
+		}
+		else{
+			switch (option_number){
+				case 0:
+					YEAR   = atoi(argv[i]);
+					break;
+				case 1:
+					MONTH  = atoi(argv[i]); 
+					break;
+				case 2:
+					DAY    = atoi(argv[i]);
+					break;
+				case 3:
+					HOUR   = atoi(argv[i]);
+					break;
+				case 4:
+					MINUTE = atoi(argv[i]);
+					break;
+				case 5:
+					OBS_INDEX = atoi(argv[i]) - 1;
+					break;
+				default:
+					std::cerr << "too much arguments.\nUsage: ./save_msis_atm YEAR MONTH DAY HOUR MINUTE OBS_INDEX -i DIR_OBS [-o OUTPUT] [-p PRECISION]\n" << std::endl;
+					return 0;
+			}
+			++option_number;
+		}
 	}
-	else{
-		std::cerr << "Usage: ./getmsisatm YEAR MONTH DAY HOUR MINUTE OBS_INDEX\n" << std::endl;
+	if(FLAG_OBS != 1){
+		std::cerr << "-i needed.\nUsage: ./save_msis_atm YEAR MONTH DAY HOUR MINUTE OBS_INDEX -i DIR_OBS [-o OUTPUT] [-p PRECISION]\n" << std::endl;
 		return 0;
 	}
-
+	if(option_number != 6){
+		std::cerr << "too less arguments.\nUsage: ./save_msis_atm YEAR MONTH DAY HOUR MINUTE OBS_INDEX -i DIR_OBS [-o OUTPUT] [-p PRECISION]\n" << std::endl;
+		return 0;
+	}
+					
 /* ==== */
 
 	obsDateTime dt(YEAR, MONTH, DAY, HOUR, MINUTE, 0);/* 観測日 */
 
-/* ==== id付け ==== */
-	/* 現在時刻（シミュレーション開始時刻）を取得、保持 */
-	auto now = std::chrono::system_clock::now();
-	auto nowsec = std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count();
-	std::string secid = std::to_string(nowsec);
-	/* secid を結果につけることでパラメータを保存 */
-
-/* ==== */
-/* ==== ファイルから設定読込 ==== */
-
-	std::string PATH_CONFIG = "./config.conf";
-	std::map<std::string, std::string> configs = readConfigFile(PATH_CONFIG);
-	
-	const int DEBUG = getConfig(configs, "DEBUG", 0);
-	const int FLAG_UNDISPLAY_LOG = getConfig(configs, "FLAG_UNDISPLAY_LOG", 0);
-	const std::string DIR_LOG = getConfig(configs, "DIR_LOG", "/tmp/");/* libRadtranの標準エラーを、標準出力に出さないとき(FLAG_UNDISPLAY_LOG=1)にログとして保存するディレクトリ */
-
-	const std::string DIR_INTERFACE = getConfig(configs, "DIR_INTERFACE", std::string(std::getenv("HOME"))+"/SANO/research/estimate-profile/libradtran-interface/");/* このプログラムが置かれるディレクトリ */
-	const std::string DIR_UVSPEC = getConfig(configs, "DIR_UVSPEC", std::string(std::getenv("HOME"))+"/SANO/research/LIBRARIES/libradtran/libRadtran-2.0.6/bin/");/* uvspec(libRadtran本体)の置かれたディレクトリ */
-
-	std::string DIR_RESULT = getConfig(configs, "DIR_RESULT", "../testresult/") + secid;/* 保存先ディレクトリ */
-	std::string DIR_OBS = getConfig(configs, "DIR_OBS", "../testdata/");/* 観測データのディレクトリ */
-	const std::string PATH_STDIN = getConfig(configs, "PATH_STDIN", "in");/* libRadtran標準入力を一時保存する場所 */
-	std::string PATH_STDOUT = getConfig(configs, "PATH_STDOUT", "out");/* libRadtranの標準出力を一時保存する場所 */
-	std::string PATH_ATMOSPHERE = getConfig(configs, "PATH_ATMOSPHERE", std::string(std::getenv("HOME"))+"/SANO/research/LIBRARIES/libradtran/libRadtran-2.0.6/data/atmmod/afglus.dat");/* libRadtranに渡す大気ファイル */
-	std::string PATH_ATMOSPHERE_INIT = getConfig(configs, "PATH_ATMOSPHERE_INIT", std::string(std::getenv("HOME"))+"/SANO/research/LIBRARIES/libradtran/libRadtran-2.0.6/data/atmmod/afglus.dat");/* libRadtranに渡す大気ファイル */
-	
-	double wavelength = getConfig(configs, "wavelength", 470.0);/* 波長 [nm]. TODO 決まっているので指定方法を変える */
-	int i_top = getConfig(configs, "i_top", 64);/* 数密度を求める最高高度（index） */
-	int i_bottom = getConfig(configs, "i_bottom", 60);/* 数密度を求める最低高度（index） */
-	int N_exp_decay_atm = getConfig(configs, "N_exp_decay_atm", 5);/* 数密度を求める最低高度（index） */
-
-	std::string solver = getConfig(configs, "solver", "mystic");/* libRadtranのソルバ */
-
-	std::string SURFACE_TYPE = getConfig(configs, "SURFACE_TYPE", "ABSORB");/* 表面反射のタイプを指定 */
-	double albedo = getConfig(configs, "albedo", 0.3);/* LAMBERT の反射率 */
-	double brdf_cam_u10 = getConfig(configs, "brdf_cam_u10", 15.0);/* BRDF_CAM の風速 */
-	std::string additional_option = getConfig(configs, "additional_option", "");/* libRadtranの標準入力に追加で書き込む文字列 */
-	int mc_photons = getConfig(configs, "mc_photons", 60000);/* MYSTICの回数 デフォルトは300000 */
-
-	int atmosphere_precision = getConfig(configs, "atmosphere_precision", 7);/* MSISから取得する大気の保存時の精度 */
-
-	double XTOL_REL = getConfig(configs, "XTOL_REL", 1.0e-6);/* 最適化終了判定 */
-	int FITTING_ADDITION = getConfig(configs, "FITTING_ADDITION", 0);/* フィッティングするために上の層の値を余計に計算する。破棄予定 */
-//	DIR_UVSPEC
-
-
-
-
-
-/* ==== */
-/*
-	std::string PATH_ATMOSPHERE = "/home/sano/SANO/research/estimate-profile/atmmod-temporary/afglus-modN.dat";
-	PATH_ATMOSPHERE = "/home/sano/SANO/research/LIBRARIES/libradtran/libRadtran-2.0.6/data/atmmod/afglus.dat";
-	PATH_ATMOSPHERE = "/home/sano/SANO/research/estimate-profile/atmmod-temporary/msis-atm.dat";
-*/
 /* ==== 保存先ディレクトリ作成 ==== */
 
 //	std::string path_result = "result.txt";
@@ -112,24 +100,20 @@ if(argc == 7){
 /* ==== 観測データ読み込み ==== */
 	std::string path_obs = obs_path(DIR_OBS, dt);/* 観測日時からデータの名前 */
 	std::cout << path_obs << std::endl;
-	if(DEBUG){ std::cin >> input; }
 	int Nobs = 0;
-	Observed *obsds = read_obs( &Nobs, path_obs );/* 使うのはobsds[obs_index]だけ */
+	Observed *obsds = read_obs( &Nobs, path_obs );/* 使うのはobsds[OBS_INDEX]だけ */
 	std::cout << Nobs << "points" << std::endl;
 /* ==== */
 /* 諸定数の準備 */
 	
-	std::filesystem::remove(DIR_LOG+"libRadtran.log");/* ログ容量溢れ防止 */
-
-	double *heights = obsds[obs_index].Heights();
-	int Nheights = obsds[obs_index].Nheights();
-	std::cout << "lat" << obsds[obs_index].Latitude() << " "  << "lon" << obsds[obs_index].Longitude() << " " << obsds[obs_index].Nheights() << "heights max:" << obsds[obs_index].maxHeight() << std::endl;
-//		for(int i=0; i<obsds[obs_index].Nheights(); i++){
-//			std::cout << heights[i] << " " << obsds[obs_index].Data(heights[i]) << "\n";
+	double *heights = obsds[OBS_INDEX].Heights();
+	int Nheights = obsds[OBS_INDEX].Nheights();
+	std::cout << "lat" << obsds[OBS_INDEX].Latitude() << " "  << "lon" << obsds[OBS_INDEX].Longitude() << " " << obsds[OBS_INDEX].Nheights() << "heights max:" << obsds[OBS_INDEX].maxHeight() << std::endl;
+//		for(int i=0; i<obsds[OBS_INDEX].Nheights(); i++){
+//			std::cout << heights[i] << " " << obsds[OBS_INDEX].Data(heights[i]) << "\n";
 //		}
 	std::cout << std::endl;
 
-	if(DEBUG){ std::cin >> input; }
 /* ==== 地球、衛星の設定 ==== */
 	
 	auto earth = PlanetParam( 6370.e3 );
@@ -145,7 +129,7 @@ if(argc == 7){
 */
 	
 	
-	Geocoordinate on_ground(earth, himawari, obsds[obs_index].Latitude(), obsds[obs_index].Longitude(), 0.0);/* 観測データにある緯度経度の高度0km 地点のGeocoordinate */
+	Geocoordinate on_ground(earth, himawari, obsds[OBS_INDEX].Latitude(), obsds[OBS_INDEX].Longitude(), 0.0);/* 観測データにある緯度経度の高度0km 地点のGeocoordinate */
 	double ld_alpha = on_ground.alpha()*Rad2deg;
 	double sza_on_ground;
 	double phi0_on_ground;
@@ -176,11 +160,12 @@ if(argc == 7){
 //			pAtm[i].Nair = pAtm[i_top+1].Nair * std::pow(10.0, -super_inv_10_scaleheight * (pAtm[i].z - pAtm[i_top+1].z));
 //			pAtm[i].set_p_from_Nair_T();
 //		}
-	std::cout << "# Modified Atmosphere\nz Nair p T" << std::endl;
-	for(int i=0; i<Nheights; i++){
-		std::cout << " " << pAtm[i].z << " " << pAtm[i].Nair << " " << pAtm[i].p << " " <<  pAtm[i].T << std::endl;
+//	std::cout << "# Modified Atmosphere\nz Nair p T" << std::endl;
+//	for(int i=0; i<Nheights; i++){
+//		std::cout << " " << pAtm[i].z << " " << pAtm[i].Nair << " " << pAtm[i].p << " " <<  pAtm[i].T << std::endl;
+//	}
+	if(FLAG_OUTPUT){	
+		saveParamAtmosphere(PATH_OUT, pAtm, Nheights, atmosphere_precision);
 	}
-	
-	saveParamAtmosphere(PATH_ATMOSPHERE, pAtm, Nheights, atmosphere_precision);
 	return 0;
 }

@@ -28,6 +28,11 @@ int save_stdin(std::string path, ParamStdin param){
 		ofs << "mc_backward\n";
 		ofs << "#mc_backward_output eup\n#mc_escape off\n\n";
 	}
+	if(param.solver == "mystic_plainparallel"){
+		ofs << "mc_photons " << param.mc_photons << "\n";
+		ofs << "mc_backward\n";
+		ofs << "#mc_backward_output eup\n#mc_escape off\n\n";
+	}
 	ofs << "wavelength " << param.wavelength << "\n\n";
 
 	if(param.SURFACE_TYPE == "LAMBERT"){

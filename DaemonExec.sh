@@ -22,6 +22,13 @@ cp config.conf __config.conf
 #done
 
 #cp CONFIGS/20190101_0750_w_srf_N5.conf config.conf
+cp CONFIGS/plainparallel.conf config.conf
+	echo "started plainparallel"
+	./main 2022 06 01 03 00 36  1> /tmp/TEMPORARY/libradtran-interface.log
+
+cp CONFIGS/spherical.conf config.conf
+
+
 cp CONFIGS/20190101_0750_shot.conf config.conf
 	echo "started spectrum"
 	./main 2019 01 01 07 50 25  1> /tmp/TEMPORARY/libradtran-interface.log
