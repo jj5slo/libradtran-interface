@@ -96,6 +96,7 @@ if(argc == 7){
 	const std::string PATH_STDIN = getConfig(configs, "PATH_STDIN", "in");/* libRadtran標準入力を一時保存する場所 */
 	std::string PATH_STDOUT = getConfig(configs, "PATH_STDOUT", "out");/* libRadtranの標準出力を一時保存する場所 */
 	std::string PATH_ATMOSPHERE = getConfig(configs, "PATH_ATMOSPHERE", std::string(std::getenv("HOME"))+"/SANO/research/LIBRARIES/libradtran/libRadtran-2.0.6/data/atmmod/afglus.dat");/* libRadtranに渡す大気ファイル */
+	int FLAG_USE_ATMOSPHERE_INIT     = getConfig(configs, "FLAG_USE_ATMOSPHERE_INIT", 0);
 	std::string PATH_ATMOSPHERE_INIT = getConfig(configs, "PATH_ATMOSPHERE_INIT", std::string(std::getenv("HOME"))+"/SANO/research/LIBRARIES/libradtran/libRadtran-2.0.6/data/atmmod/afglus.dat");/* libRadtranに渡す大気ファイル */
 	
 //	double wavelength = getConfig(configs, "wavelength", 470.0);/* 波長 [nm]. TODO 決まっているので指定方法を変える */
@@ -243,8 +244,14 @@ if(argc == 7){
 		ld.set( ld_alpha, heights[i]/m2km );/* 見る場所決め */
 		tparr[i] = ld.tangential_point( earth, himawari);/* tangential point の配列 */
 	}
-//	ParamAtmosphere *pAtm = get_msis(dt, tparr, Nheights);/* tangential point でのMSIS大気から求めたパラメタを取得 */
-	ParamAtmosphere* pAtm = readParamAtmosphere(PATH_ATMOSPHERE_INIT, Nheights);/* 初期大気は自分で指定する *//* try-catchが望ましい */
+	ParamAtmosphere* pAtm;
+	if(FLAG_USE_ATMOSPHERE_INIT){
+		pAtm = readParamAtmosphere(PATH_ATMOSPHERE_INIT, Nheights);/* 初期大気は自分で指定する *//* try-catchが望ましい */
+	}
+	else{
+		pAtm = get_msis(dt, tparr, Nheights);/* tangential point でのMSIS大気から求めたパラメタを取得 */
+		saveParamAtmosphere(PATH_ATMOSPHERE_INIT, pAtm, Nheights, atmosphere_precision);
+	}
 	std::cout << "# Atmosphere\nz Nair p T" << std::endl;
 	for(int i=0; i<Nheights; i++){
 		std::cout << " " << pAtm[i].z << " " << pAtm[i].Nair << " " << pAtm[i].p << " " <<  pAtm[i].T << std::endl;
@@ -303,7 +310,7 @@ if(argc == 7){
 		for(int i=0; i<args.Nheights; i++){
 			args.radiance_smoothed[i] = 0.0;
 		}
-		int running_mean_extra = args.N_running_mean / 2;/* ( N - 1 ) / 2 */
+//		int running_mean_extra = args.N_running_mean / 2;/* ( N - 1 ) / 2 */
 
 		args.atm_i_bottom = args.i_bottom;// - running_mean_extra;	
 		args.atm_i_top    = args.i_top   ;// + running_mean_extra;
@@ -343,7 +350,7 @@ if(argc == 7){
 	/* ==== */
 	/* MSISで求めた大気をNLoptの初期値に代入する。最小化する評価関数はwrapperとして実装するが、
 	*/
-		int running_mean_extra = args.N_running_mean / 2;/* ( N - 1 ) / 2 */
+//		int running_mean_extra = args.N_running_mean / 2;/* ( N - 1 ) / 2 */
 	
 		args.atm_i_bottom = 0; /* TODO 今は 地表まで	*/
 		args.atm_i_top    = args.i_top   ;// + running_mean_extra;

@@ -24,7 +24,7 @@ void saveParamAtmosphere(std::string filename, ParamAtmosphere *params, int Nlin
 //	std::ostringstream oss; buffer
 	std::ofstream ofs(filename);
 	if(!ofs.is_open()){
-		std::cerr<< "radtran-interface::saveParamAtmosphere: file could not open.\n";
+		std::cerr<< "radtran-interface::saveParamAtmosphere: file could not open.(" << filename <<")" << std::endl;
 	}
 	ofs << "# z[km] p[hPa] T[K] Nair[cm-3] No3[cm-3] No2[cm-3] Nh2o[cm-3] Nco2[cm-3] Nno2[cm-3]\n";
 	ofs << std::setprecision(Ndecimal) << std::scientific;

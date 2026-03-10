@@ -86,8 +86,10 @@ double core(void* raw_Args){
 		std::cout << "acquiring radiance from libRadtran..." << std::endl;	
 			/* delete_mystic_rad(); */
 			execute_uvspec(args->DIR_UVSPEC, args->PATH_STDIN, args->PATH_STDOUT, args->FLAG_UNDISPLAY_LOG, args->DIR_LOG);
-			if(args->pStdin.solver == "mystic"){
+			if(args->pStdin.solver == "mystic" || args->pStdin.solver == "mystic_plainparallel"){
 				rad_wavlength = read_mystic_rad(args->DIR_UVSPEC, 105);/* TODO この層番号の決め方がいまいちわからない 0から100km, 1kmごとであればTOAで105 */
+				double rad_wavlength_spc = read_mystic_rad_spc(args->DIR_UVSPEC);/* TODO この層番号の決め方がいまいちわからない 0から100km, 1kmごとであればTOAで105 */
+				std::cout << "rad_spc: " << rad_wavlength_spc << "ratio: " << rad_wavlength_spc/rad_wavlength << std::endl;
 			}else{
 				rad_wavlength = read_stdout(args->PATH_STDOUT, 0);
 			}	
@@ -110,12 +112,18 @@ double core(void* raw_Args){
 	save_params(args->DIR_RESULT, args->secid, args->PATH_STDIN, "_stdin.txt");
 	save_params(args->DIR_RESULT, args->secid, args->PATH_CONFIG, "_config.conf");
 	args->SRWeights.save(args->DIR_RESULT+"/"+args->secid+"_SRF.dat");
-	std::string RawEachWL_header = "# ";
+	std::string RawEachWL_header = "# height ";
 	for(int ii=0; ii<args->SRWeights.N(); ii++){
 		RawEachWL_header += std::to_string(args->SRWeights.wavelength(ii)) + " ";
 	}
 	RawEachWL_header += "[nm]\n";
-	readwrite::save_data(args->DIR_RESULT+"/"+args->secid+"_RawEachWL.dat", RawEachWL_header, args->Nheights, args->SRWeights.N(), radiance_each_wl);
+	double** height_radiance_each_wl = new double* [args->SRWeights.N()+1];
+	height_radiance_each_wl[0] = args->heights;
+	for(int ii=0; ii<args->SRWeights.N(); ii++){
+		height_radiance_each_wl[ii+1] = radiance_each_wl[ii];
+	}
+	readwrite::save_data(args->DIR_RESULT+"/"+args->secid+"_RawEachWL.dat", RawEachWL_header, args->Nheights, args->SRWeights.N(), height_radiance_each_wl);
+	delete[] height_radiance_each_wl;
 /* ==== */
 /* ==== fitting results ==== */
 	std::cout << "fitting results..." << std::endl;
@@ -138,6 +146,7 @@ double core(void* raw_Args){
 	double* a_offset = fit::obtain_fitting_coefficient(args->obs.Data(), smoothed, args->fit_i_bottom, args->fit_i_top, offset);
 	double* fitted = fit::apply_fitting(args->Nheights, smoothed, a_offset);
 	double** processed_results = new double* [5];
+	double log_square_error = fit::root_mean_square_log_error( args->i_bottom, args->i_top, args->obs.Data(), fitted );
 	processed_results[0] = args->heights;
 	processed_results[1] = args->obs.Data();
 	processed_results[2] = radiance;
@@ -151,18 +160,18 @@ double core(void* raw_Args){
 		+ "# latitude: " + std::to_string(args->on_ground.latitude()) + "\n"
 		+ "# ld_alpha: " + std::to_string(ld_alpha) + "[rad] = " + std::to_string(ld_alpha*Rad2Deg) + "deg" + "\n"
 		+ "# date: " + std::to_string(args->dt.Year())+" "+std::to_string(args->dt.Month())+" "+std::to_string(args->dt.Date()) +"\n"
-		+ "# time: " + std::to_string(args->dt.Hour())+":"+std::to_string(args->dt.Minute())+":"+std::to_string(args->dt.Second())+" UT, Hour="+std::to_string(args->dt.HourWithDecimal())
+		+ "# time: " + std::to_string(args->dt.Hour())+":"+std::to_string(args->dt.Minute())+":"+std::to_string(args->dt.Second())+" UT, Hour="+std::to_string(args->dt.HourWithDecimal()) +"\n"
 		+ "# sza_on_ground: " + std::to_string(args->sza_on_ground) +"\n"
 		+ "# phi0_on_ground: " + std::to_string(args->phi0_on_ground) + "\n"
 		+ "# i_bottom: " + std::to_string(args->i_bottom) + ", i_top: " + std::to_string(args->i_top) + "\n"
 		+ "# atm_i_bottom: " + std::to_string(args->atm_i_bottom) + ", atm_i_top: " + std::to_string(args->atm_i_top) + "\n"
 		+ "# a: " + std::to_string(a_offset[0]) + ", offset: " + std::to_string(a_offset[1]) + "\n"
 		+ "# N_running_mean: " + std::to_string(args->N_running_mean) + "\n"
+		+ "# log_square_error: " + std::to_string(log_square_error)
 		+ "# height observed sumulated smoothed fitted\n";
 	fit::save_data(path_result, header, args->Nheights,  5, processed_results);/* 最適化を回し始めたら不要、/tmp/に入れてもいいかも */
 	delete[] processed_results;
 	
-	double log_square_error = fit::root_mean_square_log_error( args->i_bottom, args->i_top, args->obs.Data(), fitted );
 	
 	delete[] radiance;
 	for(int ii=0; ii<args->SRWeights.N(); ii++){

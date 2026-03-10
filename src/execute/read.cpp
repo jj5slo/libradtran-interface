@@ -26,6 +26,32 @@ double read_mystic_rad(const std::string DIR_UVSPEC, int NN){
 	return 0.0;
 }
 
+double read_mystic_rad_spc(const std::string DIR_UVSPEC){
+	std::string path = (DIR_UVSPEC+"mc.rad.spc");
+	std::ifstream ifs(path);
+
+	if(!ifs){
+		std::cerr << "Failed to open file '" << path << "'" << std::endl;
+		return 0.0;
+	}
+
+	std::string line;
+
+	std::getline(ifs, line);
+	std::istringstream iss(line);
+	std::string token;
+	
+	int col_index = 0;
+	while(iss >> token){
+		if(col_index == 4){/* wl ix iy iz rad */
+			return std::stod(token);
+		}
+		col_index++;
+	}
+	return 0.0;
+}
+
+
 double read_stdout(std::string path_stdout, int number_of_column){
 	std::ifstream ifs(path_stdout);
 

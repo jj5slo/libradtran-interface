@@ -1,0 +1,17 @@
+#for hour in `seq 0 23`; do
+#	for minute in `seq 0 10 59`; do
+#		./util/save_atm/save_msis_atm 2022 06 03 ${hour} ${minute} 36 -i /lhome/sano2/DATA/testdata/ -o ../Result/03-W1/2022-06-03/atm/
+
+
+cp CONFIGS/2022-06-03_loop.conf config.conf
+for hour in `seq 0 23`; do
+	for minute in `seq 0 10 59`; do
+		hourminute=$(printf "%02d%02d" $hour $minute)
+		sed -i "11s|.*|DIR_RESULT=/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/2022-06-03/${hourminute}/|" "$file"
+		echo "11th line replaced."
+		sed -i "17s|.*|PATH_ATMOSPHERE_INIT=/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/2022-06-03/atm/220603atm${hourminute}.dat|" "$file"
+		echo "17th line replaced."
+		./main 2022 06 03 ${hour} ${minute} 36  1> /tmp/TEMPORARY/libradtran-interface.log
+	done
+done
+

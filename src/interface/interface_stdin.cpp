@@ -21,14 +21,15 @@ int save_stdin(std::string path, ParamStdin param){
 	ofs << "atmosphere_file " << param.atmosphere_file << "\n";
 
 	ofs << "source solar    ../data/solar_flux/atlas_plus_modtran\n\n";
-	ofs << "rte_solver " << param.solver <<"\n";
 	if(param.solver == "mystic"){
+		ofs << "rte_solver " << param.solver <<"\n";
 		ofs << "mc_spherical 1D\n";
 		ofs << "mc_photons " << param.mc_photons << "\n";
 		ofs << "mc_backward\n";
 		ofs << "#mc_backward_output eup\n#mc_escape off\n\n";
 	}
 	if(param.solver == "mystic_plainparallel"){
+		ofs << "rte_solver " << "mystic" <<"\n";
 		ofs << "mc_photons " << param.mc_photons << "\n";
 		ofs << "mc_backward\n";
 		ofs << "#mc_backward_output eup\n#mc_escape off\n\n";
@@ -47,7 +48,7 @@ int save_stdin(std::string path, ParamStdin param){
 	ofs << "phi0 " << param.phi0 << "\n\n";
 	ofs << "umu " << param.umu << "\n";
 	ofs << "phi " << param.phi << "\n";
-	if(param.solver != "mystic"){
+	if(param.solver != "mystic" && param.solver != "mystic_plainparallel"){/* TODO */
 		ofs << param.additional << "\n";
 	}
 	

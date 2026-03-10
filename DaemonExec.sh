@@ -8,6 +8,24 @@ cd /lhome/sano2/SANO/research/estimate-profile/libradtran-interface
 
 cp config.conf __config.conf
 
+cp CONFIGS/2022-06-03_loop.conf config.conf
+for lineno in `seq 2 2 35`; do
+	linenumber=$(printf "%02d" "$lineno")
+	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/2022-06-03/${linenumber}/atm"
+	for hour in `seq 0 23`; do
+		for minute in `seq 0 10 59`; do
+			hourminute=$(printf "%02d%02d" "$hour" "$minute")
+			echo "$linenumber $hourminute"
+			mkdir -p "/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/2022-06-03/${linenumber}/${hourminute}"
+			sed -i "11s|.*|DIR_RESULT=/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/2022-06-03/${linenumber}/${hourminute}/|" config.conf
+			echo "11th line replaced."
+			sed -i "17s|.*|PATH_ATMOSPHERE_INIT=/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/2022-06-03/${linenumber}/atm/220603atm${hourminute}.dat|" config.conf
+			echo "17th line replaced."
+			./main 2022 06 03 "${hour}" "${minute}" 01  1> /tmp/TEMPORARY/libradtran-interface.log
+		done
+	done
+done
+
 #cp CONFIGS/20190101_0750_MSIS.conf config.conf
 #	./main 2019 01 01 07 50 25 1> /tmp/TEMPORARY/libradtran-interface.log
 
@@ -22,16 +40,18 @@ cp config.conf __config.conf
 #done
 
 #cp CONFIGS/20190101_0750_w_srf_N5.conf config.conf
-cp CONFIGS/plainparallel.conf config.conf
-	echo "started plainparallel"
-	./main 2022 06 01 03 00 36  1> /tmp/TEMPORARY/libradtran-interface.log
+#cp CONFIGS/plainparallel.conf config.conf
+#	echo "started plainparallel"
+#	./main 2022 06 01 03 00 36  1> /tmp/TEMPORARY/libradtran-interface.log
 
-cp CONFIGS/spherical.conf config.conf
+#cp CONFIGS/spherical.conf config.conf
+#	echo "started spherical"
+#	./main 2022 06 01 03 00 36  1> /tmp/TEMPORARY/libradtran-interface.log
+#
 
-
-cp CONFIGS/20190101_0750_shot.conf config.conf
-	echo "started spectrum"
-	./main 2019 01 01 07 50 25  1> /tmp/TEMPORARY/libradtran-interface.log
+#cp CONFIGS/20190101_0750_shot.conf config.conf
+#	echo "started spectrum"
+#	./main 2019 01 01 07 50 25  1> /tmp/TEMPORARY/libradtran-interface.log
 
 
 #for i in `seq 1 2`; do
