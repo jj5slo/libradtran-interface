@@ -124,3 +124,22 @@ double wrapper(const std::vector<double> &Coef, std::vector<double> &grad, void*
 }
 
 
+WrapperArgs::WrapperArgs(void){
+	pAtm                    = nullptr;
+	heights                 = nullptr;
+	atm_heights             = nullptr;
+	tparr                   = nullptr;
+	radiance_smoothed       = nullptr;
+	upper_radiance_smoothed = nullptr;
+}
+WrapperArgs::~WrapperArgs(void){
+	delete[] pAtm;
+	delete[] heights;
+	delete[] atm_heights;
+	delete[] tparr;
+	delete[] radiance_smoothed;
+	delete[] upper_radiance_smoothed;
+}
+// WrapperArgs::WrapperArgs(const WrapperArgs &obj){
+
+

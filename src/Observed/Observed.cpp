@@ -26,7 +26,11 @@ double Observed::Longitude(void){
 	return pLon;
 }
 double* Observed::Heights(void){
-	return pHeights;
+	double* heights = new double [pNheights];
+	for(int i=0; i<pNheights; i++){
+		heights[i] = pHeights[i];
+	}
+	return heights;
 }
 int Observed::Nheights(void){
 	return pNheights;
@@ -48,7 +52,6 @@ double** Observed::Heights_Data(void){
 	hd[1] = pData;
 	return hd;
 }
-
 
 double Observed::maxHeight(){
 	double maxh = pHeights[0];

@@ -157,18 +157,17 @@ if(argc == 7){
 /* ==== */
 /* ==== 観測データ読み込み ==== */
 
-	Observed *obsds;
+	Observed obsd;
 	if(FLAG_OTEHON){
 		int otehon_lines;
 		int otehon_columns;
 		std::string otehon_header;
 		double** otehon = fit::read_result(PATH_OTEHON, otehon_header, otehon_lines, otehon_columns);
 		std::cout << "Read Otehon." << std::endl;
-		obsds = new Observed[obs_index + 1];
-		obsds[obs_index].set(OTEHON_LAT, OTEHON_LON, otehon_lines, otehon[0], otehon[4]);/* TODO TODO TODO HARD CODING !!! */
+		obsd.set(OTEHON_LAT, OTEHON_LON, otehon_lines, otehon[0], otehon[4]);/* TODO TODO TODO HARD CODING !!! */
 	
 	//	for(int i=0; i<otehon_lines; i++){
-	//		std::cout << otehon[0][i] <<" "<< obsds[obs_index].Data()[i] << std::endl;
+	//		std::cout << otehon[0][i] <<" "<< obsd.Data()[i] << std::endl;
 	//	}
 	}
 	else{
@@ -176,7 +175,11 @@ if(argc == 7){
 		std::cout << path_obs << std::endl;
 		if(DEBUG){ std::cin >> input; }
 		int Nobs = 0;
-		obsds = read_obs( &Nobs, path_obs );/* 使うのはobsds[obs_index]だけ */
+		obsd = read_obs(path_obs, obs_index);/* 使うのはobsdだけ */
+		if (obsd.Nheights() == 0){
+			std::cerr << "No Observation Data!" << std::endl;
+			return 0;
+		}
 		std::cout << Nobs << "points" << std::endl;
 	}
 
@@ -185,15 +188,15 @@ if(argc == 7){
 /* ==== */
 /* 諸定数の準備 */
 	WrapperArgs args;/* declared in wrapper.h */
-	args.TOA_height           = obsds[obs_index].maxHeight();
+	args.TOA_height           = obsd.maxHeight();
 	
 	std::filesystem::remove(DIR_LOG+"libRadtran.log");/* ログ容量溢れ防止 */
 
-	double *heights = obsds[obs_index].Heights();
-	int Nheights = obsds[obs_index].Nheights();
-	std::cout << "lat" << obsds[obs_index].Latitude() << " "  << "lon" << obsds[obs_index].Longitude() << " " << obsds[obs_index].Nheights() << "heights max:" << args.TOA_height << std::endl;
-//	for(int i=0; i<obsds[obs_index].Nheights(); i++){
-//		std::cout << heights[i] << " " << obsds[obs_index].Data(heights[i]) << "\n";
+	double *heights = obsd.Heights();
+	int Nheights = obsd.Nheights();
+	std::cout << "lat" << obsd.Latitude() << " "  << "lon" << obsd.Longitude() << " " << obsd.Nheights() << "heights max:" << args.TOA_height << std::endl;
+//	for(int i=0; i<obsd.Nheights(); i++){
+//		std::cout << heights[i] << " " << obsd.Data(heights[i]) << "\n";
 //	}
 	std::cout << std::endl;
 	
@@ -227,7 +230,7 @@ if(argc == 7){
 		std::cout << args.SRWeights.wavelength(ii) << " " << args.SRWeights.weight(ii) << std::endl;
 	}
 	
-	Geocoordinate on_ground(earth, himawari, obsds[obs_index].Latitude(), obsds[obs_index].Longitude(), 0.0);/* 観測データにある緯度経度の高度0km 地点のGeocoordinate */
+	Geocoordinate on_ground(earth, himawari, obsd.Latitude(), obsd.Longitude(), 0.0);/* 観測データにある緯度経度の高度0km 地点のGeocoordinate */
 	double ld_alpha = on_ground.alpha()*Rad2deg;
 	double sza_on_ground;
 	double phi0_on_ground;
@@ -281,7 +284,8 @@ if(argc == 7){
 
 
 	args.dt                     = dt;
-	args.obs                    = obsds[obs_index];/* for fitting (and save) */
+	args.obs                    = obsd;/* for fitting (and save) */
+
 	args.planet                 = earth;
 	args.satellite              = himawari;
 	args.heights                = args.obs.Heights();/* for save */

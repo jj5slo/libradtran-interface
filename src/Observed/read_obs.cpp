@@ -25,7 +25,7 @@ Observed* read_obs(int *aNobs, std::string path_obs ){
 	std::ifstream temp_ifs(path_obs);/* 行数数え */
 	if(!temp_ifs){
 		std::cerr << "Failed to open file '" << path_obs << "'" << std::endl;
-		/* return */
+		return nullptr;
 	}
 	std::string temp_line;
 	while(std::getline(temp_ifs, temp_line)){
@@ -95,5 +95,17 @@ Observed* read_obs(int *aNobs, std::string path_obs ){
 	delete[] data;
 	
 	*aNobs = Nobs;
+	
 	return obsds;
+}
+
+Observed read_obs(std::string path_obs, int obs_index){
+	int Nobs = 0;
+	Observed* obsds = read_obs(&Nobs, path_obs);
+	Observed obsd;
+	if(obsds != nullptr){
+		obsd = obsds[obs_index];
+	}
+	delete[] obsds;
+	return obsd;
 }

@@ -40,9 +40,22 @@ double* msis_to_gm_e(
 
 
 
-class WrapperArgs{/* wrapperに渡すものをすべてまとめる（NLoptが要求する形式にするため） */
+// class WrapperArgValues{
+// private:
+// public:
+// 
+// }
+
+
+class WrapperArgs/* : public WrapperArgValues */{/* wrapperに渡すものをすべてまとめる（NLoptが要求する形式にするため） */
 private:
 public:
+	WrapperArgs();
+	~WrapperArgs();
+//	WrapperArgs(const WrapperArgs &obj);
+//	WrapperArgs& operator=(const WrapperArgs& obj);
+/* 値コピーでいいものをstructにまとめ、全部関数で返すように */
+
 	ParamStdin       pStdin;
 	ParamAtmosphere* pAtm;
 	obsDateTime      dt;

@@ -8,18 +8,55 @@ cd /lhome/sano2/SANO/research/estimate-profile/libradtran-interface
 
 cp config.conf __config.conf
 
-cp CONFIGS/2022-06-03_loop.conf config.conf
-for lineno in `paste -d '\n' <(seq 2 4 44) <(seq 88 -4 45)`; do
+cp CONFIGS/2019-01-01_loop.conf config.conf
+yeardate="2019-01-01"
+for lineno in 25; do
 	linenumber=$(printf "%02d" "$lineno")
-	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/2022-06-03/${linenumber}/atm"
+	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}/${linenumber}/atm"
 	for hour in `seq 0 23`; do
 		for minute in `seq 0 10 59`; do
 			hourminute=$(printf "%02d%02d" "$hour" "$minute")
 			echo "$linenumber $hourminute"
-			mkdir -p "/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/2022-06-03/${linenumber}/${hourminute}"
-			sed -i "11s|.*|DIR_RESULT=/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/2022-06-03/${linenumber}/${hourminute}/|" config.conf
+			mkdir -p "/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}/${linenumber}/${hourminute}"
+			sed -i "11s|.*|DIR_RESULT=/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}/${linenumber}/${hourminute}/|" config.conf
 			echo "11th line replaced."
-			sed -i "17s|.*|PATH_ATMOSPHERE_INIT=/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/2022-06-03/${linenumber}/atm/220603atm${hourminute}.dat|" config.conf
+			sed -i "17s|.*|PATH_ATMOSPHERE_INIT=/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}/${linenumber}/atm/220603atm${hourminute}.dat|" config.conf
+			echo "17th line replaced."
+			./main 2019 01 01 "${hour}" "${minute}" "${linenumber}"  1> /tmp/TEMPORARY/libradtran-interface.log
+		done
+	done
+done
+
+cp CONFIGS/2022-06-03_loop.conf config.conf
+yeardate="2022-06-03"
+for lineno in 2; do
+	linenumber=$(printf "%02d" "$lineno")
+	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}/${linenumber}/atm"
+	for hour in `seq 7 23`; do
+		for minute in `seq 0 10 59`; do
+			hourminute=$(printf "%02d%02d" "$hour" "$minute")
+			echo "$linenumber $hourminute"
+			mkdir -p "/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}/${linenumber}/${hourminute}"
+			sed -i "11s|.*|DIR_RESULT=/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}/${linenumber}/${hourminute}/|" config.conf
+			echo "11th line replaced."
+			sed -i "17s|.*|PATH_ATMOSPHERE_INIT=/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}/${linenumber}/atm/220603atm${hourminute}.dat|" config.conf
+			echo "17th line replaced."
+			./main 2022 06 03 "${hour}" "${minute}" "${linenumber}"  1> /tmp/TEMPORARY/libradtran-interface.log
+		done
+	done
+done
+
+for lineno in `paste -d '\n' <(seq 6 4 44) <(seq 88 -4 45)`; do
+	linenumber=$(printf "%02d" "$lineno")
+	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}/${linenumber}/atm"
+	for hour in `seq 0 23`; do
+		for minute in `seq 0 10 59`; do
+			hourminute=$(printf "%02d%02d" "$hour" "$minute")
+			echo "$linenumber $hourminute"
+			mkdir -p "/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}/${linenumber}/${hourminute}"
+			sed -i "11s|.*|DIR_RESULT=/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}/${linenumber}/${hourminute}/|" config.conf
+			echo "11th line replaced."
+			sed -i "17s|.*|PATH_ATMOSPHERE_INIT=/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}/${linenumber}/atm/220603atm${hourminute}.dat|" config.conf
 			echo "17th line replaced."
 			./main 2022 06 03 "${hour}" "${minute}" "${linenumber}"  1> /tmp/TEMPORARY/libradtran-interface.log
 		done
@@ -39,7 +76,6 @@ done
 #
 #done
 
-#cp CONFIGS/20190101_0750_w_srf_N5.conf config.conf
 #cp CONFIGS/plainparallel.conf config.conf
 #	echo "started plainparallel"
 #	./main 2022 06 01 03 00 36  1> /tmp/TEMPORARY/libradtran-interface.log

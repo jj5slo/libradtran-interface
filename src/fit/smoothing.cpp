@@ -35,7 +35,7 @@ double* fit::running_mean_log(int Nlines, int Nmean, double* data){
 	for(int i=0; i<Nlines; i++){
 		result[i] = std::pow(10.0, result[i]);
 	}
-	delete data_log;
+	delete[] data_log;
 	return result;
 }
 
