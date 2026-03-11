@@ -101,6 +101,7 @@ if(argc == 7){
 	
 //	double wavelength = getConfig(configs, "wavelength", 470.0);/* 波長 [nm]. TODO 決まっているので指定方法を変える */
 	std::string PATH_WAVELENGTHS = getConfig(configs, "PATH_WAVELENGTHS", std::string(std::getenv("HOME"))+"/SANO/research/estimate-profile/ObsEquip/Himawari-AHI/AHI-blue.dat");
+	double SZA_THRESHOLD         = getConfig(configs, "SZA_THRESHOLD", 100.0);
 	int i_top           = getConfig(configs, "i_top", 64);/* 数密度を求める最高高度（index） */
 	int i_bottom        = getConfig(configs, "i_bottom", 60);/* 数密度を求める最低高度（index） */
 	int fit_i_top       = getConfig(configs, "fit_i_top", i_top);/* SINGLESHOT */
@@ -235,6 +236,10 @@ if(argc == 7){
 	std::cout << "ld_alpha : " <<  ld_alpha << std::endl;
 	std::cout << "sza_on_ground : " <<  sza_on_ground << std::endl;
 	std::cout << "phi0_on_ground : " <<  phi0_on_ground << std::endl;
+	if(SZA_THRESHOLD < sza_on_ground){
+		std::cerr << "sza_on_ground is over the threshold!" << std::endl;
+		return 0;
+	}
 
 /* ==== MSIS ==== */
 

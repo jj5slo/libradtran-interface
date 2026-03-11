@@ -9,7 +9,7 @@ cd /lhome/sano2/SANO/research/estimate-profile/libradtran-interface
 cp config.conf __config.conf
 
 cp CONFIGS/2022-06-03_loop.conf config.conf
-for lineno in `seq 2 2 35`; do
+for lineno in `paste -d '\n' <(seq 2 4 44) <(seq 88 -4 45)`; do
 	linenumber=$(printf "%02d" "$lineno")
 	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/2022-06-03/${linenumber}/atm"
 	for hour in `seq 0 23`; do
@@ -21,7 +21,7 @@ for lineno in `seq 2 2 35`; do
 			echo "11th line replaced."
 			sed -i "17s|.*|PATH_ATMOSPHERE_INIT=/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/2022-06-03/${linenumber}/atm/220603atm${hourminute}.dat|" config.conf
 			echo "17th line replaced."
-			./main 2022 06 03 "${hour}" "${minute}" 01  1> /tmp/TEMPORARY/libradtran-interface.log
+			./main 2022 06 03 "${hour}" "${minute}" "${linenumber}"  1> /tmp/TEMPORARY/libradtran-interface.log
 		done
 	done
 done

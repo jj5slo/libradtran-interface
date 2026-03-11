@@ -122,7 +122,7 @@ double core(void* raw_Args){
 	for(int ii=0; ii<args->SRWeights.N(); ii++){
 		height_radiance_each_wl[ii+1] = radiance_each_wl[ii];
 	}
-	readwrite::save_data(args->DIR_RESULT+"/"+args->secid+"_RawEachWL.dat", RawEachWL_header, args->Nheights, args->SRWeights.N(), height_radiance_each_wl);
+	readwrite::save_data(args->DIR_RESULT+"/"+args->secid+"_RawEachWL.dat", RawEachWL_header, args->Nheights, args->SRWeights.N()+1, height_radiance_each_wl);
 	delete[] height_radiance_each_wl;
 /* ==== */
 /* ==== fitting results ==== */
