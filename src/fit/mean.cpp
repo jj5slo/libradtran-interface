@@ -26,6 +26,19 @@ double fit::mean(int Ndata, double* heights, double* data, double min_height, do
 	return fit::mean(Ndata, hd, min_height, max_height);
 }
 
+double fit::mean(int Ndata, double* data, int min_i, int max_i){
+	if(max_i < min_i || Ndata <= max_i){
+		return 0.0;
+	}
+	double sum = 0.0;
+	int count = 0;
+	for(int i=min_i; i<=max_i; i++){
+		sum += data[i];/* 観測値 */
+		count++;
+	}
+	return sum / (double)count;
+}
+
 double fit::mean(int Ndata, double* data){	
 	double sum = 0.0;
 	int count = 0;

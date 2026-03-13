@@ -65,6 +65,7 @@ namespace fit
 	double mean(std::string path, double min_height, double max_height);/* 観測値の指定高度範囲の平均 */
 	double mean(int Ndata, double**data, double min_height, double max_height);
 	double mean(int Ndata, double* heights, double* data, double min_height, double max_height);
+	double mean(int Ndata, double* data, int min_i, int max_i);
 	double mean(int Ndata, double* data);
 	/* ---- */
 	/* ---- leastsquare.cpp ---- */

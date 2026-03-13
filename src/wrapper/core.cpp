@@ -130,11 +130,11 @@ double core(void* raw_Args){
 	double* smoothed = fit::running_mean_log(args->Nheights, args->N_running_mean, radiance);
 /* -- merging radiance (including upper stage) -- */
 	/* running_mean_extra(通常1)だけ範囲外も計算しているので、その端点i_top_rad - 1が一致するように過去の結果(上の層束)を合わせ直す(running_mean_extraが1より大きいのときは平均とかにしたほうがい) */
-	double fit_radiance_of_upper_stage_coefficient = 1.0;
-	if(1.0e-12 <= std::abs(args->upper_radiance_smoothed[i_top_rad-1])){/* TODO */
-		fit_radiance_of_upper_stage_coefficient = smoothed[i_top_rad-1]  / args->upper_radiance_smoothed[i_top_rad-1];
-		std::cout << "coefficient to connect upper radiance: " << fit_radiance_of_upper_stage_coefficient << std::endl;
-	}
+//	double fit_radiance_of_upper_stage_coefficient = 1.0;
+//	if(1.0e-12 <= std::abs(args->upper_radiance_smoothed[i_top_rad-1])){/* TODO */
+//		fit_radiance_of_upper_stage_coefficient = smoothed[i_top_rad-1]  / args->upper_radiance_smoothed[i_top_rad-1];
+//		std::cout << "coefficient to connect upper radiance: " << fit_radiance_of_upper_stage_coefficient << std::endl;
+//	}
 //	for(int i=i_top_rad; i<args->Nheights; i++){
 //		smoothed[i] = args->upper_radiance_smoothed[i] * fit_radiance_of_upper_stage_coefficient;
 //	}
@@ -167,7 +167,7 @@ double core(void* raw_Args){
 		+ "# atm_i_bottom: " + std::to_string(args->atm_i_bottom) + ", atm_i_top: " + std::to_string(args->atm_i_top) + "\n"
 		+ "# a: " + std::to_string(a_offset[0]) + ", offset: " + std::to_string(a_offset[1]) + "\n"
 		+ "# N_running_mean: " + std::to_string(args->N_running_mean) + "\n"
-		+ "# log_square_error: " + std::to_string(log_square_error)
+		+ "# log_square_error: " + std::to_string(log_square_error) + "\n"
 		+ "# height observed sumulated smoothed fitted\n";
 	fit::save_data(path_result, header, args->Nheights,  5, processed_results);/* 最適化を回し始めたら不要、/tmp/に入れてもいいかも */
 	delete[] processed_results;
