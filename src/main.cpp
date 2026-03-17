@@ -174,13 +174,11 @@ if(argc == 7){
 		std::string path_obs = obs_path(DIR_OBS, dt);/* 観測日時からデータの名前 */
 		std::cout << path_obs << std::endl;
 		if(DEBUG){ std::cin >> input; }
-		int Nobs = 0;
 		obsd = read_obs(path_obs, obs_index);/* 使うのはobsdだけ */
 		if (obsd.Nheights() == 0){
 			std::cerr << "No Observation Data!" << std::endl;
 			return 0;
 		}
-		std::cout << Nobs << "points" << std::endl;
 	}
 
 

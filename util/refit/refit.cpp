@@ -13,16 +13,16 @@ int main(int argc, char* argv[]){
 	int         i_BOTTOM;
 	int         i_TOP;
 	std::string NEWPATH;
-	int         offset_BOTTOM;
+	int         offset_i_BOTTOM;
 	if(argc == 6){
 		PATH = std::string(argv[1]);
 		i_BOTTOM = atoi(argv[2]);
 		i_TOP    = atoi(argv[3]);
 		NEWPATH = std::string(argv[4]);
-		offset_BOTTOM = atoi(argv[5]);
+		offset_i_BOTTOM = atoi(argv[5]);
 	}
 	else{
-		std::cerr << "Usage: ./refit PATH i_BOTTOM i_TOP NEWPATH offset_BOTTOM" << std::endl;
+		std::cerr << "Usage: ./refit PATH i_BOTTOM i_TOP NEWPATH offset_i_BOTTOM(included)" << std::endl;
 		return 0;
 	}
 
@@ -47,7 +47,7 @@ int main(int argc, char* argv[]){
 	double* smoothed = result[3];
 	double* fitted   = result[4];
 /* -- */
-	double offset = fit::mean(Nheights, heights, observed, offset_BOTTOM, Nheights - 1);
+	double offset = fit::mean(Nheights, heights, observed, offset_i_BOTTOM, Nheights - 1);
 	double* a_offset = fit::obtain_fitting_coefficient(observed, smoothed, i_BOTTOM, i_TOP, offset);
 	fitted = fit::apply_fitting(Nheights, smoothed, a_offset);
 	double** processed_results = new double* [5];
