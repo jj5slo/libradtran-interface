@@ -48,9 +48,9 @@ int save_stdin(std::string path, ParamStdin param){
 	ofs << "phi0 " << param.phi0 << "\n\n";
 	ofs << "umu " << param.umu << "\n";
 	ofs << "phi " << param.phi << "\n";
-	if(param.solver != "mystic" && param.solver != "mystic_plainparallel"){/* TODO */
-		ofs << param.additional << "\n";
-	}
+//	if(param.solver != "mystic" && param.solver != "mystic_plainparallel"){/* TODO */
+	ofs << param.additional << "\n";
+//	}
 	
 
 	ofs.close();

@@ -66,7 +66,7 @@ public:
 };
 
 /* read_obs.cpp */
-std::string obs_path(std::string path, obsDateTime dt);
+std::string obs_path(std::string path, obsDateTime dt, int band);
 Observed* read_obs(int *aNobs, std::string path_obs);/*, int Nline);*/
 Observed read_obs(std::string path_obs, int obs_index);/*, int Nline);*/
 

@@ -101,6 +101,7 @@ if(argc == 7){
 	
 //	double wavelength = getConfig(configs, "wavelength", 470.0);/* 波長 [nm]. TODO 決まっているので指定方法を変える */
 	std::string PATH_WAVELENGTHS = getConfig(configs, "PATH_WAVELENGTHS", std::string(std::getenv("HOME"))+"/SANO/research/estimate-profile/ObsEquip/Himawari-AHI/AHI-blue.dat");
+	int HIMAWARI_BAND            = getConfig(configs, "HIMAWARI_BAND", 1);
 	double SZA_THRESHOLD         = getConfig(configs, "SZA_THRESHOLD", 100.0);
 	int i_top           = getConfig(configs, "i_top", 64);/* 数密度を求める最高高度（index） */
 	int i_bottom        = getConfig(configs, "i_bottom", 60);/* 数密度を求める最低高度（index） */
@@ -114,6 +115,7 @@ if(argc == 7){
 	double albedo = getConfig(configs, "albedo", 0.3);/* LAMBERT の反射率 */
 	double brdf_cam_u10 = getConfig(configs, "brdf_cam_u10", 15.0);/* BRDF_CAM の風速 */
 	std::string additional_option = getConfig(configs, "additional_option", "");/* libRadtranの標準入力に追加で書き込む文字列 */
+	replaceAll(additional_option, "\\n", "\n");
 	int mc_photons = getConfig(configs, "mc_photons", 60000);/* MYSTICの回数 デフォルトは300000 */
 
 	int atmosphere_precision = getConfig(configs, "atmosphere_precision", 7);/* MSISから取得する大気の保存時の精度 */
@@ -171,7 +173,7 @@ if(argc == 7){
 	//	}
 	}
 	else{
-		std::string path_obs = obs_path(DIR_OBS, dt);/* 観測日時からデータの名前 */
+		std::string path_obs = obs_path(DIR_OBS, dt, HIMAWARI_BAND);/* 観測日時からデータの名前 */
 		std::cout << path_obs << std::endl;
 		if(DEBUG){ std::cin >> input; }
 		obsd = read_obs(path_obs, obs_index);/* 使うのはobsdだけ */

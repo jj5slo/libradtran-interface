@@ -23,5 +23,8 @@ double getConfig(const std::map<std::string, std::string> configs,
              const std::string key, /* 必要に応じてすべて参照渡し */
              const double defaultValue);
 
+void replaceAll(std::string& str,
+						const std::string& from,
+						const std::string& to);
 
 #endif

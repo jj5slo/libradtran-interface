@@ -8,61 +8,137 @@ cd /lhome/sano2/SANO/research/estimate-profile/libradtran-interface
 
 cp config.conf __config.conf
 
-cp CONFIGS/ret.conf config.conf
-year=2021
-month=9
-day=10
-hour=22
-minute=40
-lineno=87
-yeardate=$(printf "%04d-%02d-%02d" "$year" "$month" "$day")
-hourminute=$(printf "%02d%02d" "$hour" "$minute")
-linenumber=$(printf "%02d" "$lineno")
-	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}_ret/${linenumber}/atm"
-	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}_ret/${linenumber}/${hourminute}"
-	sed -i "11s|.*|DIR_RESULT=/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}_ret/${linenumber}/${hourminute}/|" config.conf
-	echo "11th line replaced."
-	sed -i "17s|.*|PATH_ATMOSPHERE_INIT=/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}_ret/${linenumber}/atm/${yeardate}msis${hourminute}.dat|" config.conf
-	echo "17th line replaced."
-echo "started $yeardate $hourminute $linenumber"
-	./main "$year" "$month" "$day" "$hour" "$minute" "$lineno"  1> /tmp/TEMPORARY/libradtran-interface.log
-echo "finished"
+#cp CONFIGS/ret.conf config.conf
+#year=2021
+#month=9
+#day=10
+#hour=22
+#minute=40
+#lineno=87
+#yeardate=$(printf "%04d-%02d-%02d" "$year" "$month" "$day")
+#hourminute=$(printf "%02d%02d" "$hour" "$minute")
+#linenumber=$(printf "%02d" "$lineno")
+#	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}_ret/${linenumber}/atm"
+#	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}_ret/${linenumber}/${hourminute}"
+#	sed -i "11s|.*|DIR_RESULT=/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}_ret/${linenumber}/${hourminute}/|" config.conf
+#	echo "11th line replaced."
+#	sed -i "17s|.*|PATH_ATMOSPHERE_INIT=/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}_ret/${linenumber}/atm/${yeardate}msis${hourminute}.dat|" config.conf
+#	echo "17th line replaced."
+#echo "started $yeardate $hourminute $linenumber"
+#	./main "$year" "$month" "$day" "$hour" "$minute" "$lineno"  1> /tmp/TEMPORARY/libradtran-interface.log
+#echo "finished"
+#
+#cp CONFIGS/ret_band2.conf config.conf
+#year=2021
+#month=9
+#day=26
+#hour=22
+#minute=40
+#lineno=84
+#yeardate=$(printf "%04d-%02d-%02d" "$year" "$month" "$day")
+#hourminute=$(printf "%02d%02d" "$hour" "$minute")
+#linenumber=$(printf "%02d" "$lineno")
+#	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}_ret_band2/${linenumber}/atm"
+#	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}_ret_band2/${linenumber}/${hourminute}"
+#	sed -i "11s|.*|DIR_RESULT=/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}_ret_band2/${linenumber}/${hourminute}/|" config.conf
+#	echo "11th line replaced."
+#	sed -i "17s|.*|PATH_ATMOSPHERE_INIT=/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}_ret_band2/${linenumber}/atm/${yeardate}msis${hourminute}.dat|" config.conf
+#	echo "17th line replaced."
+#echo "started $yeardate $hourminute $linenumber"
+#	./main "$year" "$month" "$day" "$hour" "$minute" "$lineno"  1> /tmp/TEMPORARY/libradtran-interface.log
+#echo "finished"
 
+#cp CONFIGS/ret_band3.conf config.conf
+#year=2021
+#month=9
+#day=26
+#hour=22
+#minute=40
+#lineno=84
+#yeardate=$(printf "%04d-%02d-%02d" "$year" "$month" "$day")
+#hourminute=$(printf "%02d%02d" "$hour" "$minute")
+#linenumber=$(printf "%02d" "$lineno")
+#	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}_ret_band3/${linenumber}/atm"
+#	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}_ret_band3/${linenumber}/${hourminute}"
+#	sed -i "11s|.*|DIR_RESULT=/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}_ret_band3/${linenumber}/${hourminute}/|" config.conf
+#	echo "11th line replaced."
+#	sed -i "17s|.*|PATH_ATMOSPHERE_INIT=/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}_ret_band3/${linenumber}/atm/${yeardate}msis${hourminute}.dat|" config.conf
+#	echo "17th line replaced."
+#echo "started $yeardate $hourminute $linenumber"
+#	./main "$year" "$month" "$day" "$hour" "$minute" "$lineno"  1> /tmp/TEMPORARY/libradtran-interface.log
+#echo "finished"
 
-cp CONFIGS/ret.conf config.conf
-year=2021
-month=9
-day=26
-hour=22
-minute=40
-lineno=84
-yeardate=$(printf "%04d-%02d-%02d" "$year" "$month" "$day")
-hourminute=$(printf "%02d%02d" "$hour" "$minute")
-linenumber=$(printf "%02d" "$lineno")
-	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}_ret/${linenumber}/atm"
-	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}_ret/${linenumber}/${hourminute}"
-	sed -i "11s|.*|DIR_RESULT=/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}_ret/${linenumber}/${hourminute}/|" config.conf
-	echo "11th line replaced."
-	sed -i "17s|.*|PATH_ATMOSPHERE_INIT=/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}_ret/${linenumber}/atm/${yeardate}msis${hourminute}.dat|" config.conf
-	echo "17th line replaced."
-echo "started $yeardate $hourminute $linenumber"
-	./main "$year" "$month" "$day" "$hour" "$minute" "$lineno"  1> /tmp/TEMPORARY/libradtran-interface.log
-echo "finished"
+#cp CONFIGS/single_band2.conf config.conf
+#year=2021
+#month=9
+#day=26
+#hour=22
+#minute=40
+#lineno=84
+#yeardate=$(printf "%04d-%02d-%02d" "$year" "$month" "$day")
+#hourminute=$(printf "%02d%02d" "$hour" "$minute")
+#linenumber=$(printf "%02d" "$lineno")
+#	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}_ret_band2/${linenumber}/atm"
+#	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}_ret_band2/${linenumber}/${hourminute}"
+#	sed -i "11s|.*|DIR_RESULT=/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}_ret_band2/${linenumber}/${hourminute}/|" config.conf
+#	echo "11th line replaced."
+#	sed -i "17s|.*|PATH_ATMOSPHERE_INIT=/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}_ret_band2/${linenumber}/atm/${yeardate}msis${hourminute}.dat|" config.conf
+#	echo "17th line replaced."
+#echo "started $yeardate $hourminute $linenumber"
+#	./main "$year" "$month" "$day" "$hour" "$minute" "$lineno"  1> /tmp/TEMPORARY/libradtran-interface.log
+#echo "finished"
 
-#cp CONFIGS/2019-01-01_loop.conf config.conf
-#yeardate="2021-09-19"
-##for lineno in `paste -d '\n' <(seq 1 4 44) <(seq 88 -4 45)`; do
-#for lineno in 27; do
+cp CONFIGS/band1_loop.conf config.conf
+yeardate="2021-09-19"
+for lineno in `paste -d '\n' <(seq 1 4 44) <(seq 88 -4 45)`; do
+	linenumber=$(printf "%02d" "$lineno")
+	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}_band1_aerosol/${linenumber}/atm"
+	for hour in `seq 0 23`; do
+		for minute in `seq 0 30 59`; do
+			hourminute=$(printf "%02d%02d" "$hour" "$minute")
+			echo "$linenumber $hourminute"
+			mkdir -p "/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}_band1_aerosol/${linenumber}/${hourminute}"
+			sed -i "11s|.*|DIR_RESULT=/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}_band1_aerosol/${linenumber}/${hourminute}/|" config.conf
+			echo "11th line replaced."
+			sed -i "17s|.*|PATH_ATMOSPHERE_INIT=/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}_band1_aerosol/${linenumber}/atm/220603atm${hourminute}.dat|" config.conf
+			echo "17th line replaced."
+			./main 2021 09 19 "${hour}" "${minute}" "${linenumber}"  1> /tmp/TEMPORARY/libradtran-interface.log
+		done
+	done
+done
+#
+#cp CONFIGS/band2_loop.conf config.conf
+#yeardate="2022-06-03"
+#for lineno in `paste -d '\n' <(seq 1 4 44) <(seq 88 -4 45)`; do
 #	linenumber=$(printf "%02d" "$lineno")
-#	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}/${linenumber}/atm"
-#	for hour in 7; do
-#		for minute in 50; do
+#	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}_band2/${linenumber}/atm"
+#	for hour in `seq 0 23`; do
+#		for minute in `seq 0 30 59`; do
 #			hourminute=$(printf "%02d%02d" "$hour" "$minute")
 #			echo "$linenumber $hourminute"
-#			mkdir -p "/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}/${linenumber}/${hourminute}"
-#			sed -i "11s|.*|DIR_RESULT=/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}/${linenumber}/${hourminute}/|" config.conf
+#			mkdir -p "/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}_band2/${linenumber}/${hourminute}"
+#			sed -i "11s|.*|DIR_RESULT=/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}_band2/${linenumber}/${hourminute}/|" config.conf
 #			echo "11th line replaced."
-#			sed -i "17s|.*|PATH_ATMOSPHERE_INIT=/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}/${linenumber}/atm/220603atm${hourminute}.dat|" config.conf
+#			sed -i "17s|.*|PATH_ATMOSPHERE_INIT=/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}_band2/${linenumber}/atm/220603atm${hourminute}.dat|" config.conf
+#			echo "17th line replaced."
+#			./main 2021 09 19 "${hour}" "${minute}" "${linenumber}"  1> /tmp/TEMPORARY/libradtran-interface.log
+#		done
+#	done
+#done
+#
+#cp CONFIGS/band3_loop.conf config.conf
+#yeardate="2022-06-03"
+#for lineno in `paste -d '\n' <(seq 1 4 44) <(seq 88 -4 45)`; do
+#	linenumber=$(printf "%02d" "$lineno")
+#	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}_band3/${linenumber}/atm"
+#	for hour in `seq 0 23`; do
+#		for minute in `seq 0 30 59`; do
+#			hourminute=$(printf "%02d%02d" "$hour" "$minute")
+#			echo "$linenumber $hourminute"
+#			mkdir -p "/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}_band3/${linenumber}/${hourminute}"
+#			sed -i "11s|.*|DIR_RESULT=/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}_band3/${linenumber}/${hourminute}/|" config.conf
+#			echo "11th line replaced."
+#			sed -i "17s|.*|PATH_ATMOSPHERE_INIT=/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}_band3/${linenumber}/atm/220603atm${hourminute}.dat|" config.conf
 #			echo "17th line replaced."
 #			./main 2021 09 19 "${hour}" "${minute}" "${linenumber}"  1> /tmp/TEMPORARY/libradtran-interface.log
 #		done
