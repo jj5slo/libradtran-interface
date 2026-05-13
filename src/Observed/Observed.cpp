@@ -61,3 +61,14 @@ double Observed::maxHeight(){
 	return maxh;
 }
 
+void Observed::SubstractBackground(double backgroundintensity){
+//	double BackgroundIntensity = fit::mean(pNheights, pHeights, pData, minheight, maxheight);
+//	double BackgroundIntensity = 22.0714;
+	for(int i=0; i<pNheights; i++){
+		pData[i] = pData[i] - backgroundintensity;
+		//if(pData[i] < 0.0){
+		//	pData[i] = 0.0;
+		//}
+	}
+}
+

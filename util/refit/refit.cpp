@@ -58,6 +58,7 @@ int main(int argc, char* argv[]){
 	processed_results[3] = smoothed;
 	processed_results[4] = fitted;
 	header = header 
+		+ "# refit a: " + std::to_string(a_offset[0]) + " offset: " + std::to_string(a_offset[1]) + "\n"
 		+ "# log_square_error ( index " + std::to_string(i_BOTTOM) + " to " + std::to_string(i_TOP) + "): " + std::to_string(log_square_error) + "\n"
 		+ "# height obs raw smoothed fitted\n";
 	fit::save_data(NEWPATH, header, Nheights, 5, processed_results);/* 最適化を回し始めたら不要、/tmp/に入れてもいいかも */

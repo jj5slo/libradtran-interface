@@ -1,4 +1,4 @@
-#! /bin/bash
+# /bin/bash
 
 # echo "started"
 pwd
@@ -8,27 +8,475 @@ cd /lhome/sano2/SANO/research/estimate-profile/libradtran-interface
 
 cp config.conf __config.conf
 
-#cp CONFIGS/ret.conf config.conf
-#year=2021
-#month=9
-#day=10
-#hour=22
-#minute=40
-#lineno=87
-#yeardate=$(printf "%04d-%02d-%02d" "$year" "$month" "$day")
-#hourminute=$(printf "%02d%02d" "$hour" "$minute")
-#linenumber=$(printf "%02d" "$lineno")
-#	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}_ret/${linenumber}/atm"
-#	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}_ret/${linenumber}/${hourminute}"
-#	sed -i "11s|.*|DIR_RESULT=/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}_ret/${linenumber}/${hourminute}/|" config.conf
-#	echo "11th line replaced."
-#	sed -i "17s|.*|PATH_ATMOSPHERE_INIT=/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}_ret/${linenumber}/atm/${yeardate}msis${hourminute}.dat|" config.conf
-#	echo "17th line replaced."
-#echo "started $yeardate $hourminute $linenumber"
-#	./main "$year" "$month" "$day" "$hour" "$minute" "$lineno"  1> /tmp/TEMPORARY/libradtran-interface.log
-#echo "finished"
+#cp CONFIGS/shot.conf config.conf
+#for lineno in `paste -d '\n' <(seq 1 4 44) <(seq 88 -4 45)`; do
+#	linenumber=$(printf "%02d" "$lineno")
+#	for hour in `seq 0 1 23`; do
+#		for minute in 20 40; do
+#		   year=2021
+#		   month=9
+#		   day=5
+#		#   hour=9
+#		#   minute=10
+#		#   lineno=1
+#		   yeardate=$(printf "%04d-%02d-%02d" "$year" "$month" "$day")
+#		   hourminute=$(printf "%02d%02d" "$hour" "$minute")
+#		   linenumber=$(printf "%02d" "$lineno")
+#		  # 	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/${yeardate}_single_afglus/${linenumber}/atm"
+#		   	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W4/${yeardate}_shotforratio60-55/${linenumber}/${hourminute}"
+#		   	sed -i "11s|.*|DIR_RESULT=/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W4/${yeardate}_shotforratio60-55/${linenumber}/${hourminute}/|" config.conf
+#		   	echo "11th line replaced."
+#		   	sed -i "16s|.*|MOLECULES_FILE=/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W4/afglus_101_log.dat|" config.conf
+#		   	echo "16th line replaced."
+#		   	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W4/${yeardate}_shotforratio60-55/${linenumber}/${hourminute}"
+#		   	sed -i "18s|.*|PATH_ATMOSPHERE_INIT=/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W4/${yeardate}_shotforratio60-55/${linenumber}/${hourminute}/${yeardate}msis${hourminute}.dat|" config.conf
+#		   	echo "18th line replaced."
+#		   echo "started $yeardate $hourminute $linenumber"
+#		   	./main "$year" "$month" "$day" "$hour" "$minute" "$lineno"  1> /tmp/TEMPORARY/libradtran-interface.log
+#		   echo "finished"
+#		done
+#	done
+#done
+  
+
+
+cp CONFIGS/shot.conf config.conf
+#for backgroundintensity in "21.8" "21.9" "22.0" "22.1" "22.2" "22.3" "22.4"; do
+#for backgroundintensity in "21.8"  "22.1" "22.3"; do
+for backgroundintensity in "22.1"; do
+ year=2021
+ month=9
+ day=5
+ hour=9
+ minute=10
+ lineno=1
+ yeardate=$(printf "%04d-%02d-%02d" "$year" "$month" "$day")
+ hourminute=$(printf "%02d%02d" "$hour" "$minute")
+ linenumber=$(printf "%02d" "$lineno")
+# 	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/${yeardate}_single_afglus/${linenumber}/atm"
+ 	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/2026/2026-05w1/${yeardate}_b_${backgroundintensity}_21.8_result_shot/${linenumber}/${hourminute}"
+ 	sed -i "11s|.*|DIR_RESULT=/lhome/sano2/SANO/research/estimate-profile/2026/2026-05w1/${yeardate}_b_${backgroundintensity}_21.8_result_shot/${linenumber}/${hourminute}/|" config.conf
+ 	echo   "11th line replaced."
+ 	sed -i "16s|.*|MOLECULES_FILE=/lhome/sano2/SANO/research/estimate-profile/2026/2026-05w1/afglus_101_log.dat|" config.conf
+ 	echo   "16th line replaced."
+ 	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/2026/2026-05w1/${yeardate}_b_${backgroundintensity}_21.8_result_shot/${linenumber}/${hourminute}"
+ 	sed -i "17s|.*|FLAG_USE_ATMOSPHERE_INIT=1|" config.conf
+ 	echo   "17th line replaced."
+ 	sed -i "18s|.*|PATH_ATMOSPHERE_INIT=/lhome/sano2/SANO/research/estimate-profile/2026/2026-05w1/${yeardate}_b_${backgroundintensity}_21.8_result_shot/21.8_temp.dat|" config.conf
+ 	echo   "18th line replaced."
+ 	sed -i "32s|.*|OBS_BACKGROUND_INTENSITY=${backgroundintensity}|" config.conf
+ 	echo   "32th line replaced. ${backgroundintensity}."
+ 	sed -i "36s|.*|SURFACE_TYPE=LAMBERT|" config.conf
+ 	echo   "36th line replaced. ${backgroundintensity}."
+ 	sed -i "37s|.*|albedo=0.9|" config.conf
+ 	echo   "37th line replaced. ${backgroundintensity}."
+ echo "started $yeardate $hourminute $linenumber"
+ 	./main "$year" "$month" "$day" "$hour" "$minute" "$lineno"  1> /tmp/TEMPORARY/libradtran-interface.log
+ echo "finished"
+done
+
+#cp CONFIGS/band1_loop.conf config.conf
+# year=2021
+# month=9
+# day=5
+# hour=9
+# minute=10
+# lineno=1
+# yeardate=$(printf "%04d-%02d-%02d" "$year" "$month" "$day")
+# hourminute=$(printf "%02d%02d" "$hour" "$minute")
+# linenumber=$(printf "%02d" "$lineno")
+# 	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W2/${yeardate}_ret_single/${linenumber}/atm"
+# 	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W2/${yeardate}_ret_single/${linenumber}/${hourminute}"
+# 	sed -i "11s|.*|DIR_RESULT=/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W2/${yeardate}_ret_single/${linenumber}/${hourminute}/|" config.conf
+# 	echo "11th line replaced."
+# 	sed -i "17s|.*|PATH_ATMOSPHERE_INIT=/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W2/${yeardate}_ret_single/${linenumber}/atm/${yeardate}msis${hourminute}.dat|" config.conf
+# 	echo "17th line replaced."
+# echo "started $yeardate $hourminute $linenumber"
+# 	./main "$year" "$month" "$day" "$hour" "$minute" "$lineno"  1> /tmp/TEMPORARY/libradtran-interface.log
+# echo "finished"
 #
-#cp CONFIGS/ret_band2.conf config.conf
+#year=2021
+# month=9
+# day=10
+# hour=22
+# minute=40
+# lineno=87
+# yeardate=$(printf "%04d-%02d-%02d" "$year" "$month" "$day")
+# hourminute=$(printf "%02d%02d" "$hour" "$minute")
+# linenumber=$(printf "%02d" "$lineno")
+# 	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W2/${yeardate}_ret_single/${linenumber}/atm"
+# 	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W2/${yeardate}_ret_single/${linenumber}/${hourminute}"
+# 	sed -i "11s|.*|DIR_RESULT=/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W2/${yeardate}_ret_single/${linenumber}/${hourminute}/|" config.conf
+# 	echo "11th line replaced."
+# 	sed -i "17s|.*|PATH_ATMOSPHERE_INIT=/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W2/${yeardate}_ret_single/${linenumber}/atm/${yeardate}msis${hourminute}.dat|" config.conf
+# 	echo "17th line replaced."
+# echo "started $yeardate $hourminute $linenumber"
+# 	./main "$year" "$month" "$day" "$hour" "$minute" "$lineno"  1> /tmp/TEMPORARY/libradtran-interface.log
+# echo "finished"
+#
+#cp CONFIGS/band1_aerosol_loop.conf config.conf
+# year=2021
+# month=9
+# day=5
+# hour=9
+# yeardate=$(printf "%04d-%02d-%02d" "$year" "$month" "$day")
+# hourminute=$(printf "%02d%02d" "$hour" "$minute")
+# linenumber=$(printf "%02d" "$lineno")
+# 	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W2/${yeardate}_ret_aerosol_single/${linenumber}/atm"
+# 	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W2/${yeardate}_ret_aerosol_single/${linenumber}/${hourminute}"
+# 	sed -i "11s|.*|DIR_RESULT=/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W2/${yeardate}_ret_aerosol_single/${linenumber}/${hourminute}/|" config.conf
+# 	echo "11th line replaced."
+# 	sed -i "17s|.*|PATH_ATMOSPHERE_INIT=/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W2/${yeardate}_ret_aerosol_single/${linenumber}/atm/${yeardate}msis${hourminute}.dat|" config.conf
+# 	echo "17th line replaced."
+# echo "started $yeardate $hourminute $linenumber"
+# 	./main "$year" "$month" "$day" "$hour" "$minute" "$lineno"  1> /tmp/TEMPORARY/libradtran-interface.log
+# echo "finished"
+#
+#year=2021
+# month=9
+# day=10
+# hour=22
+# minute=40
+# lineno=87
+# yeardate=$(printf "%04d-%02d-%02d" "$year" "$month" "$day")
+# hourminute=$(printf "%02d%02d" "$hour" "$minute")
+# linenumber=$(printf "%02d" "$lineno")
+# 	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W2/${yeardate}_ret_aerosol_single/${linenumber}/atm"
+# 	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W2/${yeardate}_ret_aerosol_single/${linenumber}/${hourminute}"
+# 	sed -i "11s|.*|DIR_RESULT=/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W2/${yeardate}_ret_aerosol_single/${linenumber}/${hourminute}/|" config.conf
+# 	echo "11th line replaced."
+# 	sed -i "17s|.*|PATH_ATMOSPHERE_INIT=/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W2/${yeardate}_ret_aerosol_single/${linenumber}/atm/${yeardate}msis${hourminute}.dat|" config.conf
+# 	echo "17th line replaced."
+# echo "started $yeardate $hourminute $linenumber"
+# 	./main "$year" "$month" "$day" "$hour" "$minute" "$lineno"  1> /tmp/TEMPORARY/libradtran-interface.log
+# echo "finished"
+#
+
+
+#cp CONFIGS/band1_loop_NO2modified.conf config.conf
+# year=2021
+# month=9
+# day=5
+# hour=9
+# minute=10
+# lineno=1
+# yeardate=$(printf "%04d-%02d-%02d" "$year" "$month" "$day")
+# hourminute=$(printf "%02d%02d" "$hour" "$minute")
+# linenumber=$(printf "%02d" "$lineno")
+## 	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/${yeardate}_single_afglusNO2modified/${linenumber}/atm"
+# 	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/${yeardate}_single_afglusNO2modified/${linenumber}/${hourminute}"
+# 	sed -i "11s|.*|DIR_RESULT=/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/${yeardate}_single_afglusNO2modified/${linenumber}/${hourminute}/|" config.conf
+# 	echo "11th line replaced."
+## 	sed -i "18s|.*|PATH_ATMOSPHERE_INIT=/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/${yeardate}_single_afglusNO2modified/${linenumber}/atm/${yeardate}msis${hourminute}.dat|" config.conf
+## 	echo "18th line replaced."
+# echo "started $yeardate $hourminute $linenumber"
+# 	./main "$year" "$month" "$day" "$hour" "$minute" "$lineno"  1> /tmp/TEMPORARY/libradtran-interface.log
+# echo "finished"
+#
+#cp CONFIGS/band1_loop_NO2modified.conf config.conf
+# year=2021
+# month=9
+# day=10
+# hour=22
+# minute=40
+# lineno=87
+# yeardate=$(printf "%04d-%02d-%02d" "$year" "$month" "$day")
+# hourminute=$(printf "%02d%02d" "$hour" "$minute")
+# linenumber=$(printf "%02d" "$lineno")
+## 	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/${yeardate}_single_afglusNO2modified/${linenumber}/atm"
+# 	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/${yeardate}_single_afglusNO2modified/${linenumber}/${hourminute}"
+# 	sed -i "11s|.*|DIR_RESULT=/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/${yeardate}_single_afglusNO2modified/${linenumber}/${hourminute}/|" config.conf
+# 	echo "11th line replaced."
+## 	sed -i "18s|.*|PATH_ATMOSPHERE_INIT=/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/${yeardate}_single_afglusNO2modified/${linenumber}/atm/${yeardate}msis${hourminute}.dat|" config.conf
+## 	echo "18th line replaced."
+# echo "started $yeardate $hourminute $linenumber"
+# 	./main "$year" "$month" "$day" "$hour" "$minute" "$lineno"  1> /tmp/TEMPORARY/libradtran-interface.log
+# echo "finished"
+
+
+#cp CONFIGS/band1_loop.conf config.conf
+# year=2021
+# month=9
+# day=5
+# hour=9
+# minute=10
+# lineno=1
+# yeardate=$(printf "%04d-%02d-%02d" "$year" "$month" "$day")
+# hourminute=$(printf "%02d%02d" "$hour" "$minute")
+# linenumber=$(printf "%02d" "$lineno")
+## 	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/${yeardate}_single_afglus/${linenumber}/atm"
+# 	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/${yeardate}_single_afglus_noMOL/${linenumber}/${hourminute}"
+# 	sed -i "11s|.*|DIR_RESULT=/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/${yeardate}_single_afglus_noMOL/${linenumber}/${hourminute}/|" config.conf
+# 	echo "11th line replaced."
+# 	sed -i "16s|.*|MOLECULES_FILE=/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/testNO2distribution/modify_no2/afglus_noMOL.dat|" config.conf
+# 	echo "16th line replaced."
+# 	sed -i "18s|.*|PATH_ATMOSPHERE_INIT=/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/testNO2distribution/modify_no2/afglus_noMOL.dat|" config.conf
+# 	echo "18th line replaced."
+# echo "started $yeardate $hourminute $linenumber"
+# 	./main "$year" "$month" "$day" "$hour" "$minute" "$lineno"  1> /tmp/TEMPORARY/libradtran-interface.log
+# echo "finished"
+#
+#
+#cp CONFIGS/band1_loop.conf config.conf
+# year=2021
+# month=9
+# day=5
+# hour=9
+# minute=10
+# lineno=1
+# yeardate=$(printf "%04d-%02d-%02d" "$year" "$month" "$day")
+# hourminute=$(printf "%02d%02d" "$hour" "$minute")
+# linenumber=$(printf "%02d" "$lineno")
+## 	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/${yeardate}_single_afglus/${linenumber}/atm"
+# 	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/${yeardate}_single_afglus_NO2_40-60_1e9/${linenumber}/${hourminute}"
+# 	sed -i "11s|.*|DIR_RESULT=/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/${yeardate}_single_afglus_NO2_40-60_1e9/${linenumber}/${hourminute}/|" config.conf
+# 	echo "11th line replaced."
+# 	sed -i "16s|.*|MOLECULES_FILE=/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/testNO2distribution/modify_no2/afglus_NO2_40-60_1e9.dat|" config.conf
+# 	echo "16th line replaced."
+# 	sed -i "18s|.*|PATH_ATMOSPHERE_INIT=/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/testNO2distribution/modify_no2/afglus_NO2_40-60_1e9.dat|" config.conf
+# 	echo "18th line replaced."
+# echo "started $yeardate $hourminute $linenumber"
+# 	./main "$year" "$month" "$day" "$hour" "$minute" "$lineno"  1> /tmp/TEMPORARY/libradtran-interface.log
+# echo "finished"
+#
+#cp CONFIGS/band1_loop.conf config.conf
+# year=2021
+# month=9
+# day=5
+# hour=9
+# minute=10
+# lineno=1
+# yeardate=$(printf "%04d-%02d-%02d" "$year" "$month" "$day")
+# hourminute=$(printf "%02d%02d" "$hour" "$minute")
+# linenumber=$(printf "%02d" "$lineno")
+## 	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/${yeardate}_single_afglus/${linenumber}/atm"
+# 	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/${yeardate}_single_afglus_NO2_40-60_2e10/${linenumber}/${hourminute}"
+# 	sed -i "11s|.*|DIR_RESULT=/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/${yeardate}_single_afglus_NO2_40-60_2e10/${linenumber}/${hourminute}/|" config.conf
+# 	echo "11th line replaced."
+# 	sed -i "16s|.*|MOLECULES_FILE=/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/testNO2distribution/modify_no2/afglus_NO2_40-60_2e10.dat|" config.conf
+# 	echo "16th line replaced."
+# 	sed -i "18s|.*|PATH_ATMOSPHERE_INIT=/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/testNO2distribution/modify_no2/afglus_NO2_40-60_2e10.dat|" config.conf
+# 	echo "18th line replaced."
+# echo "started $yeardate $hourminute $linenumber"
+# 	./main "$year" "$month" "$day" "$hour" "$minute" "$lineno"  1> /tmp/TEMPORARY/libradtran-interface.log
+# echo "finished"
+#cp CONFIGS/band1_loop.conf config.conf
+# year=2021
+# month=9
+# day=5
+# hour=9
+# minute=10
+# lineno=1
+# yeardate=$(printf "%04d-%02d-%02d" "$year" "$month" "$day")
+# hourminute=$(printf "%02d%02d" "$hour" "$minute")
+# linenumber=$(printf "%02d" "$lineno")
+## 	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/${yeardate}_single_afglus/${linenumber}/atm"
+# 	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/${yeardate}_single_afglus_NO2_40-60_3e10/${linenumber}/${hourminute}"
+# 	sed -i "11s|.*|DIR_RESULT=/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/${yeardate}_single_afglus_NO2_40-60_3e10/${linenumber}/${hourminute}/|" config.conf
+# 	echo "11th line replaced."
+# 	sed -i "16s|.*|MOLECULES_FILE=/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/testNO2distribution/modify_no2/afglus_NO2_40-60_3e10.dat|" config.conf
+# 	echo "16th line replaced."
+# 	sed -i "18s|.*|PATH_ATMOSPHERE_INIT=/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/testNO2distribution/modify_no2/afglus_NO2_40-60_3e10.dat|" config.conf
+# 	echo "18th line replaced."
+# echo "started $yeardate $hourminute $linenumber"
+# 	./main "$year" "$month" "$day" "$hour" "$minute" "$lineno"  1> /tmp/TEMPORARY/libradtran-interface.log
+# echo "finished"
+#
+#cp CONFIGS/band1_loop.conf config.conf
+# year=2021
+# month=9
+# day=5
+# hour=9
+# minute=10
+# lineno=1
+# yeardate=$(printf "%04d-%02d-%02d" "$year" "$month" "$day")
+# hourminute=$(printf "%02d%02d" "$hour" "$minute")
+# linenumber=$(printf "%02d" "$lineno")
+## 	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/${yeardate}_single_afglus/${linenumber}/atm"
+# 	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/${yeardate}_single_afglus_NO2_40-60_4e10/${linenumber}/${hourminute}"
+# 	sed -i "11s|.*|DIR_RESULT=/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/${yeardate}_single_afglus_NO2_40-60_4e10/${linenumber}/${hourminute}/|" config.conf
+# 	echo "11th line replaced."
+# 	sed -i "16s|.*|MOLECULES_FILE=/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/testNO2distribution/modify_no2/afglus_NO2_40-60_4e10.dat|" config.conf
+# 	echo "16th line replaced."
+# 	sed -i "18s|.*|PATH_ATMOSPHERE_INIT=/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/testNO2distribution/modify_no2/afglus_NO2_40-60_4e10.dat|" config.conf
+# 	echo "18th line replaced."
+# echo "started $yeardate $hourminute $linenumber"
+# 	./main "$year" "$month" "$day" "$hour" "$minute" "$lineno"  1> /tmp/TEMPORARY/libradtran-interface.log
+# echo "finished"
+#cp CONFIGS/band1_loop.conf config.conf
+# year=2021
+# month=9
+# day=5
+# hour=9
+# minute=10
+# lineno=1
+# yeardate=$(printf "%04d-%02d-%02d" "$year" "$month" "$day")
+# hourminute=$(printf "%02d%02d" "$hour" "$minute")
+# linenumber=$(printf "%02d" "$lineno")
+## 	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/${yeardate}_single_afglus/${linenumber}/atm"
+# 	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/${yeardate}_single_afglus_NO2_40-60_5e10/${linenumber}/${hourminute}"
+# 	sed -i "11s|.*|DIR_RESULT=/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/${yeardate}_single_afglus_NO2_40-60_5e10/${linenumber}/${hourminute}/|" config.conf
+# 	echo "11th line replaced."
+# 	sed -i "16s|.*|MOLECULES_FILE=/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/testNO2distribution/modify_no2/afglus_NO2_40-60_5e10.dat|" config.conf
+# 	echo "16th line replaced."
+# 	sed -i "18s|.*|PATH_ATMOSPHERE_INIT=/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/testNO2distribution/modify_no2/afglus_NO2_40-60_5e10.dat|" config.conf
+# 	echo "18th line replaced."
+# echo "started $yeardate $hourminute $linenumber"
+# 	./main "$year" "$month" "$day" "$hour" "$minute" "$lineno"  1> /tmp/TEMPORARY/libradtran-interface.log
+# echo "finished"
+#cp CONFIGS/band1_loop.conf config.conf
+# year=2021
+# month=9
+# day=5
+# hour=9
+# minute=10
+# lineno=1
+# yeardate=$(printf "%04d-%02d-%02d" "$year" "$month" "$day")
+# hourminute=$(printf "%02d%02d" "$hour" "$minute")
+# linenumber=$(printf "%02d" "$lineno")
+## 	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/${yeardate}_single_afglus/${linenumber}/atm"
+# 	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/${yeardate}_single_afglus_NO2_40-60_6e10/${linenumber}/${hourminute}"
+# 	sed -i "11s|.*|DIR_RESULT=/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/${yeardate}_single_afglus_NO2_40-60_6e10/${linenumber}/${hourminute}/|" config.conf
+# 	echo "11th line replaced."
+# 	sed -i "16s|.*|MOLECULES_FILE=/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/testNO2distribution/modify_no2/afglus_NO2_40-60_6e10.dat|" config.conf
+# 	echo "16th line replaced."
+# 	sed -i "18s|.*|PATH_ATMOSPHERE_INIT=/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/testNO2distribution/modify_no2/afglus_NO2_40-60_6e10.dat|" config.conf
+# 	echo "18th line replaced."
+# echo "started $yeardate $hourminute $linenumber"
+# 	./main "$year" "$month" "$day" "$hour" "$minute" "$lineno"  1> /tmp/TEMPORARY/libradtran-interface.log
+# echo "finished"
+#cp CONFIGS/band1_loop.conf config.conf
+# year=2021
+# month=9
+# day=5
+# hour=9
+# minute=10
+# lineno=1
+# yeardate=$(printf "%04d-%02d-%02d" "$year" "$month" "$day")
+# hourminute=$(printf "%02d%02d" "$hour" "$minute")
+# linenumber=$(printf "%02d" "$lineno")
+## 	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/${yeardate}_single_afglus/${linenumber}/atm"
+# 	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/${yeardate}_single_afglus_NO2_40-60_7e10/${linenumber}/${hourminute}"
+# 	sed -i "11s|.*|DIR_RESULT=/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/${yeardate}_single_afglus_NO2_40-60_7e10/${linenumber}/${hourminute}/|" config.conf
+# 	echo "11th line replaced."
+# 	sed -i "16s|.*|MOLECULES_FILE=/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/testNO2distribution/modify_no2/afglus_NO2_40-60_7e10.dat|" config.conf
+# 	echo "16th line replaced."
+# 	sed -i "18s|.*|PATH_ATMOSPHERE_INIT=/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/testNO2distribution/modify_no2/afglus_NO2_40-60_7e10.dat|" config.conf
+# 	echo "18th line replaced."
+# echo "started $yeardate $hourminute $linenumber"
+# 	./main "$year" "$month" "$day" "$hour" "$minute" "$lineno"  1> /tmp/TEMPORARY/libradtran-interface.log
+# echo "finished"
+#cp CONFIGS/band1_loop.conf config.conf
+# year=2021
+# month=9
+# day=5
+# hour=9
+# minute=10
+# lineno=1
+# yeardate=$(printf "%04d-%02d-%02d" "$year" "$month" "$day")
+# hourminute=$(printf "%02d%02d" "$hour" "$minute")
+# linenumber=$(printf "%02d" "$lineno")
+## 	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/${yeardate}_single_afglus/${linenumber}/atm"
+# 	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/${yeardate}_single_afglus_NO2_40-60_8e10/${linenumber}/${hourminute}"
+# 	sed -i "11s|.*|DIR_RESULT=/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/${yeardate}_single_afglus_NO2_40-60_8e10/${linenumber}/${hourminute}/|" config.conf
+# 	echo "11th line replaced."
+# 	sed -i "16s|.*|MOLECULES_FILE=/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/testNO2distribution/modify_no2/afglus_NO2_40-60_8e10.dat|" config.conf
+# 	echo "16th line replaced."
+# 	sed -i "18s|.*|PATH_ATMOSPHERE_INIT=/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/testNO2distribution/modify_no2/afglus_NO2_40-60_8e10.dat|" config.conf
+# 	echo "18th line replaced."
+# echo "started $yeardate $hourminute $linenumber"
+# 	./main "$year" "$month" "$day" "$hour" "$minute" "$lineno"  1> /tmp/TEMPORARY/libradtran-interface.log
+# echo "finished"
+#cp CONFIGS/band1_loop.conf config.conf
+# year=2021
+# month=9
+# day=5
+# hour=9
+# minute=10
+# lineno=1
+# yeardate=$(printf "%04d-%02d-%02d" "$year" "$month" "$day")
+# hourminute=$(printf "%02d%02d" "$hour" "$minute")
+# linenumber=$(printf "%02d" "$lineno")
+## 	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/${yeardate}_single_afglus/${linenumber}/atm"
+# 	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/${yeardate}_single_afglus_NO2_40-60_9e10/${linenumber}/${hourminute}"
+# 	sed -i "11s|.*|DIR_RESULT=/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/${yeardate}_single_afglus_NO2_40-60_9e10/${linenumber}/${hourminute}/|" config.conf
+# 	echo "11th line replaced."
+# 	sed -i "16s|.*|MOLECULES_FILE=/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/testNO2distribution/modify_no2/afglus_NO2_40-60_9e10.dat|" config.conf
+# 	echo "16th line replaced."
+# 	sed -i "18s|.*|PATH_ATMOSPHERE_INIT=/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/testNO2distribution/modify_no2/afglus_NO2_40-60_9e10.dat|" config.conf
+# 	echo "18th line replaced."
+# echo "started $yeardate $hourminute $linenumber"
+# 	./main "$year" "$month" "$day" "$hour" "$minute" "$lineno"  1> /tmp/TEMPORARY/libradtran-interface.log
+# echo "finished"
+
+#cp CONFIGS/band1_loop.conf config.conf
+# year=2021
+# month=9
+# day=5
+# hour=9
+# minute=10
+# lineno=1
+# yeardate=$(printf "%04d-%02d-%02d" "$year" "$month" "$day")
+# hourminute=$(printf "%02d%02d" "$hour" "$minute")
+# linenumber=$(printf "%02d" "$lineno")
+## 	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/${yeardate}_single_afglus/${linenumber}/atm"
+# 	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/${yeardate}_single_afglus_NO2_40-60_1e13/${linenumber}/${hourminute}"
+# 	sed -i "11s|.*|DIR_RESULT=/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/${yeardate}_single_afglus_NO2_40-60_1e13/${linenumber}/${hourminute}/|" config.conf
+# 	echo "11th line replaced."
+# 	sed -i "16s|.*|MOLECULES_FILE=/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/testNO2distribution/modify_no2/afglus_NO2_40-60_1e13.dat|" config.conf
+# 	echo "16th line replaced."
+# 	sed -i "18s|.*|PATH_ATMOSPHERE_INIT=/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/testNO2distribution/modify_no2/afglus_NO2_40-60_1e13.dat|" config.conf
+# 	echo "18th line replaced."
+# echo "started $yeardate $hourminute $linenumber"
+# 	./main "$year" "$month" "$day" "$hour" "$minute" "$lineno"  1> /tmp/TEMPORARY/libradtran-interface.log
+# echo "finished"
+
+
+
+#cp CONFIGS/band1_loop.conf config.conf
+# year=2021
+# month=9
+# day=10
+# hour=22
+# minute=40
+# lineno=87
+# yeardate=$(printf "%04d-%02d-%02d" "$year" "$month" "$day")
+# hourminute=$(printf "%02d%02d" "$hour" "$minute")
+# linenumber=$(printf "%02d" "$lineno")
+## 	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/${yeardate}_single_afglus/${linenumber}/atm"
+# 	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/${yeardate}_single_afglus/${linenumber}/${hourminute}"
+# 	sed -i "11s|.*|DIR_RESULT=/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/${yeardate}_single_afglus/${linenumber}/${hourminute}/|" config.conf
+# 	echo "11th line replaced."
+## 	sed -i "18s|.*|PATH_ATMOSPHERE_INIT=/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/${yeardate}_single_afglus/${linenumber}/atm/${yeardate}msis${hourminute}.dat|" config.conf
+## 	echo "18th line replaced."
+# echo "started $yeardate $hourminute $linenumber"
+# 	./main "$year" "$month" "$day" "$hour" "$minute" "$lineno"  1> /tmp/TEMPORARY/libradtran-interface.log
+# echo "finished"
+
+
+
+#cp CONFIGS/ret.conf config.conf
+# year=2021
+# month=9
+# day=19
+# hour=13
+# minute=0
+# lineno=1
+# yeardate=$(printf "%04d-%02d-%02d" "$year" "$month" "$day")
+# hourminute=$(printf "%02d%02d" "$hour" "$minute")
+# linenumber=$(printf "%02d" "$lineno")
+# 	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/${yeardate}_ret_MolAerosolRad/${linenumber}/atm"
+# 	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/${yeardate}_ret_MolAerosolRad/${linenumber}/${hourminute}"
+# 	sed -i "11s|.*|DIR_RESULT=/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/${yeardate}_ret_MolAerosolRad/${linenumber}/${hourminute}/|" config.conf
+# 	echo "11th line replaced."
+# 	sed -i "18s|.*|PATH_ATMOSPHERE_INIT=/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/${yeardate}_ret_MolAerosolRad/${linenumber}/atm/${yeardate}msis${hourminute}.dat|" config.conf
+# 	echo "18th line replaced."
+# echo "started $yeardate $hourminute $linenumber"
+# 	./main "$year" "$month" "$day" "$hour" "$minute" "$lineno"  1> /tmp/TEMPORARY/libradtran-interface.log
+# echo "finished"
+
+
+##cp CONFIGS/ret_band2.conf config.conf
 #year=2021
 #month=9
 #day=26
@@ -88,57 +536,92 @@ cp config.conf __config.conf
 #	./main "$year" "$month" "$day" "$hour" "$minute" "$lineno"  1> /tmp/TEMPORARY/libradtran-interface.log
 #echo "finished"
 
-cp CONFIGS/band1_loop.conf config.conf
-yeardate="2021-09-19"
-for lineno in `paste -d '\n' <(seq 1 4 44) <(seq 88 -4 45)`; do
-	linenumber=$(printf "%02d" "$lineno")
-	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}_band1_aerosol/${linenumber}/atm"
-	for hour in `seq 0 23`; do
-		for minute in `seq 0 30 59`; do
-			hourminute=$(printf "%02d%02d" "$hour" "$minute")
-			echo "$linenumber $hourminute"
-			mkdir -p "/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}_band1_aerosol/${linenumber}/${hourminute}"
-			sed -i "11s|.*|DIR_RESULT=/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}_band1_aerosol/${linenumber}/${hourminute}/|" config.conf
-			echo "11th line replaced."
-			sed -i "17s|.*|PATH_ATMOSPHERE_INIT=/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}_band1_aerosol/${linenumber}/atm/220603atm${hourminute}.dat|" config.conf
-			echo "17th line replaced."
-			./main 2021 09 19 "${hour}" "${minute}" "${linenumber}"  1> /tmp/TEMPORARY/libradtran-interface.log
-		done
-	done
-done
-#
-#cp CONFIGS/band2_loop.conf config.conf
-#yeardate="2022-06-03"
+
+
+#cp CONFIGS/band1_loop.conf config.conf
+#year=2021
+#month=9
+#date=19
+#yeardate=$(printf "%04d-%02d-%02d" "$year" "$month" "$date")
 #for lineno in `paste -d '\n' <(seq 1 4 44) <(seq 88 -4 45)`; do
 #	linenumber=$(printf "%02d" "$lineno")
-#	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}_band2/${linenumber}/atm"
+#	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/${yeardate}_band1_MOL_NairMinus/${linenumber}/atm"
+#	for hour in `seq 0 3 23`; do
+#		for minute in `seq 0 60 59`; do
+#			hourminute=$(printf "%02d%02d" "$hour" "$minute")
+#			echo "$linenumber $hourminute"
+#			mkdir -p "/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/${yeardate}_band1_MOL_NairMinus/${linenumber}/${hourminute}"
+#			sed -i "11s|.*|DIR_RESULT=/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/${yeardate}_band1_MOL_NairMinus/${linenumber}/${hourminute}/|" config.conf
+#			echo "11th line replaced."
+#			sed -i "18s|.*|PATH_ATMOSPHERE_INIT=/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/${yeardate}_band1_MOL_NairMinus/${linenumber}/atm/${yeardate}atm${hourminute}.dat|" config.conf
+#			echo "18th line replaced."
+#			./main "${year}" "${month}" "${date}" "${hour}" "${minute}" "${linenumber}"  1> /tmp/TEMPORARY/libradtran-interface.log
+#		done
+#	done
+#done
+
+#cp CONFIGS/band1_loop_no2only.conf config.conf
+#year=2021
+#month=9
+#date=19
+#yeardate=$(printf "%04d-%02d-%02d" "$year" "$month" "$date")
+#for lineno in `paste -d '\n' <(seq 1 4 44) <(seq 88 -4 45)`; do
+#	linenumber=$(printf "%02d" "$lineno")
+#	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/${yeardate}_band1_NO2_/${linenumber}/atm"
 #	for hour in `seq 0 23`; do
 #		for minute in `seq 0 30 59`; do
 #			hourminute=$(printf "%02d%02d" "$hour" "$minute")
 #			echo "$linenumber $hourminute"
-#			mkdir -p "/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}_band2/${linenumber}/${hourminute}"
-#			sed -i "11s|.*|DIR_RESULT=/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}_band2/${linenumber}/${hourminute}/|" config.conf
+#			mkdir -p "/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/${yeardate}_band1_NO2_/${linenumber}/${hourminute}"
+#			sed -i "11s|.*|DIR_RESULT=/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/${yeardate}_band1_NO2_/${linenumber}/${hourminute}/|" config.conf
 #			echo "11th line replaced."
-#			sed -i "17s|.*|PATH_ATMOSPHERE_INIT=/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}_band2/${linenumber}/atm/220603atm${hourminute}.dat|" config.conf
+#			sed -i "18s|.*|PATH_ATMOSPHERE_INIT=/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/${yeardate}_band1_NO2_/${linenumber}/atm/${yeardate}atm${hourminute}.dat|" config.conf
+#			echo "18th line replaced."
+#			./main "${year}" "${month}" "${date}" "${hour}" "${minute}" "${linenumber}"  1> /tmp/TEMPORARY/libradtran-interface.log
+#		done
+#	done
+#done
+
+
+
+
+
+
+
+
+
+#cp CONFIGS/band2_aerosol_loop.conf config.conf
+#yeardate="2021-09-19"
+#for lineno in `paste -d '\n' <(seq 1 4 44) <(seq 88 -4 45)`; do
+#	linenumber=$(printf "%02d" "$lineno")
+#	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}_band2_aerosol/${linenumber}/atm"
+#	for hour in `seq 0 23`; do
+#		for minute in `seq 0 30 59`; do
+#			hourminute=$(printf "%02d%02d" "$hour" "$minute")
+#			echo "$linenumber $hourminute"
+#			mkdir -p "/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}_band2_aerosol/${linenumber}/${hourminute}"
+#			sed -i "11s|.*|DIR_RESULT=/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}_band2_aerosol/${linenumber}/${hourminute}/|" config.conf
+#			echo "11th line replaced."
+#			sed -i "17s|.*|PATH_ATMOSPHERE_INIT=/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}_band2_aerosol/${linenumber}/atm/220603atm${hourminute}.dat|" config.conf
 #			echo "17th line replaced."
 #			./main 2021 09 19 "${hour}" "${minute}" "${linenumber}"  1> /tmp/TEMPORARY/libradtran-interface.log
 #		done
 #	done
 #done
 #
-#cp CONFIGS/band3_loop.conf config.conf
-#yeardate="2022-06-03"
+#cp CONFIGS/band3_aerosol_loop.conf config.conf
+#yeardate="2021-09-19"
 #for lineno in `paste -d '\n' <(seq 1 4 44) <(seq 88 -4 45)`; do
 #	linenumber=$(printf "%02d" "$lineno")
-#	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}_band3/${linenumber}/atm"
+#	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}_band3_aerosol/${linenumber}/atm"
 #	for hour in `seq 0 23`; do
 #		for minute in `seq 0 30 59`; do
 #			hourminute=$(printf "%02d%02d" "$hour" "$minute")
 #			echo "$linenumber $hourminute"
-#			mkdir -p "/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}_band3/${linenumber}/${hourminute}"
-#			sed -i "11s|.*|DIR_RESULT=/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}_band3/${linenumber}/${hourminute}/|" config.conf
+#			mkdir -p "/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}_band3_aerosol/${linenumber}/${hourminute}"
+#			sed -i "11s|.*|DIR_RESULT=/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}_band3_aerosol/${linenumber}/${hourminute}/|" config.conf
 #			echo "11th line replaced."
-#			sed -i "17s|.*|PATH_ATMOSPHERE_INIT=/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}_band3/${linenumber}/atm/220603atm${hourminute}.dat|" config.conf
+#			sed -i "17s|.*|PATH_ATMOSPHERE_INIT=/lhome/sano2/SANO/research/estimate-profile/Result/03-W1/${yeardate}_band3_aerosol/${linenumber}/atm/220603atm${hourminute}.dat|" config.conf
 #			echo "17th line replaced."
 #			./main 2021 09 19 "${hour}" "${minute}" "${linenumber}"  1> /tmp/TEMPORARY/libradtran-interface.log
 #		done

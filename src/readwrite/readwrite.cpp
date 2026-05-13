@@ -96,7 +96,7 @@ namespace readwrite{
 		return data;/* don't forget deallocation */
 	}
 	
-	double** read_fixed_data(std::string path, std::string &header, int &Nlines, int &Ncolumns){/* 参照渡し */
+	double** read_fixed_data(std::string path, std::string &header, int Nlines, int Ncolumns){/* 参照渡し */
 		
 		std::cout << "Reading: " << path << std::endl;
 	/* ==== 初期化 ==== */
@@ -134,6 +134,49 @@ namespace readwrite{
 		return data;/* don't forget deallocation */
 	}
 	
+	double** read_fixed_data_with_skip(std::string path, std::string &header, int Nlines, int Ncolumns, int skipNlines, int skipNcolumns){
+		std::cout << "Reading: " << path << std::endl;
+	/* ==== 初期化 ==== */
+		header = "";
+		double **data = AndoLab::allocate_memory2d(Ncolumns, Nlines, 0.0);
+		std::cout << Ncolumns << " x " << Nlines << std::endl;
+	/*
+		double **data = new double*[ptr_Ncolumns];
+		data[0] = new double*[ptr_NcolumnsNlines];
+		for(int i=0; i<ptr_Ncolumns; i++){
+			data[i] = data[0] + iNlines;
+			for(int j=0; j<ptr_Ncolumns; j++){
+				data[i][j] = 0.0;
+			}
+		}
+	*/
+		std::ifstream ifs(path);
+		std::string line;
+		int line_index = -skipNlines;/* データのある行だけを数える */
+		int col_index = -skipNcolumns;	
+		while(std::getline(ifs, line)){
+			if(line[0] != '#' && line != "" && line != " " && line != "\t"){
+				std::istringstream iss_read(line);
+				std::string token;
+				col_index = -skipNcolumns;
+				while(iss_read >> token){
+					if(0 <= col_index && 0 <= line_index){
+						data[col_index][line_index] = std::stod(token);
+					}
+					col_index++;
+				}
+				line_index++;
+			}
+			else header = std::string( header + line + "\n" );/* コメントが全てヘッダに集約される(仕様) */
+		}
+		ifs.close();
+		return data;/* don't forget deallocation */
+	}
+	
+
+
+
+
 	void save_data(std::string path, std::string header, int Nlines, int Ncolumns, double** data){	
 		std::cout << "Saving to: " << path << std::endl;
 		std::ofstream ofs(path);

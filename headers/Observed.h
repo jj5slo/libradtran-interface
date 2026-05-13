@@ -5,6 +5,7 @@
 #include<string>
 
 #include"obsDateTime.h"
+#include "fit.h"
 
 class Observed{/* ある方向の高度ごとのデータ */
 private:
@@ -61,7 +62,8 @@ public:
 	int Nheights(void);
 	
 	double maxHeight(void);
-
+	
+	void SubstractBackground(double background_intensity);
 
 };
 

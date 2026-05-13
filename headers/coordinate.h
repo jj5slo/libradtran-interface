@@ -96,7 +96,7 @@ public:
 
 /* across_point_atmosphere.cpp */
 AndoLab::Vector3d <double> cross_point_at_altitude(PlanetParam earth, AndoLab::Vector3d <double> r, AndoLab::Vector3d <double> d, const double H);
-AndoLab::Vector3d <double> *Across_point_atmosphere(PlanetParam earth, SatelliteParam satellite, AndoLab::Vector3d <double> r, double TOA);
+AndoLab::Vector3d <double> *Across_point_atmosphere(PlanetParam earth, SatelliteParam satellite, AndoLab::Vector3d <double> r, double TOA/* km */);
 
 
 /* sensor_direction.cpp */

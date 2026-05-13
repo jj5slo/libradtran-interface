@@ -91,23 +91,25 @@ if(argc == 7){
 	const std::string DIR_INTERFACE = getConfig(configs, "DIR_INTERFACE", std::string(std::getenv("HOME"))+"/SANO/research/estimate-profile/libradtran-interface/");/* このプログラムが置かれるディレクトリ */
 	const std::string DIR_UVSPEC = getConfig(configs, "DIR_UVSPEC", std::string(std::getenv("HOME"))+"/SANO/research/LIBRARIES/libradtran/libRadtran-2.0.6/bin/");/* uvspec(libRadtran本体)の置かれたディレクトリ */
 
-	std::string DIR_RESULT = getConfig(configs, "DIR_RESULT", "../testresult/") + secid;/* 保存先ディレクトリ */
-	std::string DIR_OBS = getConfig(configs, "DIR_OBS", "../testdata/");/* 観測データのディレクトリ */
-	const std::string PATH_STDIN = getConfig(configs, "PATH_STDIN", "in");/* libRadtran標準入力を一時保存する場所 */
-	std::string PATH_STDOUT = getConfig(configs, "PATH_STDOUT", "out");/* libRadtranの標準出力を一時保存する場所 */
-	std::string PATH_ATMOSPHERE = getConfig(configs, "PATH_ATMOSPHERE", std::string(std::getenv("HOME"))+"/SANO/research/LIBRARIES/libradtran/libRadtran-2.0.6/data/atmmod/afglus.dat");/* libRadtranに渡す大気ファイル */
+	std::string DIR_RESULT           = getConfig(configs, "DIR_RESULT", "../testresult/") + secid;/* 保存先ディレクトリ */
+	std::string DIR_OBS              = getConfig(configs, "DIR_OBS", "../testdata/");/* 観測データのディレクトリ */
+	const std::string PATH_STDIN     = getConfig(configs, "PATH_STDIN", "in");/* libRadtran標準入力を一時保存する場所 */
+	std::string PATH_STDOUT          = getConfig(configs, "PATH_STDOUT", "out");/* libRadtranの標準出力を一時保存する場所 */
+	std::string PATH_ATMOSPHERE      = getConfig(configs, "PATH_ATMOSPHERE", std::string(std::getenv("HOME"))+"/SANO/research/LIBRARIES/libradtran/libRadtran-2.0.6/data/atmmod/afglus.dat");/* libRadtranに渡す大気ファイル */
 	int FLAG_USE_ATMOSPHERE_INIT     = getConfig(configs, "FLAG_USE_ATMOSPHERE_INIT", 0);
 	std::string PATH_ATMOSPHERE_INIT = getConfig(configs, "PATH_ATMOSPHERE_INIT", std::string(std::getenv("HOME"))+"/SANO/research/LIBRARIES/libradtran/libRadtran-2.0.6/data/atmmod/afglus.dat");/* libRadtranに渡す大気ファイル */
+	std::string MOLECULES_FILE       = getConfig(configs, "MOLECULES_FILE", DIR_UVSPEC+"../data/atmmod/afglus.data");
 	
 //	double wavelength = getConfig(configs, "wavelength", 470.0);/* 波長 [nm]. TODO 決まっているので指定方法を変える */
-	std::string PATH_WAVELENGTHS = getConfig(configs, "PATH_WAVELENGTHS", std::string(std::getenv("HOME"))+"/SANO/research/estimate-profile/ObsEquip/Himawari-AHI/AHI-blue.dat");
-	int HIMAWARI_BAND            = getConfig(configs, "HIMAWARI_BAND", 1);
-	double SZA_THRESHOLD         = getConfig(configs, "SZA_THRESHOLD", 100.0);
+	std::string PATH_WAVELENGTHS     = getConfig(configs, "PATH_WAVELENGTHS", std::string(std::getenv("HOME"))+"/SANO/research/estimate-profile/ObsEquip/Himawari-AHI/AHI-blue.dat");
+	int HIMAWARI_BAND                = getConfig(configs, "HIMAWARI_BAND", 1);
+	double SZA_THRESHOLD             = getConfig(configs, "SZA_THRESHOLD", 100.0);
 	int i_top           = getConfig(configs, "i_top", 64);/* 数密度を求める最高高度（index） */
 	int i_bottom        = getConfig(configs, "i_bottom", 60);/* 数密度を求める最低高度（index） */
 	int fit_i_top       = getConfig(configs, "fit_i_top", i_top);/* SINGLESHOT */
 	int fit_i_bottom    = getConfig(configs, "fit_i_bottom", i_bottom);/* SINGLESHOT */
 	int N_exp_decay_atm = getConfig(configs, "N_exp_decay_atm", 5);/* 数密度を求める最低高度（index） */
+	double OBS_BACKGROUND_INTENSITY  = getConfig(configs, "OBS_BACKGROUND_INTENSITY", 22.0);
 
 	std::string solver = getConfig(configs, "solver", "mystic");/* libRadtranのソルバ */
 
@@ -183,7 +185,7 @@ if(argc == 7){
 		}
 	}
 
-
+	obsd.SubstractBackground(OBS_BACKGROUND_INTENSITY);
 
 /* ==== */
 /* 諸定数の準備 */
@@ -252,18 +254,44 @@ if(argc == 7){
 		ld.set( ld_alpha, heights[i]/m2km );/* 見る場所決め */
 		tparr[i] = ld.tangential_point( earth, himawari);/* tangential point の配列 */
 	}
+	ParamAtmosphere* molAtm = readParamAtmosphere(MOLECULES_FILE, Nheights);
 	ParamAtmosphere* pAtm;
 	if(FLAG_USE_ATMOSPHERE_INIT){
+		std::cerr << "INITIAL ATMOSPHERE IS USED." << std::endl;
 		pAtm = readParamAtmosphere(PATH_ATMOSPHERE_INIT, Nheights);/* 初期大気は自分で指定する *//* try-catchが望ましい */
 	}
 	else{
+		std::cout << "calling msis..." << std::endl;
 		pAtm = get_msis(dt, tparr, Nheights);/* tangential point でのMSIS大気から求めたパラメタを取得 */
+		for(int i=0; i<Nheights; i++){
+			if(1.0 < std::abs(pAtm[i].z - molAtm[i].z)){
+				std::cerr << "MOLECULE_FILE HEIGHT IS NOT CONSISTENT WITH ATMOSPHERE_FILE !! PLEASE CHECK YOUR INPUT!!" << std::endl;
+				return 1;
+			}
+			pAtm[i].No3 = molAtm[i].No3;
+			pAtm[i].No2 = molAtm[i].No2;
+			pAtm[i].Nh2o = molAtm[i].Nh2o;
+			pAtm[i].Nco2 = molAtm[i].Nco2;
+			pAtm[i].Nno2 = molAtm[i].Nno2;
+//			pAtm[i].Nair = pAtm[i].Nair 
+//											- pAtm[i].No3 
+//											- pAtm[i].No2
+//											- pAtm[i].Nh2o
+//											- pAtm[i].Nco2
+//											- pAtm[i].Nno2;
+//			pAtm[i].set_p_from_Nair_T(); 
+		}
 		saveParamAtmosphere(PATH_ATMOSPHERE_INIT, pAtm, Nheights, atmosphere_precision);
 	}
-	std::cout << "# Atmosphere\nz Nair p T" << std::endl;
+	std::cout << "# Atmosphere\nz\tp\tT\tNair\tNo3\tNo2\tNh2o\tNco2\tNno2" << std::endl;
 	for(int i=0; i<Nheights; i++){
-		std::cout << " " << pAtm[i].z << " " << pAtm[i].Nair << " " << pAtm[i].p << " " <<  pAtm[i].T << std::endl;
+		double* tmp_atm = pAtm[i].returnvector();
+		for(int j=0; j<pAtm[i].NoPs(); j++){
+			std::cout << tmp_atm[j] << "\t";
+		}
+		std::cout << std::endl;
 	}
+	delete[] molAtm;
 
 //	saveParamAtmosphere(PATH_ATMOSPHERE, pAtm, Nheights, atmosphere_precision);
 	args.Nheights               = Nheights;
@@ -278,8 +306,8 @@ if(argc == 7){
 	for(int i=0; i<args.Nheights; i++){
 		args.upper_radiance_smoothed[i] = 0.0;
 	}
-	args.offset_bottom_height = getConfig(configs, "offset_bottom_height", 89.9);/* for fit */
-	args.offset_top_height    = getConfig(configs, "offset_top_height", 100.1);/* for fit */
+//	args.offset_bottom_height = getConfig(configs, "offset_bottom_height", 89.9);/* for fit */
+//	args.offset_top_height    = getConfig(configs, "offset_top_height", 100.1);/* for fit */
 /* ==== */
 
 

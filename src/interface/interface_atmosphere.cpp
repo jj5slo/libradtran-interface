@@ -8,6 +8,7 @@
 #include<iostream>
 #include<fstream>
 #include<iomanip>
+#include<algorithm>
 
 #include<memory_allocate.h>
 
@@ -75,6 +76,16 @@ ParamAtmosphere* readParamAtmosphere(std::string path, int& Nlines){
 			pAtm[Nlines-1 - line_index].T = std::stod(token);
 			iss_read >> token;/* 4 */
 			pAtm[Nlines-1 - line_index].Nair = std::stod(token);
+			iss_read >> token;/* 5 */
+			pAtm[Nlines-1 - line_index].No3 = std::stod(token);
+			iss_read >> token;/* 6 */
+			pAtm[Nlines-1 - line_index].No2 = std::stod(token);
+			iss_read >> token;/* 7 */
+			pAtm[Nlines-1 - line_index].Nh2o = std::stod(token);
+			iss_read >> token;/* 8 */
+			pAtm[Nlines-1 - line_index].Nco2 = std::stod(token);
+			iss_read >> token;/* 9 */
+			pAtm[Nlines-1 - line_index].Nno2 = std::stod(token);
 			line_index++;
 		}
 /*		ParamAtmosphere tmp = tmp_pAtm[0];
@@ -83,6 +94,11 @@ ParamAtmosphere* readParamAtmosphere(std::string path, int& Nlines){
 */
 	}
 	ifs.close();
+	
+	std::sort(pAtm, pAtm+Nlines, [](const ParamAtmosphere& a, const ParamAtmosphere& b){
+		return a.z < b.z;
+	});// z が小さい順にソート
+
 	return pAtm;/* don't forget deallocation */
 }
  

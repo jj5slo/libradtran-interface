@@ -8,7 +8,8 @@
 namespace readwrite{
 	std::string* read_list(std::string path, int &Nelements);
 	double** read_data(std::string path, std::string &header, int &Nlines, int &Ncolumns);/* 参照渡し */
-	double** read_fixed_data(std::string path, std::string &header, int &Nlines, int &Ncolumns);/* Nline, Ncolumns がわかっている */
+	double** read_fixed_data(std::string path, std::string &header, int Nlines, int Ncolumns);/* Nline, Ncolumns がわかっている */
+	double** read_fixed_data_with_skip(std::string path, std::string &header, int Nlines, int Ncolumns, int skipNlines, int skipNcolumns);
 	
 	void save_data(std::string path, std::string header, int Nlines, int Ncolumns, double** data);
 	void save_data(std::string path, std::string header, int Nlines, int Ncolumns, int** data);/* TODO to templete */

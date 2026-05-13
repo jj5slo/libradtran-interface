@@ -142,7 +142,8 @@ double core(void* raw_Args){
 //		args->radiance_smoothed[i] = smoothed[i];
 //	}
 /* -- */
-	double offset = fit::mean(args->Nheights, args->heights, args->obs.Data(), args->offset_bottom_height, args->offset_top_height);
+//	double offset = fit::mean(args->Nheights, args->heights, args->obs.Data(), args->offset_bottom_height, args->offset_top_height);
+	double offset = 0.0;
 	double* a_offset = fit::obtain_fitting_coefficient(args->obs.Data(), smoothed, args->fit_i_bottom, args->fit_i_top, offset);
 	double* fitted = fit::apply_fitting(args->Nheights, smoothed, a_offset);
 	double** processed_results = new double* [5];
