@@ -9,3 +9,5 @@ Working/stat/lines/*
 obsolete/*
 DaemonExec.sh
 CONFIGS/*
+config.conf
+__config.conf
