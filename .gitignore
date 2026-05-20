@@ -7,3 +7,5 @@ out
 Archive_local/*
 Working/stat/lines/*
 obsolete/*
+DaemonExec.sh
+CONFIGS/*
