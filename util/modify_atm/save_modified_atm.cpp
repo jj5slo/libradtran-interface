@@ -1,21 +1,13 @@
 #include <iostream>
 
 #include "interface.h"
-#include "read_config.h"
 
 int main(int argc, char *argv[]){
 	
-	std::string PATH_CONFIG = "./config.conf";
-	std::map<std::string, std::string> configs = readConfigFile(PATH_CONFIG);
-
-	std::string PATH_ATMOSPHERE = getConfig(configs, "PATH_ATMOSPHERE", std::string(std::getenv("HOME"))+"/SANO/research/LIBRARIES/libradtran/libRadtran-2.0.6/data/atmmod/afglus.dat");/* libRadtranに渡す大気ファイル */
-	std::string PATH_ATMOSPHERE_INIT = getConfig(configs, "PATH_ATMOSPHERE_INIT", std::string(std::getenv("HOME"))+"/SANO/research/LIBRARIES/libradtran/libRadtran-2.0.6/data/atmmod/afglus.dat");/* libRadtranに渡す大気ファイル */
+	std::string PATH_ATMOSPHERE_INIT = "original.dat";
+	std::string PATH_ATMOSPHERE      = "modified.dat";
 	
-	int i_top = getConfig(configs, "i_top", 64);/* 数密度を求める最高高度（index） */
-	int i_bottom = getConfig(configs, "i_bottom", 60);/* 数密度を求める最低高度（index） */
-	int atmosphere_precision = getConfig(configs, "atmosphere_precision", 7);/* 保存する大気の保存時の精度 */
-
-	double coef = getConfig(configs, "coef", 1.0);/* 数密度の変更係数 */
+	int atmosphere_precision = 7;/* 保存する大気の保存時の精度 */
 
 	int Nheights;
 
@@ -27,9 +19,9 @@ int main(int argc, char *argv[]){
 
 /* ==== MODIFY HERE ==== */
 
-	for(int i=i_top+1; i<Nheights; i++){
-		pAtm[i].Nair = pAtm[i].Nair * coef;
-		pAtm[i].set_p_from_Nair_T();
+	for(int i=0; i<Nheights; i++){
+		pAtm[i].Nair = 1.0e11;
+		pAtm[i].set_T_from_Nair_p();
 	}
 
 /* ==== */

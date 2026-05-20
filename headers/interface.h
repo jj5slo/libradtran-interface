@@ -34,7 +34,8 @@ public:
 	double albedo{0.0};
 	std::string brdf_surface_type = "";
 	std::string albedo_file = "";
-	double brdf_cam_u10{15};
+	double brdf_cam_u10{15.0};
+	double brdf_rpv_type{0};
 	/* ---- */
 
 	int mc_photons {1000000};
@@ -67,6 +68,7 @@ public:
 		return p_NoPs;
 	}
 	void set_p_from_Nair_T(void);/* Nair, T から状態方程式で p を設定し直す */
+	void set_T_from_Nair_p(void);/* Nair, T から状態方程式で p を設定し直す */
 
 };
 ParamAtmosphere* readParamAtmosphere(std::string filename, int& Nlines);

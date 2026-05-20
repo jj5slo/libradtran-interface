@@ -1,4 +1,4 @@
-# /bin/bash
+#! /bin/bash
 
 # echo "started"
 pwd
@@ -44,6 +44,7 @@ cp CONFIGS/shot.conf config.conf
 #for backgroundintensity in "21.8" "21.9" "22.0" "22.1" "22.2" "22.3" "22.4"; do
 #for backgroundintensity in "21.8"  "22.1" "22.3"; do
 for backgroundintensity in "22.1"; do
+#for backgroundintensity in "22.1"; do
  year=2021
  month=9
  day=5
@@ -54,22 +55,22 @@ for backgroundintensity in "22.1"; do
  hourminute=$(printf "%02d%02d" "$hour" "$minute")
  linenumber=$(printf "%02d" "$lineno")
 # 	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/2026/2026-04W3/${yeardate}_single_afglus/${linenumber}/atm"
- 	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/2026/2026-05w1/${yeardate}_b_${backgroundintensity}_21.8_result_shot/${linenumber}/${hourminute}"
- 	sed -i "11s|.*|DIR_RESULT=/lhome/sano2/SANO/research/estimate-profile/2026/2026-05w1/${yeardate}_b_${backgroundintensity}_21.8_result_shot/${linenumber}/${hourminute}/|" config.conf
+ 	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/2026/2026-05w3/${yeardate}_b_${backgroundintensity}_albedo0.9_shot/${linenumber}/${hourminute}"
+ 	sed -i "11s|.*|DIR_RESULT=/lhome/sano2/SANO/research/estimate-profile/2026/2026-05w3/${yeardate}_b_${backgroundintensity}_albedo0.9_shot/${linenumber}/${hourminute}/|" config.conf
  	echo   "11th line replaced."
- 	sed -i "16s|.*|MOLECULES_FILE=/lhome/sano2/SANO/research/estimate-profile/2026/2026-05w1/afglus_101_log.dat|" config.conf
+ 	sed -i "16s|.*|MOLECULES_FILE=/lhome/sano2/SANO/research/estimate-profile/2026/2026-05w3/afglus_101_log.dat|" config.conf
  	echo   "16th line replaced."
- 	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/2026/2026-05w1/${yeardate}_b_${backgroundintensity}_21.8_result_shot/${linenumber}/${hourminute}"
- 	sed -i "17s|.*|FLAG_USE_ATMOSPHERE_INIT=1|" config.conf
+ 	mkdir -p "/lhome/sano2/SANO/research/estimate-profile/2026/2026-05w3/${yeardate}_b_${backgroundintensity}_albedo0.9_shot/${linenumber}/${hourminute}"
+ 	sed -i "17s|.*|FLAG_USE_ATMOSPHERE_INIT=0|" config.conf
  	echo   "17th line replaced."
- 	sed -i "18s|.*|PATH_ATMOSPHERE_INIT=/lhome/sano2/SANO/research/estimate-profile/2026/2026-05w1/${yeardate}_b_${backgroundintensity}_21.8_result_shot/21.8_temp.dat|" config.conf
+ 	sed -i "18s|.*|PATH_ATMOSPHERE_INIT=/lhome/sano2/SANO/research/estimate-profile/2026/2026-05w3/${yeardate}_b_${backgroundintensity}_albedo0.9_shot/${linenumber}/${hourminute}/atminit.dat|" config.conf
  	echo   "18th line replaced."
  	sed -i "32s|.*|OBS_BACKGROUND_INTENSITY=${backgroundintensity}|" config.conf
  	echo   "32th line replaced. ${backgroundintensity}."
- 	sed -i "36s|.*|SURFACE_TYPE=LAMBERT|" config.conf
- 	echo   "36th line replaced. ${backgroundintensity}."
- 	sed -i "37s|.*|albedo=0.9|" config.conf
- 	echo   "37th line replaced. ${backgroundintensity}."
+ 	sed -i "37s|.*|SURFACE_TYPE=LAMBERT|" config.conf
+ 	echo   "37th line replaced."
+ 	sed -i "38s|.*|albedo=0.9|" config.conf
+ 	echo   "38th line replaced."
  echo "started $yeardate $hourminute $linenumber"
  	./main "$year" "$month" "$day" "$hour" "$minute" "$lineno"  1> /tmp/TEMPORARY/libradtran-interface.log
  echo "finished"

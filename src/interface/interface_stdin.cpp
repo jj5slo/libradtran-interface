@@ -40,6 +40,9 @@ int save_stdin(std::string path, ParamStdin param){
 		ofs << "albedo " << param.albedo << "\n\n"; 
 	} else if(param.SURFACE_TYPE == "BRDF_CAM"){
 		ofs << "brdf_cam u10 " << param.brdf_cam_u10 << "\n\n";
+	} else if(param.SURFACE_TYPE == "BRDF_IGBP"){
+		ofs << "brdf_rpv_library IGPB\n";
+		ofs << "brdf_rpv_type " << param.brdf_rpv_type << "\n\n";
 	}
 	/* ABSORB は何も書かない */
 

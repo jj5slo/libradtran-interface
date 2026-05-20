@@ -116,6 +116,7 @@ if(argc == 7){
 	std::string SURFACE_TYPE = getConfig(configs, "SURFACE_TYPE", "ABSORB");/* 表面反射のタイプを指定 */
 	double albedo = getConfig(configs, "albedo", 0.3);/* LAMBERT の反射率 */
 	double brdf_cam_u10 = getConfig(configs, "brdf_cam_u10", 15.0);/* BRDF_CAM の風速 */
+	int brdf_rpv_type = getConfig(configs, "brdf_rpv_type", 0);/* BRDF_CAM の風速 */
 	std::string additional_option = getConfig(configs, "additional_option", "");/* libRadtranの標準入力に追加で書き込む文字列 */
 	replaceAll(additional_option, "\\n", "\n");
 	int mc_photons = getConfig(configs, "mc_photons", 60000);/* MYSTICの回数 デフォルトは300000 */
@@ -224,6 +225,7 @@ if(argc == 7){
 	
 	args.pStdin.SURFACE_TYPE = SURFACE_TYPE;
 	args.pStdin.brdf_cam_u10 = brdf_cam_u10;
+	args.pStdin.brdf_rpv_type = brdf_rpv_type;
 	args.pStdin.albedo = albedo;/* 地球平均は0.3 */
 
 //	args.pStdin.wavelength = wavelength;

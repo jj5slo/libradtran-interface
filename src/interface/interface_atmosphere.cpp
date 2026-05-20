@@ -120,6 +120,9 @@ void ParamAtmosphere::set_p_from_Nair_T(void){
 	p = (Nair*1e6) * BOLTZMANN_CONSTANT * T * 1e-2;
 }
 
+void ParamAtmosphere::set_T_from_Nair_p(void){
+	T = p / (Nair*1e6) / BOLTZMANN_CONSTANT * 1e2;
+}
 
 
 
