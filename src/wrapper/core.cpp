@@ -87,9 +87,12 @@ double core(void* raw_Args){
 			/* delete_mystic_rad(); */
 			execute_uvspec(args->DIR_UVSPEC, args->PATH_STDIN, args->PATH_STDOUT, args->FLAG_UNDISPLAY_LOG, args->DIR_LOG);
 			if(args->pStdin.solver == "mystic" || args->pStdin.solver == "mystic_plainparallel"){
-				rad_wavlength = read_mystic_rad(args->DIR_UVSPEC, 105);/* TODO この層番号の決め方がいまいちわからない 0から100km, 1kmごとであればTOAで105 */
+				double rad_wavlength_100 = read_mystic_rad(args->DIR_UVSPEC, 100);/* TODO この層番号の決め方がいまいちわからない 0から100km, 1kmごとであればTOAで105 */
+				double rad_wavlength_105 = read_mystic_rad(args->DIR_UVSPEC, 105);/* TODO この層番号の決め方がいまいちわからない 0から100km, 1kmごとであればTOAで105 */
 				double rad_wavlength_spc = read_mystic_rad_spc(args->DIR_UVSPEC);/* TODO この層番号の決め方がいまいちわからない 0から100km, 1kmごとであればTOAで105 */
-				std::cout << "rad_spc: " << rad_wavlength_spc << "ratio: " << rad_wavlength_spc/rad_wavlength << std::endl;
+				rad_wavlength = rad_wavlength_spc;
+				std::cout << "rad_100: " << rad_wavlength_100 << "ratio: " << rad_wavlength_spc/rad_wavlength_100 << std::endl;
+				std::cout << "rad_105: " << rad_wavlength_100 << "ratio: " << rad_wavlength_spc/rad_wavlength_105 << std::endl;
 			}else{
 				rad_wavlength = read_stdout(args->PATH_STDOUT, 0);
 			}	
