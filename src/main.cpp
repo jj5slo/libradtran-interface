@@ -358,7 +358,9 @@ if(argc == 7){
 		double lerr = core((void*)(&args));
 
 		std::cerr << "lerr: " << lerr << std::endl;
-
+		if(FLAG_UNDISPLAY_LOG){
+			save_params(args.DIR_RESULT, args.secid, DIR_LOG+"/libRadtran.log", "_log.dat");
+		}
 		return 0;
 	}
 
