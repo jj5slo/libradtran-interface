@@ -67,9 +67,9 @@ if(argc == 7){
 
 /* ==== id付け ==== */
 	/* 現在時刻（シミュレーション開始時刻）を取得、保持 */
-	auto now = std::chrono::system_clock::now();
-	auto nowsec = std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count();
-	std::string secid = std::to_string(nowsec);
+	auto starttime = std::chrono::system_clock::now();
+	auto startsec = std::chrono::duration_cast<std::chrono::seconds>(starttime.time_since_epoch()).count();
+	std::string secid = std::to_string(startsec);
 	/* secid を結果につけることでパラメータを保存 */
 
 /* ==== */
@@ -154,6 +154,16 @@ if(argc == 7){
 	}
 	std::cerr << "create_directory " << DIR_RESULT << std::endl;
 	std::filesystem::create_directory(DIR_RESULT);
+
+/* ==== 開始時刻保存 ==== */
+	std::ofstream timestamp_file(DIR_RESULT+"/timestamp.txt");
+	if(!timestamp_file){
+		std::cerr << "timestamp.txt could not make!" << std::endl;
+		return 1;
+	}
+	timestamp_file << "start: " << startsec << std::endl;
+	timestamp_file.close();
+/* ==== */
 
 	if(DEBUG){ std::cin >> input; }
 
@@ -361,6 +371,15 @@ if(argc == 7){
 		if(FLAG_UNDISPLAY_LOG){
 			save_params(args.DIR_RESULT, args.secid, DIR_LOG+"/libRadtran.log", "_log.dat");
 		}
+		/* ==== 終了時刻保存 ==== */
+		auto endtime = std::chrono::system_clock::now();
+		auto endsec = std::chrono::duration_cast<std::chrono::seconds>(endtime.time_since_epoch()).count();
+		timestamp_file.open(DIR_RESULT+"/timestamp.txt", std::ios::app);
+		if(timestamp_file){
+			timestamp_file << "end: " << endsec << std::endl;
+			timestamp_file.close();
+		}
+		/* ==== */
 		return 0;
 	}
 
@@ -476,6 +495,15 @@ if(argc == 7){
 	}	
 
 //	delete[] radiance;
+	/* ==== 終了時刻保存 ==== */
+	auto endtime = std::chrono::system_clock::now();
+	auto endsec = std::chrono::duration_cast<std::chrono::seconds>(endtime.time_since_epoch()).count();
+	timestamp_file.open(DIR_RESULT+"/timestamp.txt", std::ios::app);
+	if(timestamp_file){
+		timestamp_file << "end: " << endsec << std::endl;
+		timestamp_file.close();
+	}
+	/* ==== */
 	return 0;
 }
 
