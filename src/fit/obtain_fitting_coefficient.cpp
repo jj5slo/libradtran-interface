@@ -46,7 +46,7 @@ double* fit::obtain_fitting_coefficient(double* obs, double* sim, int min_index,
 
 	opt.set_min_objective( fit::least_square_log_error, (void*)(&slep) ); 
 	opt.set_xtol_rel(1.0e-6);/* TODO */
-	std::vector<double> x(1, 5.0e3);/* 初期値 */
+	std::vector<double> x(1, 3.0);/* 初期値 */
 	double minf;
 
 	try {
