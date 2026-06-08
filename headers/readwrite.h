@@ -4,6 +4,8 @@
 #include <fstream>
 #include <sstream>
 
+#ifndef __READWRITE_H__
+#define __READWRITE_H__
 
 namespace readwrite{
 	std::string* read_list(std::string path, int &Nelements);
@@ -16,3 +18,5 @@ namespace readwrite{
 	void save_data_and_string(std::string path, std::string header, int Nlines, int Ncolumns, double** data, std::string* string);
 	void save_string_and_data(std::string path, std::string header, int Nlines, int Ncolumns, std::string* string, double** data);
 }
+
+#endif

@@ -13,16 +13,17 @@ int main(int argc, char* argv[]){
 	int         i_BOTTOM;
 	int         i_TOP;
 	std::string NEWPATH;
-	int         offset_i_BOTTOM;
+	double      offset;
+//	int         offset_i_BOTTOM;
 	if(argc == 6){
 		PATH = std::string(argv[1]);
 		i_BOTTOM = atoi(argv[2]);
 		i_TOP    = atoi(argv[3]);
 		NEWPATH = std::string(argv[4]);
-		offset_i_BOTTOM = atoi(argv[5]);
+		offset = atoi(argv[5]);
 	}
 	else{
-		std::cerr << "Usage: ./refit PATH i_BOTTOM i_TOP NEWPATH offset_i_BOTTOM(included)" << std::endl;
+		std::cerr << "Usage: ./refit PATH i_BOTTOM i_TOP NEWPATH offset(value)" << std::endl;
 		return 0;
 	}
 
@@ -47,8 +48,11 @@ int main(int argc, char* argv[]){
 	double* smoothed = result[3];
 	double* fitted   = result[4];
 /* -- */
-	double offset = fit::mean(Nheights, heights, observed, offset_i_BOTTOM, Nheights - 1);
-	double* a_offset = fit::obtain_fitting_coefficient(observed, smoothed, i_BOTTOM, i_TOP, offset);
+//	double offset = fit::mean(Nheights, heights, observed, offset_i_BOTTOM, Nheights - 1);
+	for(int i=0; i<Nheights; ++i){
+		observed[i] = observed[i] - offset;
+	}
+	double* a_offset = fit::obtain_fitting_coefficient(observed, smoothed, i_BOTTOM, i_TOP, 0.0);
 	fitted = fit::apply_fitting(Nheights, smoothed, a_offset);
 	double** processed_results = new double* [5];
 	double log_square_error = fit::root_mean_square_log_error( i_BOTTOM, i_TOP, observed, fitted );
@@ -58,7 +62,7 @@ int main(int argc, char* argv[]){
 	processed_results[3] = smoothed;
 	processed_results[4] = fitted;
 	header = header 
-		+ "# refit a: " + std::to_string(a_offset[0]) + " offset: " + std::to_string(a_offset[1]) + "\n"
+		+ "# refit a: " + std::to_string(a_offset[0]) + " offset: " + std::to_string(a_offset[1]) + " (subtracted)\n"
 		+ "# log_square_error ( index " + std::to_string(i_BOTTOM) + " to " + std::to_string(i_TOP) + "): " + std::to_string(log_square_error) + "\n"
 		+ "# height obs raw smoothed fitted\n";
 	fit::save_data(NEWPATH, header, Nheights, 5, processed_results);/* 最適化を回し始めたら不要、/tmp/に入れてもいいかも */

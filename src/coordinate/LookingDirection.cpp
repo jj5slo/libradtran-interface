@@ -11,8 +11,8 @@ LookingDirection::LookingDirection(const double Alpha, const double Alt){
 }
 
 void LookingDirection::set(const double Alpha, const double Alt){
-	pAltitude = Alt;
 	pAlpha = Alpha;
+	pAltitude = Alt;
 }
 
 double LookingDirection::alpha(void){

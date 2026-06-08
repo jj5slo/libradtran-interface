@@ -40,8 +40,8 @@ public:
 	/* LookingDirection.cpp */
 	/* アクセサ */
 	LookingDirection(){}
-	LookingDirection(const double Alt, const double Alpha);
-	void set(const double Alt, const double Alpha);
+	LookingDirection(const double Alpha, const double Alt);
+	void set(const double Alpha, const double Alt);
 	double alpha(void);
 	double altitude(void);
 
@@ -88,8 +88,8 @@ public:
 	double alpha(void);
 
 	/* LookingDirection に直す */
-	/*LookingDirection toLookingDirection(earth, satellite); TODO
-		リムでないところを見ているときにはAltitudeが負の値になるようにしたい(基準はその方向のtangentialpoint?) */
+//	LookingDirection LookingDirection(earth, satellite);
+	/*	リムでないところを見ているときにはAltitudeが負の値になるようにしたい(基準はその方向のtangentialpoint?) */
 
 };
 
