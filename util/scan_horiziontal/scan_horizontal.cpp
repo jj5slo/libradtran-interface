@@ -74,5 +74,165 @@ int main(void){
 		delete[] ret[j];
 	}
 	delete[] ret;
+
+
+
+	step = 0.200;/* [deg] */
+	/* lat, lon, height は tangential point のもの */
+	/* x y lat lon lat(ground) lon(ground) height alpha theta phi */
+	ret = new double* [10];
+	Ndata = ( std::ceil(std::atan((earth.radius() + 100e3)/himawari.radius())*180/M_PI / step ) + 1 ) * ( 2*std::ceil(std::atan((earth.radius() + 100e3)/himawari.radius())*180/M_PI / step) + 1);
+	for(int j=0; j<10; ++j){
+		ret[j] = new double[Ndata];
+	}
+
+	count = 0;
+	for(int i=0; i<=std::ceil(std::atan((earth.radius() + 100e3)/himawari.radius())*180/M_PI / step); i++){
+		for(int j=-1*std::ceil(std::atan((earth.radius() + 100e3)/himawari.radius())*180/M_PI / step); j<=std::ceil(std::atan((earth.radius() + 100e3)/himawari.radius())*180/M_PI / step); j++){
+			AndoLab::Vector3d<double> r(0.0, himawari.radius()*std::tan(step*j*M_PI/180.0), himawari.radius()*std::tan(step*i*M_PI/180.0));
+			Geocoordinate coord(earth, himawari, r);
+			double alpha = coord.alpha()*AndoLab::RAD2DEG;
+			/* tangential point の altitude は その点と衛星を結ぶ視線におろした原点からの垂線の長さ（から地球半径を引いたもの）。*/
+			AndoLab::Vector3d<double> u = AndoLab::Vector3d(himawari.radius(), 0.0, 0.0) - coord.r();
+			AndoLab::Vector3d<double> tangential_point_vec = r + (-1*(r%u) / (u%u))*u;
+//			double altitude = std::sqrt(tangential_point_vec%tangential_point_vec) - earth.radius();
+			Geocoordinate tangential_point(earth, himawari, tangential_point_vec);
+			
+			LookingDirection ld0(alpha, 0.0);
+			Geocoordinate on_ground = ld0.tangential_point(earth, himawari);
+
+			ret[0][count] = r.y() / 1.0e3;// x(y)
+			ret[1][count] = r.z() / 1.0e3;// y(z)
+			ret[2][count] = tangential_point.latitude();
+			ret[3][count] = tangential_point.longitude();
+			ret[4][count] = on_ground.latitude();
+			ret[5][count] = on_ground.longitude();
+			ret[6][count] = tangential_point.altitude_in_km();
+			ret[7][count] = alpha;
+			ret[8][count] = step*i;
+			ret[9][count] = step*j;
+			
+			if(++count > Ndata){
+				std::cerr << "Error" << std::endl;
+				for(int j=0; j<8; ++j){
+					delete[] ret[j];
+				}
+				delete[] ret;
+				return 1;
+			}
+		}
+	}
+
+	readwrite::save_data("grid_angle0.2deg.dat", "# x[km] y[km] lat lon lat(ground) lon(ground) height[km] alpha theta phi", Ndata, 10, ret);
+
+	for(int j=0; j<7; ++j){
+		delete[] ret[j];
+	}
+	delete[] ret;
+
+
+/* lat(ground) lon(ground) height alpha theta phi */
+	ret = new double* [6];
+	for(int i=0; i<6; ++i){
+		ret[i] = new double[88*101];
+	}
+
+	int index = 0; // retの1次元インデックスを管理
+
+	
+
+	for(int i=0; i<88; ++i){
+		double lat = lat0s[i];
+		double lon = lon0s[i];
+		
+		Geocoordinate on_ground(earth, himawari, lat, lon, 0.0);
+		double ground_alpha = on_ground.alpha() * AndoLab::RAD2DEG; // 変数名を変更
+
+		for (int h=0; h<101; ++h){
+			double current_height = (double)h;
+			
+			LookingDirection ld(ground_alpha, current_height);
+			Geocoordinate tp = ld.tangential_point(earth, himawari);
+			
+			double tp_alpha = tp.alpha();
+			double theta    = std::atan( tp.r().z() / (himawari.radius() - tp.r().x()) ) * AndoLab::RAD2DEG; /* 南北方向 */
+			double phi      = std::atan( tp.r().y() / (himawari.radius() - tp.r().x()) ) * AndoLab::RAD2DEG; /* 東西方向 */
+
+			// 2次元配列を介さず、直接 ret に格納する
+			ret[0][index] = lat;
+			ret[1][index] = lon;
+			ret[2][index] = current_height;
+			ret[3][index] = tp_alpha;
+			ret[4][index] = theta;
+			ret[5][index] = phi;
+
+			index++; // 次のデータ点へ
+		}
+	}
+
+	readwrite::save_data("table_obs_angle.dat", "# lat(ground) lon(ground) height[km] alpha theta phi", 88*101, 6, ret, 12);
+	
+	for(int j=0; j<6; ++j){
+		delete[] ret[j];
+	}
+	delete[] ret;
+
+	return 0;
+
+
+//	/* lat(ground) lon(ground) height alpha theta phi */
+//	double** heights = new double* [88];
+//	double** alphas = new double* [88];
+//	double** thetas = new double* [88];
+//	double** phis = new double* [88];
+//	for(int i=0; i<88; ++i){
+//		heights[i] = new double [101];
+//		alphas[i] = new double [101];
+//		thetas[i] = new double [101];
+//		phis[i] = new double [101];
+//	}
+//	for(int i=0; i<88; ++i){
+//		for(int j=0; j<88; ++j){
+//			double lat = lat0s[i];
+//			double lon = lon0s[i];
+//			Geocoordinate on_ground(earth, himawari, lat, lon, 0.0);
+//			double alpha = on_ground.alpha()*AndoLab::RAD2DEG;
+//			for (int height=0; height<101; ++height){
+//				heights[i][height] = (double)height;
+//				LookingDirection ld(alpha, heights[i][height]);
+//				Geocoordinate tp = ld.tangential_point();
+//				double alpha = tp.alpha();
+//				double theta = std::atan( tp.r().z() / himawari.radius() );/* 南北方向 */
+//				double phi   = std::atan( tp.r().y() / himawari.radius() );/* 東西方向 */
+//				alphas[i][height] = alpha;
+//				thetas[i][height] = theta;
+//				phis[i][height] = phi;
+//		}
+//	}
+//	double** lats_repeat = new double* [88];
+//	double** lons_repeat = new double* [88];
+//	for(int i=0; i<88; ++i){
+//		lats_repeat[i] = new double [101];
+//		lons_repeat[i] = new double [101];
+//		for (int j=0; j<101; ++j){
+//			lats_repeat[i][j] = lat0s[i];
+//			lons_repeat[i][j] = lon0s[i];
+//		}
+//	}
+//
+//	ret = new double* [6];
+//	for(int i=0; i<6; ++i){
+//		ret[i] = new double[88*101];
+//	}
+//	for(int j=0; j<88*101; ++j){
+//		ret[0][j] = lats_repeat[j/101][j%101];
+//		ret[1][j] = lons_repeat[j/101][j%101];
+//		ret[2][j] = alphas[j/101][j%101];
+//		ret[3][j] = thetas[j/101][j%101];
+//		ret[4][j] = phis[j/101][j%101];
+//	}
+//
+//	readwrite::save_data("table_obs_angle.dat", "# lat(ground) lon(ground) height[km] alpha theta phi", 88*101, 6, ret);
+	
 	return 0;
 }

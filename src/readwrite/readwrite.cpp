@@ -1,3 +1,4 @@
+#include <iomanip>
 
 #include "readwrite.h"
 
@@ -189,6 +190,20 @@ namespace readwrite{
 		}
 		ofs.close();
 	}
+	
+	void save_data(std::string path, std::string header, int Nlines, int Ncolumns, double** data, int precision){	
+		std::cout << "Saving to: " << path << std::endl;
+		std::ofstream ofs(path);
+		ofs << header << "\n";
+		for(int i=0; i<Nlines; i++){
+			for(int j=0; j<Ncolumns; j++){
+				ofs << std::setprecision(precision) << data[j][i] << " ";
+			}
+			ofs << std::endl;
+		}
+		ofs.close();
+	}
+
 	void save_data(std::string path, std::string header, int Nlines, int Ncolumns, int** data){	
 		std::cout << "Saving to: " << path << std::endl;
 		std::ofstream ofs(path);
