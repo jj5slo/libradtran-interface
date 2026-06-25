@@ -94,7 +94,7 @@ public:
 	std::string      secid;               /* for save */
 	int              obs_index;           /* for save */
 	int              N_running_mean;      /* for fit */
-	int              number_of_iteration; /* NLopt */
+	int              number_of_iteration = 0; /* NLopt */
 	double*          radiance_smoothed;
 	double*          upper_radiance_smoothed;
 };

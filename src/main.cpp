@@ -473,7 +473,8 @@ if(argc == 7){
 		}
 		else if(OPTIMIZER == "GS"){
 			double x_opt;
-			double lower_bound = 2.0 * -0.0523572;
+			double lower_bound = -0.2;
+			args.number_of_iteration = 0;
 			/* ---- golden section search ---- */
 			minf = golden_section_search( x_opt, lower_bound, 0.0, XTOL, wrapper, (void*)(&args) );
 			/* ---- */
