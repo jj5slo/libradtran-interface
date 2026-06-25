@@ -206,7 +206,7 @@ if(argc == 7){
 	int Background_count_height_Nlines;
 	int Background_count_height_Ncolumns;
 	double** Background_count_height = readwrite::read_data(PATH_OBS_BACKGROUND_INTENSITY, Background_count_height_header, Background_count_height_Nlines, Background_count_height_Ncolumns);
-	//obsd.SubstractBackground(OBS_BACKGROUND_INTENSITY);
+	//obsd.SubtractBackground(OBS_BACKGROUND_INTENSITY);
 	if(Background_count_height_Nlines != Nheights){
 		std::cerr << "Background_intensity file does not consistent with observation! Nlines!" << std::endl;
 		return 1;
@@ -217,7 +217,7 @@ if(argc == 7){
 			return 1;
 		}
 	}
-	obsd.SubstractBackground(Background_count_height);
+	obsd.SubtractBackground(Background_count_height);
 	AndoLab::deallocate_memory2d(Background_count_height);
 
 /* ==== */
