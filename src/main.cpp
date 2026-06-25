@@ -3,6 +3,7 @@
 #include <algorithm>/* 最大最小用 */
 #include <chrono>
 #include <filesystem>
+#include <memory>
 
 #include "solar_direction.h"
 
@@ -108,8 +109,9 @@ if(argc == 7){
 	int i_bottom        = getConfig(configs, "i_bottom", 60);/* 数密度を求める最低高度（index） */
 	int fit_i_top       = getConfig(configs, "fit_i_top", i_top);/* SINGLESHOT */
 	int fit_i_bottom    = getConfig(configs, "fit_i_bottom", i_bottom);/* SINGLESHOT */
-	int N_exp_decay_atm = getConfig(configs, "N_exp_decay_atm", 5);/* 数密度を求める最低高度（index） */
-	double OBS_BACKGROUND_INTENSITY  = getConfig(configs, "OBS_BACKGROUND_INTENSITY", 22.0);
+	int N_exp_decay_atm = getConfig(configs, "N_exp_decay_atm", 5);/* 数密度が指数変化しているとみなす範囲 */
+	std::string PATH_OBS_BACKGROUND_INTENSITY  = getConfig(configs, "PATH_OBS_BACKGROUND_INTENSITY", std::string(std::getenv("HOME"))+"/SANO/research/ObsEquip/Himawari-AHI/Background.dat");
+//	double OBS_BACKGROUND_INTENSITY  = getConfig(configs, "OBS_BACKGROUND_INTENSITY", 22.0);
 
 	std::string solver = getConfig(configs, "solver", "mystic");/* libRadtranのソルバ */
 
@@ -196,7 +198,27 @@ if(argc == 7){
 		}
 	}
 
-	obsd.SubstractBackground(OBS_BACKGROUND_INTENSITY);
+	double *heights = obsd.Heights();
+	int Nheights = obsd.Nheights();
+	
+	/* Data クラスを作りたい */
+	std::string Background_count_height_header;
+	int Background_count_height_Nlines;
+	int Background_count_height_Ncolumns;
+	double** Background_count_height = readwrite::read_data(PATH_OBS_BACKGROUND_INTENSITY, Background_count_height_header, Background_count_height_Nlines, Background_count_height_Ncolumns);
+	//obsd.SubstractBackground(OBS_BACKGROUND_INTENSITY);
+	if(Background_count_height_Nlines != Nheights){
+		std::cerr << "Background_intensity file does not consistent with observation! Nlines!" << std::endl;
+		return 1;
+	}
+	for(int i=0; i<obsd.Nheights(); ++i){
+		if(std::abs(Background_count_height[0][i] - heights[i]) >= 0.1){
+			std::cerr << "Background_intensity file does not consistent with observation! height value(s)!" << std::endl;
+			return 1;
+		}
+	}
+	obsd.SubstractBackground(Background_count_height);
+	AndoLab::deallocate_memory2d(Background_count_height);
 
 /* ==== */
 /* 諸定数の準備 */
@@ -205,8 +227,6 @@ if(argc == 7){
 	
 	std::filesystem::remove(DIR_LOG+"libRadtran.log");/* ログ容量溢れ防止 */
 
-	double *heights = obsd.Heights();
-	int Nheights = obsd.Nheights();
 	std::cout << "lat" << obsd.Latitude() << " "  << "lon" << obsd.Longitude() << " " << obsd.Nheights() << "heights max:" << args.TOA_height << std::endl;
 //	for(int i=0; i<obsd.Nheights(); i++){
 //		std::cout << heights[i] << " " << obsd.Data(heights[i]) << "\n";
@@ -505,6 +525,7 @@ if(argc == 7){
 		timestamp_file.close();
 	}
 	/* ==== */
+	delete[] heights;
 	return 0;
 }
 

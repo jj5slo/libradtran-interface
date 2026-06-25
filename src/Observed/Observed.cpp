@@ -1,4 +1,5 @@
-#include"Observed.h"
+#include "Observed.h"
+//#include "linear_interpolation.h"
 
 void Observed::set(double lat, double lon, int Nheights, double *heights, double *data){
 	pLat = lat;
@@ -61,7 +62,7 @@ double Observed::maxHeight(){
 	return maxh;
 }
 
-void Observed::SubstractBackground(double backgroundintensity){
+void Observed::SubtractBackground(double backgroundintensity){
 //	double BackgroundIntensity = fit::mean(pNheights, pHeights, pData, minheight, maxheight);
 //	double BackgroundIntensity = 22.0714;
 	for(int i=0; i<pNheights; i++){
@@ -71,4 +72,13 @@ void Observed::SubstractBackground(double backgroundintensity){
 		//}
 	}
 }
+void Observed::SubtractBackground(double** backgroundintensity){
+//	double BackgroundIntensity = fit::mean(pNheights, pHeights, pData, minheight, maxheight);
+//	double BackgroundIntensity = 22.0714;
+	
+	for(int i=0; i<pNheights; i++){
+		pData[i] = pData[i] - backgroundintensity[1][i];
+	}
+}
+
 

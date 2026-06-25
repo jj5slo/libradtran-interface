@@ -63,7 +63,8 @@ public:
 	
 	double maxHeight(void);
 	
-	void SubstractBackground(double background_intensity);
+	void SubtractBackground(double background_intensity);
+	void SubtractBackground(double** background_intensity);
 
 };
 

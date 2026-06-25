@@ -24,6 +24,7 @@ main: $(OBJ_PATHS)
 
 obj/%.o: %.cpp
 	g++ -c $< $(OPTS) -o $@ $(INC_PATHS)
+#	g++ -c $< $(OPTS) -o $@ $(INC_PATHS) -fanalyzer
 # $(HEADERS)
 # "$<"は、:(コロン)の一つ右
 
