@@ -471,7 +471,7 @@ if(argc == 7){
 				std::cout << "NLopt failed : " << e.what() << std::endl;
 			}
 		}
-		else if(OPTIMIZER == "golden"){
+		else if(OPTIMIZER == "GS"){
 			double x_opt;
 			double lower_bound = 2.0 * -0.0523572;
 			/* ---- golden section search ---- */
