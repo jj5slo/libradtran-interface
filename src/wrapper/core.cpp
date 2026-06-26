@@ -82,6 +82,9 @@ double core(void* raw_Args){
 		sensor_theta = acos(args->pStdin.umu) * Rad2deg;
 		std::cout << "sonsor_direction:\n\tsensor_theta:" << sensor_theta <<"\n\tphi:" << args->pStdin.phi << std::endl;
 		std::cout << "cos(sensor_theta) = umu = " << args->pStdin.umu << std::endl;
+		if(args->pStdin.mc_photons == -1){
+			;
+		}
 
 		for(int j=0; j<args->SRWeights.N(); j++){
 			double rad_wavelength      = 0.0;
@@ -98,6 +101,7 @@ double core(void* raw_Args){
 			std::cout << "acquiring radiance from libRadtran..." << std::endl;	
 			/* delete_mystic_rad(); */
 			execute_uvspec(args->DIR_UVSPEC, args->PATH_STDIN, args->PATH_STDOUT, args->FLAG_UNDISPLAY_LOG, args->DIR_LOG);
+
 			if(args->pStdin.solver == "mystic" || args->pStdin.solver == "mystic_plainparallel"){
 				rad_wavelength_NN   = read_mystic_rad_NN(args->DIR_UVSPEC);
 				rad_wavelength_sd  = read_mystic_rad_sd(args->DIR_UVSPEC);
