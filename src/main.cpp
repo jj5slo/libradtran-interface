@@ -5,7 +5,7 @@
 #include <filesystem>
 #include <memory>
 #include <vector>
-#include <bayesopt/bayesopt.h>
+// #include <bayesopt/bayesopt.h>
 
 #include "solar_direction.h"
 
@@ -510,50 +510,51 @@ if(argc == 7){
 				save_vector << i <<" "<< inv_10_scaleheights[i] << std::endl;
 			}
 		}
-		else if(OPTIMIZER == "BO"){
-			try{
-				bopt_params bo_params = initialize_parameters_to_default();
-				bo_params.n_iterations = 60;
-				bo_params.noise = 4.0e-6;/* TODO */
-				bo_params.n_iter_relearn = 1;
-				bo_params.crit_name = "LCB";
-
-				double lb[1] = {-0.2};
-				double ub[1] = {0.0};
-
-				double x_opt[1] = {x[0]};
-				double minf;
-
-				int status = bayes_optimization(
-					number_of_optimization_parameters,
-					bo_wrapper,
-					(void*)(&args),
-					lb, ub,
-					x_opt,
-					&minf,
-					bo_params
-				);
-
-				x[0] = x_opt[0];
-				inv_10_scaleheights[i_stage] = x[0];
-
-				std::string bo_result_code = (status == 0) ? "SUCCESS" : "ERROR_CODE_" + std::to_string(status);
-				std::cerr << "BayesOpt finished with status: " << bo_result_code << std::endl;
-				std::string path_save_vector = args.DIR_RESULT + "/optimized_vector.dat";
-				std::ofstream save_vector(path_save_vector);
-				if (!save_vector) {
-					std::cerr << "main: optimized vector_error cannot be saved!! path: " << path_save_vector << std::endl;
-				}
-			
-				for (int i = 0; i < N_repeating_optimization; i++) {
-					save_vector << i << " " << inv_10_scaleheights[i] << " " << bo_result_code << std::endl;
-				}
-				save_vector.close();
-			
-			} catch (std::exception &e) {
-				std::cout << "BayesOpt failed : " << e.what() << std::endl;
-			}
-		}
+//		else if(OPTIMIZER == "BO"){
+//			try{
+//				bopt_params bo_params = initialize_parameters_to_default();
+//				bo_params.n_iterations = 60;
+//				bo_params.noise = 4.0e-6;/* TODO */
+//				bo_params.n_iter_relearn = 1;
+//				bo_params.crit_name = const_cast<char*>("cLCB");
+//				bo_params.init_method = 1; /* MANUAL（初期値に従う） */
+//
+//				double lb[1] = {-0.2};
+//				double ub[1] = {0.0};
+//
+//				double x_opt[1] = {x[0]};
+//				double minf;
+//
+//				int status = bayes_optimization(
+//					number_of_optimization_parameters,
+//					bo_wrapper,
+//					(void*)(&args),
+//					lb, ub,
+//					x_opt,
+//					&minf,
+//					bo_params
+//				);
+//
+//				x[0] = x_opt[0];
+//				inv_10_scaleheights[i_stage] = x[0];
+//
+//				std::string bo_result_code = (status == 0) ? "SUCCESS" : "ERROR_CODE_" + std::to_string(status);
+//				std::cerr << "BayesOpt finished with status: " << bo_result_code << std::endl;
+//				std::string path_save_vector = args.DIR_RESULT + "/optimized_vector.dat";
+//				std::ofstream save_vector(path_save_vector);
+//				if (!save_vector) {
+//					std::cerr << "main: optimized vector_error cannot be saved!! path: " << path_save_vector << std::endl;
+//				}
+//			
+//				for (int i = 0; i < N_repeating_optimization; i++) {
+//					save_vector << i << " " << inv_10_scaleheights[i] << " " << bo_result_code << std::endl;
+//				}
+//				save_vector.close();
+//			
+//			} catch (std::exception &e) {
+//				std::cout << "BayesOpt failed : " << e.what() << std::endl;
+//			}
+//		}
 /* ==== */
 		for(int i=0; i<args.Nheights; i++){
 //TODO				args.upper_radiance[i] = args.radiance[i];
