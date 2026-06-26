@@ -131,6 +131,26 @@ public:
 //	args->number_of_iteration;/* NLopt */
 
 double wrapper(const std::vector<double> &Coef, std::vector<double> &grad, void* raw_Args_to_be_converted_to_WrapperArgs_pointer);/* for NLopt */
+
+inline double bo_wrapper(unsigned int n, const double *Coef, double *grad, void* raw_Args_to_be_converted_to_WrapperArgs_pointer) {
+	// 1. Coef（C配列）を std::vector に安全に変換（n次元分コピー）
+	std::vector<double> vec_Coef(Coef, Coef + n);
+	// 2. grad（勾配）用のvectorを準備（nullptr対策）
+	std::vector<double> vec_grad;
+	if (grad != nullptr) {
+		vec_grad.resize(n); // 要求されていればサイズを確保
+	}
+	// 3. 元のNLopt用関数を呼び出す（事前に作った変数を渡すのでコンパイルOK）
+	double result = wrapper(vec_Coef, vec_grad, raw_Args_to_be_converted_to_WrapperArgs_pointer);
+	// 4. 万が一、元の関数で勾配が計算された場合は、元のC配列に書き戻す
+	if (grad != nullptr) {
+		for (unsigned int i = 0; i < n; ++i) {
+			grad[i] = vec_grad[i];
+		}
+	}
+	return result;
+}
+
 /* wrapper では、輝度計算と観測光強度にフィッティング・誤差の算出以外に、各高度に対するセンサ向きの設定を行う必要がある。更新する入力ファイルは大気プロファイルと、標準入力。 */
 double core(void* raw_Args_to_be_converted_to_WrapperArgs_pointer);/* 単純に今の設定ファイルで一回実行するだけ */
 

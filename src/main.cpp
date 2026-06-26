@@ -4,6 +4,8 @@
 #include <chrono>
 #include <filesystem>
 #include <memory>
+#include <vector>
+#include <bayesopt/bayesopt.h>
 
 #include "solar_direction.h"
 
@@ -409,7 +411,7 @@ if(argc == 7){
 	double* inv_10_scaleheights = new double[N_repeating_optimization];/* 最適化して求めた係数を保存する */
 	for(int i_stage=0; i_stage<N_repeating_optimization; i_stage++){
 		int i_top_opt = i_top - i_stage*N_exp_decay_atm;
-		int i_bottom_opt = i_top_opt - N_exp_decay_atm+1;
+		int i_bottom_opt = i_top_opt - N_exp_decay_atm + 1;
 		if( i_bottom_opt < i_bottom ){ i_bottom_opt = i_bottom; }
 		
 		args.DIR_RESULT = DIR_RESULT+"/"+std::to_string(i_stage);/* for save */
@@ -506,6 +508,50 @@ if(argc == 7){
 			inv_10_scaleheights[i_stage] = x_opt;
 			for(int i=0; i<N_repeating_optimization; i++){
 				save_vector << i <<" "<< inv_10_scaleheights[i] << std::endl;
+			}
+		}
+		else if(OPTIMIZER == "BO"){
+			try{
+				bopt_params bo_params = initialize_parameters_to_default();
+				bo_params.n_iterations = 60;
+				bo_params.noise = 4.0e-6;/* TODO */
+				bo_params.n_iter_relearn = 1;
+				set_criteria(&bo_params, "LCB");
+
+				double lb[1] = {-0.2};
+				double ub[1] = {0.0};
+
+				double x_opt[1] = {x[0]};
+				double minf;
+
+				int status = bayes_optimization(
+					number_of_optimization_parameters,
+					bo_wrapper,
+					(void*)(&args),
+					lb, ub,
+					x_opt,
+					&minf,
+					bo_params
+				);
+
+				x[0] = x_opt[0];
+				inv_10_scaleheights[i_stage] = x[0];
+
+				std::string bo_result_code = (status == 0) ? "SUCCESS" : "ERROR_CODE_" + std::to_string(status);
+				std::cerr << "BayesOpt finished with status: " << bo_result_code << std::endl;
+				std::string path_save_vector = args.DIR_RESULT + "/optimized_vector.dat";
+				std::ofstream save_vector(path_save_vector);
+				if (!save_vector) {
+					std::cerr << "main: optimized vector_error cannot be saved!! path: " << path_save_vector << std::endl;
+				}
+			
+				for (int i = 0; i < N_repeating_optimization; i++) {
+					save_vector << i << " " << inv_10_scaleheights[i] << " " << bo_result_code << std::endl;
+				}
+				save_vector.close();
+			
+			} catch (std::exception &e) {
+				std::cout << "BayesOpt failed : " << e.what() << std::endl;
 			}
 		}
 /* ==== */

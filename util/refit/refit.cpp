@@ -48,7 +48,6 @@ int main(int argc, char* argv[]){
 	double* smoothed = result[3];
 	double* fitted   = result[4];
 /* -- */
-//	double offset = fit::mean(Nheights, heights, observed, offset_i_BOTTOM, Nheights - 1);
 	for(int i=0; i<Nheights; ++i){
 		observed[i] = observed[i] - offset;
 	}
