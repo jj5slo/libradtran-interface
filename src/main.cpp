@@ -516,7 +516,7 @@ if(argc == 7){
 				bo_params.n_iterations = 60;
 				bo_params.noise = 4.0e-6;/* TODO */
 				bo_params.n_iter_relearn = 1;
-				set_criteria(&bo_params, "LCB");
+				bo_params.crit_name = "LCB";
 
 				double lb[1] = {-0.2};
 				double ub[1] = {0.0};
