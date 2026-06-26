@@ -97,6 +97,7 @@ public:
 	int              number_of_iteration = 0; /* NLopt */
 	double*          radiance_smoothed;
 	double*          upper_radiance_smoothed;
+	double           xtol_rel; /* for BayesOpt */
 };
 
 //	args->pStdin;
@@ -133,23 +134,49 @@ public:
 double wrapper(const std::vector<double> &Coef, std::vector<double> &grad, void* raw_Args_to_be_converted_to_WrapperArgs_pointer);/* for NLopt */
 
 inline double bo_wrapper(unsigned int n, const double *Coef, double *grad, void* raw_Args_to_be_converted_to_WrapperArgs_pointer) {
-	// 1. Coef（C配列）を std::vector に安全に変換（n次元分コピー）
+	// --- 【XTOL_REL 再現ロジックの追加】 ---
+	static bool has_last_x = false;
+	static double last_x = 0.0;
+	static double last_y = 0.0;
+	WrapperArgs* args = static_cast<WrapperArgs*>(raw_Args_to_be_converted_to_WrapperArgs_pointer);
+	const double XTOL_REL = args->xtol_rel; // NLoptで設定していた閾値（環境に合わせて調整）
+	double current_x = Coef[0];   // 今回BayesOptから提案されたパラメータ
+	
+	if (has_last_x) {
+		// 相対変化量の計算： |x_new - x_old| / |x_old|
+		double rel_diff = std::abs(current_x - last_x) / (std::abs(last_x) + 1e-10);
+		
+		if (rel_diff < XTOL_REL) {
+			std::cout << "[Skip] XTOL_REL未満のためシミュレーションをスキップします。" << std::endl;
+			return last_y; // 前回の結果をそのまま返して瞬時に終了させる
+		}
+	}
+	// ----------------------------------------
+
+	// 通常の処理（変化量が大きい場合はしっかり30秒かけて計算する）
 	std::vector<double> vec_Coef(Coef, Coef + n);
-	// 2. grad（勾配）用のvectorを準備（nullptr対策）
 	std::vector<double> vec_grad;
 	if (grad != nullptr) {
-		vec_grad.resize(n); // 要求されていればサイズを確保
+		vec_grad.resize(n);
 	}
-	// 3. 元のNLopt用関数を呼び出す（事前に作った変数を渡すのでコンパイルOK）
+	
+	// 元の重いシミュレーション（NLopt用のwrapper）を呼び出し
 	double result = wrapper(vec_Coef, vec_grad, raw_Args_to_be_converted_to_WrapperArgs_pointer);
-	// 4. 万が一、元の関数で勾配が計算された場合は、元のC配列に書き戻す
+	
+	// 次回の判定のために、今回の値をしっかりと記憶しておく
+	last_x = current_x;
+	last_y = result;
+	has_last_x = true;
+	
 	if (grad != nullptr) {
 		for (unsigned int i = 0; i < n; ++i) {
 			grad[i] = vec_grad[i];
 		}
 	}
+	
 	return result;
 }
+
 
 /* wrapper では、輝度計算と観測光強度にフィッティング・誤差の算出以外に、各高度に対するセンサ向きの設定を行う必要がある。更新する入力ファイルは大気プロファイルと、標準入力。 */
 double core(void* raw_Args_to_be_converted_to_WrapperArgs_pointer);/* 単純に今の設定ファイルで一回実行するだけ */
