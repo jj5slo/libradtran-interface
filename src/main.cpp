@@ -220,6 +220,7 @@ if(argc == 7){
 			return 1;
 		}
 	}
+	save_params(DIR_RESULT, secid, PATH_OBS_BACKGROUND_INTENSITY, "_b.dat");
 	obsd.SubtractBackground(Background_count_height);
 	AndoLab::deallocate_memory2d(Background_count_height);
 

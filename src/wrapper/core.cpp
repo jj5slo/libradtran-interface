@@ -186,8 +186,16 @@ double core(void* raw_Args){
 	double offset = 0.0;
 	double* a_offset = fit::obtain_fitting_coefficient(args->obs.Data(), smoothed, args->fit_i_bottom, args->fit_i_top, offset);
 	double* fitted = fit::apply_fitting(args->Nheights, smoothed, a_offset);
-	double** processed_results = new double* [7];
+
+	double* fitted_var = fit::running_mean(args->Nheights, args->N_running_mean, rad_NN_var);
+	for(int ii=0; ii<args->Nheights; ++ii){
+		fitted_var[ii] = fitted_var[ii] / (double)args->N_running_mean;/* 平均の分散なのでさらに割る */
+		fitted_var[ii] = fitted_var[ii] * a_offset[0];/* fitted/smoothed を掛ける */
+	}
+	
+	double** processed_results = new double* [8];
 	double log_square_error = fit::root_mean_square_log_error( args->i_bottom, args->i_top, args->obs.Data(), fitted );
+	
 	processed_results[0] = args->heights;
 	processed_results[1] = args->obs.Data();
 	processed_results[2] = radiance;
@@ -195,6 +203,7 @@ double core(void* raw_Args){
 	processed_results[4] = fitted;
 	processed_results[5] = rad_NN;
 	processed_results[6] = rad_NN_var;
+	processed_results[7] = fitted_var;
 	double ld_alpha = args->on_ground.alpha();
 	std::string header = 
 		"# secid: " + args->secid + "\n"
@@ -211,8 +220,8 @@ double core(void* raw_Args){
 		+ "# a: " + std::to_string(a_offset[0]) + ", offset: " + std::to_string(a_offset[1]) + "\n"
 		+ "# N_running_mean: " + std::to_string(args->N_running_mean) + "\n"
 		+ "# log_square_error: " + std::to_string(log_square_error) + "\n"
-		+ "# height observed sumulated smoothed fitted sim_raw sim_raw_variance\n";
-	readwrite::save_data(path_result, header, args->Nheights,  7, processed_results, 8);/* 最適化を回し始めたら不要、/tmp/に入れてもいいかも */
+		+ "# height observed sumulated smoothed fitted sim_raw sim_raw_variance fitted_variance\n";
+	readwrite::save_data(path_result, header, args->Nheights,  8, processed_results, 8);/* 最適化を回し始めたら不要、/tmp/に入れてもいいかも */
 	delete[] processed_results;
 	
 	
@@ -220,6 +229,7 @@ double core(void* raw_Args){
 	delete[] rad_NN;
 	delete[] rad_NN_var;
 	delete[] fitted;
+	delete[] fitted_var;
 	return log_square_error;	
 }
 
