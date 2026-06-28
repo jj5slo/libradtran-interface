@@ -123,6 +123,7 @@ if(argc == 7){
 	int brdf_rpv_type = getConfig(configs, "brdf_rpv_type", 0);/* BRDF(RPV)_IGBPのタイプ */
 	std::string additional_option = getConfig(configs, "additional_option", "");/* libRadtranの標準入力に追加で書き込む文字列 */
 	replaceAll(additional_option, "\\n", "\n");
+	int FLAG_adapt_mc_photons = getConfig(configs, "FLAG_adapt_mc_photons", 0);/* MYSTICの回数 デフォルトは300000 */
 	int mc_photons = getConfig(configs, "mc_photons", 60000);/* MYSTICの回数 デフォルトは300000 */
 
 	int atmosphere_precision = getConfig(configs, "atmosphere_precision", 7);/* MSISから取得する大気の保存時の精度 */
@@ -246,6 +247,7 @@ if(argc == 7){
 
 
 	args.pStdin.mc_photons = mc_photons;/* default is 300000 */
+	args.FLAG_adapt_mc_photons = FLAG_adapt_mc_photons;
 	args.pStdin.solver = solver;
 	args.pStdin.additional = additional_option;//\npseudospherical";
 	/*

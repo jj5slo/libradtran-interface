@@ -90,6 +90,7 @@ public:
 	double           TOA_height;
 //	double           offset_bottom_height;/* for fit */
 //	double           offset_top_height;/* for fit */
+	int              FLAG_adapt_mc_photons = 0;
 	int              atmosphere_precision;
 	std::string      secid;               /* for save */
 	int              obs_index;           /* for save */

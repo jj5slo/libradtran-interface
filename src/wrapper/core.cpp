@@ -44,7 +44,9 @@ double core(void* raw_Args){
 	const int i_bottom_rad = args->i_bottom - running_mean_extra;/* TODO TODO NOW fitは上は計算済みのものを使う */
 	const int i_top_rad    = args->i_top    + running_mean_extra;
 	
-	double *radiance = new double [args->Nheights];/* シミュレーション結果 */
+	double* radiance   = new double [args->Nheights];/* シミュレーション結果 */
+	double* rad_NN     = new double [args->Nheights];/* シミュレーション結果 */
+	double* rad_NN_var = new double [args->Nheights];/* シミュレーション結果 */
 	double** radiance_each_wl = new double*[args->SRWeights.N()];
 	double** rad_NN_each_wl = new double*[args->SRWeights.N()];
 	double** rad_NN_sd_each_wl = new double*[args->SRWeights.N()];
@@ -55,6 +57,8 @@ double core(void* raw_Args){
 	}
 	for(int i=0; i<args->Nheights; i++){
 		radiance[i] = 0.0;/* initialize */
+		rad_NN[i] = 0.0;/* initialize */
+		rad_NN_var[i] = 0.0;/* initialize */
 		for(int ii=0; ii<args->SRWeights.N(); ii++){
 			radiance_each_wl[ii][i] = 0.0;
 			rad_NN_each_wl[ii][i] = 0.0;
@@ -82,14 +86,14 @@ double core(void* raw_Args){
 		sensor_theta = acos(args->pStdin.umu) * Rad2deg;
 		std::cout << "sonsor_direction:\n\tsensor_theta:" << sensor_theta <<"\n\tphi:" << args->pStdin.phi << std::endl;
 		std::cout << "cos(sensor_theta) = umu = " << args->pStdin.umu << std::endl;
-		if(args->pStdin.mc_photons == -1){
-			;
+		if(args->FLAG_adapt_mc_photons == 1){
+//			args->pStdin.mc_photons = ;/* TODO */
 		}
 
 		for(int j=0; j<args->SRWeights.N(); j++){
 			double rad_wavelength      = 0.0;
 			double rad_wavelength_NN   = 0.0;
-			double rad_wavelength_sd  = 0.0;
+			double rad_wavelength_NN_sd  = 0.0;
 			double rad_wavelength_spc = 0.0;
 			args->pStdin.wavelength = args->SRWeights.wavelength(j);
 			save_stdin(args->PATH_STDIN, args->pStdin);/* 座標情報を入力ファイルにセーブ */
@@ -103,9 +107,9 @@ double core(void* raw_Args){
 			execute_uvspec(args->DIR_UVSPEC, args->PATH_STDIN, args->PATH_STDOUT, args->FLAG_UNDISPLAY_LOG, args->DIR_LOG);
 
 			if(args->pStdin.solver == "mystic" || args->pStdin.solver == "mystic_plainparallel"){
-				rad_wavelength_NN   = read_mystic_rad_NN(args->DIR_UVSPEC);
-				rad_wavelength_sd  = read_mystic_rad_sd(args->DIR_UVSPEC);
-				rad_wavelength_spc = read_mystic_rad_spc(args->DIR_UVSPEC);
+				rad_wavelength_NN     = read_mystic_rad_NN(args->DIR_UVSPEC);
+				rad_wavelength_NN_sd  = read_mystic_rad_sd(args->DIR_UVSPEC);
+				rad_wavelength_spc    = read_mystic_rad_spc(args->DIR_UVSPEC);
 				rad_wavelength = rad_wavelength_spc;
 				std::cout << "rad_NN: " << std::setprecision(7) << rad_wavelength_NN << "ratio: " << rad_wavelength_spc/rad_wavelength_NN << std::endl;
 			}else{
@@ -113,10 +117,12 @@ double core(void* raw_Args){
 			}	
 	/* ==== */
 			std::cout << "Tangential height: " << tp.altitude() << " [m]\nWavelength: " << args->pStdin.wavelength << "[nm], Weight: " << args->SRWeights.weight(j) << ", Radiance: " << rad_wavelength << "\n----" << std::endl;
-			radiance_each_wl[j][i] = rad_wavelength;
-			rad_NN_each_wl[j][i] = rad_wavelength_NN;
-			rad_NN_sd_each_wl[j][i] = rad_wavelength_sd;
-			radiance[i] += args->SRWeights.weight(j) / args->SRWeights.sum_weights() * rad_wavelength;
+			radiance_each_wl[j][i]  = rad_wavelength;
+			rad_NN_each_wl[j][i]    = rad_wavelength_NN;
+			rad_NN_sd_each_wl[j][i] = rad_wavelength_NN_sd;
+			radiance[i]   += args->SRWeights.weight(j) / args->SRWeights.sum_weights() * rad_wavelength;
+			rad_NN[i]     += args->SRWeights.weight(j) / args->SRWeights.sum_weights() * rad_wavelength_NN;
+			rad_NN_var[i] += args->SRWeights.weight(j) / args->SRWeights.sum_weights() * args->SRWeights.weight(j) / args->SRWeights.sum_weights() * rad_wavelength_NN_sd*rad_wavelength_NN_sd;
 		}
 
 		std::cout << "Sum: Tangential height: " << tp.altitude() << " [m]\nRadiance: " << radiance[i] << "\n----" << std::endl;
@@ -145,7 +151,7 @@ double core(void* raw_Args){
 		height_radiance_each_wl[3*ii+2] = rad_NN_each_wl[ii];
 		height_radiance_each_wl[3*ii+3] = rad_NN_sd_each_wl[ii];
 	}
-	readwrite::save_data(args->DIR_RESULT+"/"+args->secid+"_RawEachWL.dat", RawEachWL_header, args->Nheights, args->SRWeights.N()+1, height_radiance_each_wl, 8);
+	readwrite::save_data(args->DIR_RESULT+"/"+identifier+"_RawEachWL.dat", RawEachWL_header, args->Nheights, 3*args->SRWeights.N()+1, height_radiance_each_wl, 8);
 	delete[] height_radiance_each_wl;
 	for(int ii=0; ii<args->SRWeights.N(); ii++){
 		delete[] radiance_each_wl[ii];
@@ -178,13 +184,15 @@ double core(void* raw_Args){
 	double offset = 0.0;
 	double* a_offset = fit::obtain_fitting_coefficient(args->obs.Data(), smoothed, args->fit_i_bottom, args->fit_i_top, offset);
 	double* fitted = fit::apply_fitting(args->Nheights, smoothed, a_offset);
-	double** processed_results = new double* [5];
+	double** processed_results = new double* [7];
 	double log_square_error = fit::root_mean_square_log_error( args->i_bottom, args->i_top, args->obs.Data(), fitted );
 	processed_results[0] = args->heights;
 	processed_results[1] = args->obs.Data();
 	processed_results[2] = radiance;
 	processed_results[3] = smoothed;
 	processed_results[4] = fitted;
+	processed_results[5] = rad_NN;
+	processed_results[6] = rad_NN_var;
 	double ld_alpha = args->on_ground.alpha();
 	std::string header = 
 		"# secid: " + args->secid + "\n"
@@ -201,16 +209,14 @@ double core(void* raw_Args){
 		+ "# a: " + std::to_string(a_offset[0]) + ", offset: " + std::to_string(a_offset[1]) + "\n"
 		+ "# N_running_mean: " + std::to_string(args->N_running_mean) + "\n"
 		+ "# log_square_error: " + std::to_string(log_square_error) + "\n"
-		+ "# height observed sumulated smoothed fitted\n";
-	readwrite::save_data(path_result, header, args->Nheights,  5, processed_results, 8);/* 最適化を回し始めたら不要、/tmp/に入れてもいいかも */
+		+ "# height observed sumulated smoothed fitted sim_raw sim_raw_variance\n";
+	readwrite::save_data(path_result, header, args->Nheights,  7, processed_results, 8);/* 最適化を回し始めたら不要、/tmp/に入れてもいいかも */
 	delete[] processed_results;
 	
 	
 	delete[] radiance;
-	for(int ii=0; ii<args->SRWeights.N(); ii++){
-		delete[] radiance_each_wl[ii];
-	}
-	delete[] radiance_each_wl;
+	delete[] rad_NN;
+	delete[] rad_NN_var;
 	delete[] fitted;
 	return log_square_error;	
 }
