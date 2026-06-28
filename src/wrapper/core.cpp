@@ -190,7 +190,8 @@ double core(void* raw_Args){
 	double* fitted_var = fit::running_mean(args->Nheights, args->N_running_mean, rad_NN_var);
 	for(int ii=0; ii<args->Nheights; ++ii){
 		fitted_var[ii] = fitted_var[ii] / (double)args->N_running_mean;/* 平均の分散なのでさらに割る */
-		fitted_var[ii] = fitted_var[ii] * a_offset[0];/* fitted/smoothed を掛ける */
+		fitted_var[ii] = fitted_var[ii] * radiance[ii] / rad_NN[ii] * radiance[ii] / rad_NN[ii];/* radiance / rad_NN を掛ける（分散なので2乗） */
+		fitted_var[ii] = fitted_var[ii] * a_offset[0] * a_offset[0];/* fitted/smoothed を掛ける（分散なので2乗） */
 	}
 	
 	double** processed_results = new double* [8];
