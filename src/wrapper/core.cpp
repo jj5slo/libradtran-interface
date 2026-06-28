@@ -101,6 +101,7 @@ double core(void* raw_Args){
 			/* ==== acquiring radiance from libRadtran ==== */
 			const std::regex TARGET_PATTERN(R"(mc.*\.rad(\.std)?$)");
 			deleteMatchingFiles(args->DIR_UVSPEC, TARGET_PATTERN);
+			deleteMatchingFiles(args->DIR_UVSPEC, std::regex(R"(mc.*\.spc$)"));
 
 			std::cout << "acquiring radiance from libRadtran..." << std::endl;	
 			/* delete_mystic_rad(); */
@@ -112,6 +113,7 @@ double core(void* raw_Args){
 				rad_wavelength_spc    = read_mystic_rad_spc(args->DIR_UVSPEC);
 				rad_wavelength = rad_wavelength_spc;
 				std::cout << "rad_NN: " << std::setprecision(7) << rad_wavelength_NN << "ratio: " << rad_wavelength_spc/rad_wavelength_NN << std::endl;
+				std::cout << "rad_NN_sd: " << std::setprecision(7) << rad_wavelength_NN_sd << std::endl;
 			}else{
 				rad_wavelength = read_stdout(args->PATH_STDOUT, 0);
 			}	
