@@ -69,10 +69,10 @@ public:
 	Geocoordinate    on_ground;        /* for save */
 	double           sza_on_ground;    /* for save */
 	double           phi0_on_ground;   /* for save */
-	Geocoordinate*   tparr;            /* tangential points */
-	std::string      DIR_UVSPEC;
-	std::string      PATH_STDIN;
-	std::string      PATH_STDOUT;
+	Geocoordinate*   tparr = nullptr;  /* tangential points */
+	std::string      DIR_UVSPEC  = "";
+	std::string      PATH_STDIN  = "";
+	std::string      PATH_STDOUT = "";
 	std::string      PATH_ATMOSPHERE;
 	SpectralResponseWeights SRWeights;
 	std::string      DIR_RESULT;       /* for save */
@@ -135,24 +135,24 @@ public:
 double wrapper(const std::vector<double> &Coef, std::vector<double> &grad, void* raw_Args_to_be_converted_to_WrapperArgs_pointer);/* for NLopt */
 
 inline double bo_wrapper(unsigned int n, const double *Coef, double *grad, void* raw_Args_to_be_converted_to_WrapperArgs_pointer) {
-	// --- 【XTOL_REL 再現ロジックの追加】 ---
-	static bool has_last_x = false;
-	static double last_x = 0.0;
-	static double last_y = 0.0;
-	WrapperArgs* args = static_cast<WrapperArgs*>(raw_Args_to_be_converted_to_WrapperArgs_pointer);
-	const double XTOL_REL = args->xtol_rel; // NLoptで設定していた閾値（環境に合わせて調整）
-	double current_x = Coef[0];   // 今回BayesOptから提案されたパラメータ
-	
-	if (has_last_x) {
-		// 相対変化量の計算： |x_new - x_old| / |x_old|
-		double rel_diff = std::abs(current_x - last_x) / (std::abs(last_x) + 1e-10);
-		
-		if (rel_diff < XTOL_REL) {
-			std::cout << "[Skip] XTOL_REL未満のためシミュレーションをスキップします。" << std::endl;
-			return last_y; // 前回の結果をそのまま返して瞬時に終了させる
-		}
-	}
-	// ----------------------------------------
+//	// --- 【XTOL_REL 再現ロジックの追加】 ---
+//	static bool has_last_x = false;
+//	static double last_x = 0.0;
+//	static double last_y = 0.0;
+//	WrapperArgs* args = static_cast<WrapperArgs*>(raw_Args_to_be_converted_to_WrapperArgs_pointer);
+//	const double XTOL_REL = args->xtol_rel; // NLoptで設定していた閾値（環境に合わせて調整）
+//	double current_x = Coef[0];   // 今回BayesOptから提案されたパラメータ
+//	
+//	if (has_last_x) {
+//		// 相対変化量の計算： |x_new - x_old| / |x_old|
+//		double rel_diff = std::abs(current_x - last_x) / (std::abs(last_x) + 1e-10);
+//		
+//		if (rel_diff < XTOL_REL) {
+//			std::cout << "[Skip] XTOL_REL未満のためシミュレーションをスキップします。" << std::endl;
+//			return last_y; // 前回の結果をそのまま返して瞬時に終了させる
+//		}
+//	}
+//	// ----------------------------------------
 
 	// 通常の処理（変化量が大きい場合はしっかり30秒かけて計算する）
 	std::vector<double> vec_Coef(Coef, Coef + n);
@@ -164,11 +164,11 @@ inline double bo_wrapper(unsigned int n, const double *Coef, double *grad, void*
 	// 元の重いシミュレーション（NLopt用のwrapper）を呼び出し
 	double result = wrapper(vec_Coef, vec_grad, raw_Args_to_be_converted_to_WrapperArgs_pointer);
 	
-	// 次回の判定のために、今回の値をしっかりと記憶しておく
-	last_x = current_x;
-	last_y = result;
-	has_last_x = true;
-	
+//	// 次回の判定のために、今回の値をしっかりと記憶しておく
+//	last_x = current_x;
+//	last_y = result;
+//	has_last_x = true;
+//	
 	if (grad != nullptr) {
 		for (unsigned int i = 0; i < n; ++i) {
 			grad[i] = vec_grad[i];

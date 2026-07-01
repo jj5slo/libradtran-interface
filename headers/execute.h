@@ -30,5 +30,6 @@ double read_mystic_rad_sd(const std::string DIR_UVSPEC);
 double read_mystic_rad_spc(const std::string DIR_UVSPEC);
 double read_stdout(std::string path_stdout, int number_of_column);
 
+int getLastPhotonCountFromLog(const std::string& filename);
 
 #endif
