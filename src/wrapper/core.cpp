@@ -52,6 +52,7 @@ double core(void* raw_Args){
 	double** rad_NN_each_wl = new double*[args->SRWeights.N()];
 	double** rad_NN_sd_each_wl = new double*[args->SRWeights.N()];
 	int**    photons_each_wl = new int*[args->SRWeights.N()];
+	int**    seconds_each_wl = new int*[args->SRWeights.N()];
 	for(int ii=0; ii<args->SRWeights.N(); ii++){
 		radiance_each_wl[ii] = new double[args->Nheights];
 		rad_NN_each_wl[ii] = new double[args->Nheights];
@@ -107,10 +108,13 @@ double core(void* raw_Args){
 			deleteMatchingFiles(args->DIR_UVSPEC, TARGET_PATTERN);
 			deleteMatchingFiles(args->DIR_UVSPEC, std::regex(R"(mc.*\.spc$)"));
 			std::filesystem::remove(args->DIR_LOG+"libRadtran.log");
+			auto starttime = std::chrono::system_clock::now();
 
 			std::cout << "acquiring radiance from libRadtran..." << std::endl;	
 			execute_uvspec(args->DIR_UVSPEC, args->PATH_STDIN, args->PATH_STDOUT, args->FLAG_UNDISPLAY_LOG, args->DIR_LOG);
-
+			
+			auto endtime = std::chrono::system_clock::now();
+			int elapsed_sec = static_cast<int>(std::chrono::duration_cast<std::chrono::seconds>(endtime - starttime).count());
 			int photons = getLastPhotonCountFromLog(args->DIR_LOG+"libRadtran.log");
 
 
@@ -130,6 +134,7 @@ double core(void* raw_Args){
 			rad_NN_each_wl[j][i]    = rad_wavelength_NN;
 			rad_NN_sd_each_wl[j][i] = rad_wavelength_NN_sd;
 			photons_each_wl[j][i]   = photons;
+			seconds_each_wl[j][i]   = elapsed_sec;
 			radiance[i]   += args->SRWeights.weight(j) / args->SRWeights.sum_weights() * rad_wavelength;
 			rad_NN[i]     += args->SRWeights.weight(j) / args->SRWeights.sum_weights() * rad_wavelength_NN;
 			rad_NN_var[i] += args->SRWeights.weight(j) / args->SRWeights.sum_weights() * args->SRWeights.weight(j) / args->SRWeights.sum_weights() * rad_wavelength_NN_sd*rad_wavelength_NN_sd;
@@ -169,29 +174,32 @@ double core(void* raw_Args){
 		PhotonsEachWL_header += std::to_string(args->SRWeights.wavelength(ii)) + " ";
 	}
 	RawEachWL_header += "[nm]\n";
-	int** height_photons_each_wl = new int* [(args->SRWeights.N())+1];
-	height_photons_each_wl[0] = new int[args->Nheights];
+	int** height_photons_seconds_each_wl = new int* [2*(args->SRWeights.N())+1];
+	height_photons_seconds_each_wl[0] = new int[args->Nheights];
 	for(int ii=0; ii<args->Nheights; ++ii){
-		height_photons_each_wl[0][ii] = static_cast<int>(std::round(args->heights[ii]));
+		height_photons_seconds_each_wl[0][ii] = static_cast<int>(std::round(args->heights[ii]));
 	}
 	for(int ii=0; ii<args->SRWeights.N(); ii++){
-		height_photons_each_wl[ii+1] = photons_each_wl[ii];
+		height_photons_seconds_each_wl[2*ii+1] = photons_each_wl[ii];
+		height_photons_seconds_each_wl[2*ii+2] = seconds_each_wl[ii];
 	}
-	readwrite::save_data(args->DIR_RESULT+"/"+identifier+"_PhotonsEachWL.dat", PhotonsEachWL_header, args->Nheights, args->SRWeights.N()+1, height_photons_each_wl);
+	readwrite::save_data(args->DIR_RESULT+"/"+identifier+"_PhotonsSecondsEachWL.dat", PhotonsEachWL_header, args->Nheights, args->SRWeights.N()+1, height_photons_seconds_each_wl);
 	
 	delete[] height_radiance_each_wl;
-	delete[] height_photons_each_wl[0];
-	delete[] height_photons_each_wl;
+	delete[] height_photons_seconds_each_wl[0];
+	delete[] height_photons_seconds_each_wl;
 	for(int ii=0; ii<args->SRWeights.N(); ii++){
 		delete[] radiance_each_wl[ii];
 		delete[] rad_NN_each_wl[ii];
 		delete[] rad_NN_sd_each_wl[ii];
 		delete[] photons_each_wl[ii];
+		delete[] seconds_each_wl[ii];
 	}
 	delete[] radiance_each_wl;
 	delete[] rad_NN_each_wl;
 	delete[] rad_NN_sd_each_wl;
 	delete[] photons_each_wl;
+	delete[] seconds_each_wl;
 	
 /* ==== */
 /* ==== fitting results ==== */
