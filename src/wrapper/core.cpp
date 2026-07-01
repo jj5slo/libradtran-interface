@@ -58,6 +58,7 @@ double core(void* raw_Args){
 		rad_NN_each_wl[ii] = new double[args->Nheights];
 		rad_NN_sd_each_wl[ii] = new double[args->Nheights];
 		photons_each_wl[ii] = new int[args->Nheights];
+		seconds_each_wl[ii] = new int[args->Nheights];
 	}
 	for(int i=0; i<args->Nheights; i++){
 		radiance[i] = 0.0;/* initialize */
@@ -68,6 +69,7 @@ double core(void* raw_Args){
 			rad_NN_each_wl[ii][i] = 0.0;
 			rad_NN_sd_each_wl[ii][i] = 0.0;
 			photons_each_wl[ii][i] = 0;
+			seconds_each_wl[ii][i] = 0;
 		}
 	}
 	for(int i=i_bottom_rad; i<=i_top_rad; i++){
