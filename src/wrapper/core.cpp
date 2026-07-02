@@ -185,7 +185,7 @@ double core(void* raw_Args){
 		height_photons_seconds_each_wl[2*ii+1] = photons_each_wl[ii];
 		height_photons_seconds_each_wl[2*ii+2] = seconds_each_wl[ii];
 	}
-	readwrite::save_data(args->DIR_RESULT+"/"+identifier+"_PhotonsSecondsEachWL.dat", PhotonsEachWL_header, args->Nheights, args->SRWeights.N()+1, height_photons_seconds_each_wl);
+	readwrite::save_data(args->DIR_RESULT+"/"+identifier+"_PhotonsSecondsEachWL.dat", PhotonsEachWL_header, args->Nheights, 2*args->SRWeights.N()+1, height_photons_seconds_each_wl);
 	
 	delete[] height_radiance_each_wl;
 	delete[] height_photons_seconds_each_wl[0];
