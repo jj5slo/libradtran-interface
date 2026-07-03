@@ -529,7 +529,7 @@ if(argc == 7){
 				bo_params.noise = 1.9e-5;/* 想定される分散 *//* TODO configに入れる（mc_stdの値から自動算出する。少し大きめに。） */
 				bo_params.crit_name = const_cast<char*>("cLCB");
 				bo_params.n_iter_relearn = 1;
-				//bo_params.init_method = 1; /* MANUAL（初期値に従う） */
+				bo_params.init_method = 1; /* MANUAL（初期値に従う） */
 
 				BO_WrapperModel bo_model(bo_params, (void*)(&args));
 				vectord lb(1); lb[0] = -0.2;
