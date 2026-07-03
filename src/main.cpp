@@ -130,6 +130,7 @@ if(argc == 7){
 	int atmosphere_precision = getConfig(configs, "atmosphere_precision", 7);/* MSISから取得する大気の保存時の精度 */
 	
 	std::string OPTIMIZER = getConfig(configs, "OPTIMIZER", "NL");
+	int         BO_N_ITER = getConfig(configs, "BO_N_ITER", 30);/* BayesOptの繰り返し回数 */
 
 	double XTOL = getConfig(configs, "XTOL", 1.0e-6);/* 最適化終了判定 */
 	double XTOL_REL = getConfig(configs, "XTOL_REL", 1.0e-6);/* 最適化終了判定 */
@@ -524,7 +525,7 @@ if(argc == 7){
 		else if(OPTIMIZER == "BO"){
 			try{
 				bopt_params bo_params = initialize_parameters_to_default();
-				bo_params.n_iterations = 60;/* TODO configに入れる */
+				bo_params.n_iterations = BO_N_ITER;
 				bo_params.noise = 1.9e-5;/* 想定される分散 *//* TODO configに入れる（mc_stdの値から自動算出する。少し大きめに。） */
 				bo_params.crit_name = const_cast<char*>("cLCB");
 				bo_params.n_iter_relearn = 1;
