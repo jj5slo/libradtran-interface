@@ -533,8 +533,10 @@ if(argc == 7){
 				bo_params.n_iter_relearn = 1;
 				//bo_params.init_method = 1; /* MANUAL（初期値に従う） */
 
+				//for(int bo_dynamicbb_i = 0; bo_dynamicbb_i < 5; ++bo_dynamicbb_i){
+
 				BO_WrapperModel bo_model(bo_params, (void*)(&args));
-				vectord lb(1); lb[0] = -0.2;
+				vectord lb(1); lb[0] = -0.1;
 				vectord ub(1); ub[0] = 0.0;
 				bo_model.setBoundingBox(lb, ub);
 
