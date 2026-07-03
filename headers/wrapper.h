@@ -11,6 +11,7 @@
 #include <algorithm>/* 最大最小用 */
 #include <chrono>
 #include <filesystem>
+#include <bayesopt/bayesopt.hpp>
 
 #include "solar_direction.h"
 
@@ -135,26 +136,6 @@ public:
 double wrapper(const std::vector<double> &Coef, std::vector<double> &grad, void* raw_Args_to_be_converted_to_WrapperArgs_pointer);/* for NLopt */
 
 inline double bo_wrapper(unsigned int n, const double *Coef, double *grad, void* raw_Args_to_be_converted_to_WrapperArgs_pointer) {
-//	// --- 【XTOL_REL 再現ロジックの追加】 ---
-//	static bool has_last_x = false;
-//	static double last_x = 0.0;
-//	static double last_y = 0.0;
-//	WrapperArgs* args = static_cast<WrapperArgs*>(raw_Args_to_be_converted_to_WrapperArgs_pointer);
-//	const double XTOL_REL = args->xtol_rel; // NLoptで設定していた閾値（環境に合わせて調整）
-//	double current_x = Coef[0];   // 今回BayesOptから提案されたパラメータ
-//	
-//	if (has_last_x) {
-//		// 相対変化量の計算： |x_new - x_old| / |x_old|
-//		double rel_diff = std::abs(current_x - last_x) / (std::abs(last_x) + 1e-10);
-//		
-//		if (rel_diff < XTOL_REL) {
-//			std::cout << "[Skip] XTOL_REL未満のためシミュレーションをスキップします。" << std::endl;
-//			return last_y; // 前回の結果をそのまま返して瞬時に終了させる
-//		}
-//	}
-//	// ----------------------------------------
-
-	// 通常の処理（変化量が大きい場合はしっかり30秒かけて計算する）
 	std::vector<double> vec_Coef(Coef, Coef + n);
 	std::vector<double> vec_grad;
 	if (grad != nullptr) {
@@ -164,11 +145,6 @@ inline double bo_wrapper(unsigned int n, const double *Coef, double *grad, void*
 	// 元の重いシミュレーション（NLopt用のwrapper）を呼び出し
 	double result = wrapper(vec_Coef, vec_grad, raw_Args_to_be_converted_to_WrapperArgs_pointer);
 	
-//	// 次回の判定のために、今回の値をしっかりと記憶しておく
-//	last_x = current_x;
-//	last_y = result;
-//	has_last_x = true;
-//	
 	if (grad != nullptr) {
 		for (unsigned int i = 0; i < n; ++i) {
 			grad[i] = vec_grad[i];
@@ -177,6 +153,27 @@ inline double bo_wrapper(unsigned int n, const double *Coef, double *grad, void*
 	
 	return result;
 }
+class BO_WrapperModel : public bayesopt::ContinuousModel {
+private:
+	void* wrapper_args;
+
+public:
+	/* Constructor */
+	BO_WrapperModel(bopt_params params, void* args) : ContinuousModel(1, params), wrapper_args(args) {}
+
+	double evaluateSample(const vectord &Xi) override {
+		std::vector<double> Coef(Xi.size());
+		for(size_t i = 0; i < Xi.size(); ++i){
+			Coef[i] = Xi[i];
+		}
+		std::vector<double> grad;
+
+		double result_y = wrapper(Coef, grad, wrapper_args);
+		
+		return result_y;
+	}
+};
+
 
 
 /* wrapper では、輝度計算と観測光強度にフィッティング・誤差の算出以外に、各高度に対するセンサ向きの設定を行う必要がある。更新する入力ファイルは大気プロファイルと、標準入力。 */

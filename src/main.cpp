@@ -6,7 +6,7 @@
 #include <memory>
 #include <vector>
 
-#include <bayesopt/bayesopt.h>
+#include <bayesopt/bayesopt.hpp>
 
 #include "solar_direction.h"
 
@@ -413,6 +413,13 @@ if(argc == 7){
 /* ==== 上から求める ==== */
 	int N_repeating_optimization = ((i_top - i_bottom) + N_exp_decay_atm-1) / N_exp_decay_atm;/* 切り上げ除算 *//* 最適化を走らせる回数 */
 	double* inv_10_scaleheights = new double[N_repeating_optimization];/* 最適化して求めた係数を保存する */
+	//double* x_lower_arr = new double[N_repeating_optimization];
+	//double* x_upper_arr = new double[N_repeating_optimization];
+	for(int ii=0; ii<N_repeating_optimization; ++ii){
+		inv_10_scaleheights[ii] = 0.0;
+		//x_lower_arr[ii] = 0.0;
+		//x_upper_arr[ii] = 0.0;
+	}
 	for(int i_stage=0; i_stage<N_repeating_optimization; i_stage++){
 		int i_top_opt = i_top - i_stage*N_exp_decay_atm;
 		int i_bottom_opt = i_top_opt - N_exp_decay_atm + 1;
@@ -451,8 +458,6 @@ if(argc == 7){
 	//	}
 	/* -- 直線1つのみ -- */
 		int number_of_optimization_parameters = 1;
-		std::vector<double>x(number_of_optimization_parameters, -0.1);
-		x[0] = -super_inv_10_scaleheight;/* 初期値 initial value */
 	/* -- 各点(下限を直上の層とする) -- */
 	//	int number_of_optimization_parameters = args.atm_i_top - args.atm_i_bottom + running_mean_extra;//1;//args.atm_i_top - args.atm_i_bottom + 1;
 	//	std::vector<double> x(number_of_optimization_parameters, 0.0);/* 初期値 */
@@ -467,6 +472,8 @@ if(argc == 7){
 		double minf;
 		
 		if(OPTIMIZER == "NL"){
+			std::vector<double>x(number_of_optimization_parameters, -0.1);
+			x[0] = -super_inv_10_scaleheight;/* 初期値 initial value */
 			nlopt::opt opt( nlopt::LN_NELDERMEAD, number_of_optimization_parameters );
 			opt.set_min_objective( wrapper, (void*)(&args) ); 
 			opt.set_xtol_rel(XTOL_REL);/* TODO */
@@ -517,41 +524,95 @@ if(argc == 7){
 		else if(OPTIMIZER == "BO"){
 			try{
 				bopt_params bo_params = initialize_parameters_to_default();
-				bo_params.n_iterations = 60;
-				bo_params.noise = 4.0e-6;/* TODO */
-				bo_params.n_iter_relearn = 1;
+				bo_params.n_iterations = 60;/* TODO configに入れる */
+				bo_params.noise = 1.9e-5;/* 想定される分散 *//* TODO configに入れる（mc_stdの値から自動算出する。少し大きめに。） */
 				bo_params.crit_name = const_cast<char*>("cLCB");
-				bo_params.init_method = 1; /* MANUAL（初期値に従う） */
+				bo_params.n_iter_relearn = 1;
+				//bo_params.init_method = 1; /* MANUAL（初期値に従う） */
 
-				double lb[1] = {-0.2};
-				double ub[1] = {0.0};
+				BO_WrapperModel bo_model(bo_params, (void*)(&args));
+				vectord lb(1); lb[0] = -0.2;
+				vectord ub(1); ub[0] = 0.0;
+				bo_model.setBoundingBox(lb, ub);
 
-				double x_opt[1] = {x[0]};
-				double minf;
+				vectord bestPoint(1);
+				bestPoint[0] = -1.0*super_inv_10_scaleheight;/* initial val */
 
-				int status = bayes_optimization(
-					number_of_optimization_parameters,
-					bo_wrapper,
-					(void*)(&args),
-					lb, ub,
-					x_opt,
-					&minf,
-					bo_params
-				);
+				bo_model.optimize(bestPoint);
 
-				x[0] = x_opt[0];
-				inv_10_scaleheights[i_stage] = x[0];
+				double x_opt = bestPoint[0];
+				double y_opt = bo_model.getValueAtMinimum();
 
-				std::string bo_result_code = (status == 0) ? "SUCCESS" : "ERROR_CODE_" + std::to_string(status);
-				std::cerr << "BayesOpt finished with status: " << bo_result_code << std::endl;
+				inv_10_scaleheights[i_stage] = x_opt;
+
+				std::cerr << "BayesOpt finished." << std::endl;
+	
+				std::cerr << "x: " << x_opt << ", logRMSE: " << y_opt << std::endl;
+
+				/* ==== ガウス過程モデルから信頼区間を求め、グラフ用データを出力する ==== */
+				//double tolerance = 0.004342981;/* logRMSE の標準偏差 *//* TODO 自動算出（変わらないけど）してCONFIGに入れる */
+				//double threshold_y = y_opt + tolerance;
+
+				//double x_lower = x_opt;
+				//double x_upper = x_opt;
+				double step = 0.001;/* パラメータxの刻み幅 */
+				int    number_of_steps = (int)((ub[0]-lb[0])/step) + 1;
+				double* gp_x = new double[number_of_steps];
+				double* gp_crit = new double[number_of_steps];
+				//double* gp_mu = new double[number_of_steps];
+				//double* gp_sigma = new double[number_of_steps];
+				for(int ii=0; ii<number_of_steps; ++ii){
+					gp_x[ii] = 0.0;
+					gp_crit[ii] = 0.0;
+					//gp_mu[ii] = 0.0;
+					//gp_sigma[ii] = 0.0;
+				}
+				
+				vectord query_x(1);
+				for(int ii=0; ii<number_of_steps; ++ii){
+					double x = lb[0] + step;
+					query_x[0] = x;
+					
+					//bayesopt::ProbabilityDistribution* dist = bo_model.getPrediction(query_x);
+
+					//double mu = dist->getMean();
+					//double sigma = std::sqrt(dist->getVariance());
+					double crit = bo_model.evaluateCriteria(query_x);
+
+					gp_x[ii] = x;
+					gp_crit[ii] = crit;
+					//gp_mu[ii] = mu;
+					//gp_sigma[ii] = sigma;
+
+					//if( x < x_opt && mu <= threshold_y && x_lower == x_opt ){
+					//	x_lower = x;
+					//}
+					//if( x > x_opt && mu > threshold_y && x_upper == x_opt ){
+					//	x_upper = x - step;
+					//}
+				}
+				
+				double** gp_landscape = new double* [2];
+				gp_landscape[0] = gp_x;
+				gp_landscape[1] = gp_crit;
+				readwrite::save_data(args.DIR_RESULT+"/gp_landscape.dat", "#x crit\n", number_of_steps, 2, gp_landscape);
+
+				delete[] gp_landscape;
+				delete[] gp_x;
+				delete[] gp_crit;
+				//delete[] gp_mu;
+				//delete[] gp_sigma;
+
+				/* ==== */
+
 				std::string path_save_vector = args.DIR_RESULT + "/optimized_vector.dat";
 				std::ofstream save_vector(path_save_vector);
 				if (!save_vector) {
 					std::cerr << "main: optimized vector_error cannot be saved!! path: " << path_save_vector << std::endl;
 				}
-			
 				for (int i = 0; i < N_repeating_optimization; i++) {
-					save_vector << i << " " << inv_10_scaleheights[i] << " " << bo_result_code << std::endl;
+					save_vector << i << " " << inv_10_scaleheights[i] << std::endl;
+					//save_vector << i << " " << inv_10_scaleheights[i] << " " << " " << x_lower << " " << x_upper <<  std::endl;
 				}
 				save_vector.close();
 			
@@ -564,7 +625,12 @@ if(argc == 7){
 ////TODO				args.upper_radiance[i] = args.radiance[i];
 //		}
 		
-	}	
+	}
+	delete[] inv_10_scaleheights;
+	//if(OPTIMIZER == "BO"){
+	//	delete[] x_lower_arr;
+	//	delete[] x_upper_arr;
+	//}
 
 //	delete[] radiance;
 	/* ==== 終了時刻保存 ==== */
