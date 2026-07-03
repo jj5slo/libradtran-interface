@@ -124,6 +124,7 @@ if(argc == 7){
 	int brdf_rpv_type = getConfig(configs, "brdf_rpv_type", 0);/* BRDF(RPV)_IGBPのタイプ */
 	std::string additional_option = getConfig(configs, "additional_option", "");/* libRadtranの標準入力に追加で書き込む文字列 */
 	replaceAll(additional_option, "\\n", "\n");
+	double MC_STD_RSD = getConfig(configs, "MC_STD_RSD", 1.0e-2);/* mc_stdに指定する精度 */
 	int FLAG_adapt_mc_photons = getConfig(configs, "FLAG_adapt_mc_photons", 0);/* MYSTICの回数 デフォルトは300000 */
 	int mc_photons = getConfig(configs, "mc_photons", 60000);/* MYSTICの回数 デフォルトは300000 */
 
@@ -526,7 +527,8 @@ if(argc == 7){
 			try{
 				bopt_params bo_params = initialize_parameters_to_default();
 				bo_params.n_iterations = BO_N_ITER;
-				bo_params.noise = 1.9e-5;/* 想定される分散 *//* TODO configに入れる（mc_stdの値から自動算出する。少し大きめに。） */
+				double lerr_sd = std::log10(1+MC_STD_RSD) - std::log10(1-MC_STD_RSD);
+				bo_params.noise = lerr_sd*lerr_sd;/* 想定される分散 */
 				bo_params.crit_name = const_cast<char*>("cLCB");
 				bo_params.n_iter_relearn = 1;
 				//bo_params.init_method = 1; /* MANUAL（初期値に従う） */
