@@ -472,6 +472,7 @@ if(argc == 7){
 
 /* ==== optimization ==== */
 		double minf;
+		args.number_of_iteration = 0;
 		
 		if(OPTIMIZER == "NL"){
 			std::vector<double>x(number_of_optimization_parameters, -0.1);
@@ -484,7 +485,6 @@ if(argc == 7){
 			opt.set_upper_bounds(0.0);/* 必ず上が減少 */
 			opt.set_lower_bounds(-0.21);/* TODO 今は MSISの4倍程度 */
 			try {
-				args.number_of_iteration = 0;
 				/* ---- NLopt ---- */
 				nlopt::result result = opt.optimize(x, minf);
 				std::string nlopt_result = get_nlopt_result_description(result);
@@ -526,9 +526,10 @@ if(argc == 7){
 		else if(OPTIMIZER == "BO"){
 			try{
 				bopt_params bo_params = initialize_parameters_to_default();
+				bo_params.n_init_samples = 5;/* 初期探索 */
 				bo_params.n_iterations = BO_N_ITER;
 				double lerr_sd = std::log10(1+MC_STD_RSD) - std::log10(1-MC_STD_RSD);
-				bo_params.noise = lerr_sd*lerr_sd;/* 想定される分散 */
+				//bo_params.noise = lerr_sd*lerr_sd;/* 想定される分散 */
 				bo_params.crit_name = const_cast<char*>("cLCB");
 				bo_params.n_iter_relearn = 1;
 				//bo_params.init_method = 1; /* MANUAL（初期値に従う） */
@@ -541,7 +542,7 @@ if(argc == 7){
 				bo_model.setBoundingBox(lb, ub);
 
 				vectord bestPoint(1);
-				bestPoint[0] = -1.0*super_inv_10_scaleheight;/* initial val */
+				//bestPoint[0] = -1.0*super_inv_10_scaleheight;/* initial val */
 
 				bo_model.optimize(bestPoint);
 
