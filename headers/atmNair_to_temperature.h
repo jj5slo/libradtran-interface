@@ -1,3 +1,6 @@
+#ifndef __ATMNAIR_TO_TEMPERATURE_H__
+#define __ATMNAIR_TO_TEMPERATURE_H__
+
 #include <iostream>
 #include <fstream>
 
@@ -9,6 +12,7 @@ constexpr double ATM_MOL_W {28.964420}; /* JIS W 0201 ISO標準大気 */
 
 
 ParamAtmosphere* call_temperatures(
+	PlanetParam       earth,
 	ParamAtmosphere*& rawAtm,
 	const int Nheights,
 	const int iTOP,
@@ -32,4 +36,6 @@ ParamAtmosphere* Nair_to_atmosphere_old(
 	const double PRESSURE_AT_TOP//,
 //	double* gm_e_arr
 );
+
+#endif
 

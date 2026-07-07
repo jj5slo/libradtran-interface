@@ -19,6 +19,7 @@
 #include "wrapper.h"
 #include "golden_section_search.h"
 #include "avoid_dupe.h"
+#include "atmNair_to_temperature.h"
 
 //constexpr int i_top    {64};/* 全体のどこかでは誤差計算に含める */
 //constexpr int i_bottom {60};
@@ -124,7 +125,7 @@ if(argc == 7){
 	int brdf_rpv_type = getConfig(configs, "brdf_rpv_type", 0);/* BRDF(RPV)_IGBPのタイプ */
 	std::string additional_option = getConfig(configs, "additional_option", "");/* libRadtranの標準入力に追加で書き込む文字列 */
 	replaceAll(additional_option, "\\n", "\n");
-	double MC_STD_RSD = getConfig(configs, "MC_STD_RSD", 1.0e-2);/* mc_stdに指定する精度 */
+//	double MC_STD_RSD = getConfig(configs, "MC_STD_RSD", 1.0e-2);/* mc_stdに指定する精度 */
 	int FLAG_adapt_mc_photons = getConfig(configs, "FLAG_adapt_mc_photons", 0);/* MYSTICの回数 デフォルトは300000 */
 	int mc_photons = getConfig(configs, "mc_photons", 60000);/* MYSTICの回数 デフォルトは300000 */
 
@@ -480,10 +481,8 @@ if(argc == 7){
 			nlopt::opt opt( nlopt::LN_NELDERMEAD, number_of_optimization_parameters );
 			opt.set_min_objective( wrapper, (void*)(&args) ); 
 			opt.set_xtol_rel(XTOL_REL);/* TODO */
-			//opt.set_xtol_abs(XTOL_REL);/* TODO */
-		//	opt.set_lower_bounds(10);/* TODO */
 			opt.set_upper_bounds(0.0);/* 必ず上が減少 */
-			opt.set_lower_bounds(-0.21);/* TODO 今は MSISの4倍程度 */
+			opt.set_lower_bounds(-0.1);/* TODO  */
 			try {
 				/* ---- NLopt ---- */
 				nlopt::result result = opt.optimize(x, minf);
@@ -508,8 +507,7 @@ if(argc == 7){
 		}
 		else if(OPTIMIZER == "GS"){
 			double x_opt;
-			double lower_bound = -0.2;
-			args.number_of_iteration = 0;
+			double lower_bound = -0.1;/* TODO */
 			/* ---- golden section search ---- */
 			minf = golden_section_search( x_opt, lower_bound, 0.0, XTOL, wrapper, (void*)(&args) );
 			/* ---- */
@@ -528,7 +526,7 @@ if(argc == 7){
 				bopt_params bo_params = initialize_parameters_to_default();
 				bo_params.n_init_samples = 5;/* 初期探索 */
 				bo_params.n_iterations = BO_N_ITER;
-				double lerr_sd = std::log10(1+MC_STD_RSD) - std::log10(1-MC_STD_RSD);
+				//double lerr_sd = std::log10(1+MC_STD_RSD) - std::log10(1-MC_STD_RSD);
 				//bo_params.noise = lerr_sd*lerr_sd;/* 想定される分散 */
 				bo_params.crit_name = const_cast<char*>("cLCB");
 				bo_params.n_iter_relearn = 1;
@@ -555,7 +553,7 @@ if(argc == 7){
 	
 				std::cerr << "x: " << x_opt << ", logRMSE: " << y_opt << std::endl;
 
-				/* ==== ガウス過程モデルから信頼区間を求め、グラフ用データを出力する ==== */
+				/* ==== 獲得関数のグラフを出す ==== */
 				//double tolerance = 0.004342981;/* logRMSE の標準偏差 *//* TODO 自動算出（変わらないけど）してCONFIGに入れる */
 				//double threshold_y = y_opt + tolerance;
 
@@ -626,19 +624,18 @@ if(argc == 7){
 				std::cout << "BayesOpt failed : " << e.what() << std::endl;
 			}
 		}
-/* ==== */
-//		for(int i=0; i<args.Nheights; i++){
-////TODO				args.upper_radiance[i] = args.radiance[i];
-//		}
-		
-	}
-	delete[] inv_10_scaleheights;
-	//if(OPTIMIZER == "BO"){
-	//	delete[] x_lower_arr;
-	//	delete[] x_upper_arr;
-	//}
+		/* ==== */
 
-//	delete[] radiance;
+		/* ==== set atm ==== */
+		set_Nair_10_exponentially(args.atm_Nheights, args.pAtm, args.atm_i_top+1, inv_10_scaleheights[i_stage]);
+	}
+	
+	ParamAtmosphere* tempAtm = call_temperatures(earth, args.pAtm, args.atm_Nheights, (i_top+1), 1.0);
+	saveParamAtmosphere(DIR_RESULT+"/"+secid+"_tempAtm.dat", tempAtm, args.atm_Nheights, args.atmosphere_precision);
+
+
+	delete[] inv_10_scaleheights;
+
 	/* ==== 終了時刻保存 ==== */
 	auto endtime = std::chrono::system_clock::now();
 	auto endsec = std::chrono::duration_cast<std::chrono::seconds>(endtime.time_since_epoch()).count();

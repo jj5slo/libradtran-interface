@@ -9,6 +9,7 @@
 #include<fstream>
 #include<iomanip>
 #include<algorithm>
+#include<cmath>
 
 #include<memory_allocate.h>
 
@@ -124,5 +125,22 @@ void ParamAtmosphere::set_T_from_Nair_p(void){
 	T = p / (Nair*1e6) / BOLTZMANN_CONSTANT * 1e2;
 }
 
+void ParamAtmosphere::set_T_p_from_Nair_hydrostatic(void){
+	;
+}
 
+void set_Nair_10_exponentially(int Nheights, ParamAtmosphere*& pAtm, int iTOP, double Coef){/* iTOP - 1 から 0 [km] までNairを指数的に(A 10^{Coef z}) */
+	double* Nair_arr = new double[Nheights];
+	for(int i=iTOP; i<Nheights; i++){/* iTOPから上端 */
+		Nair_arr[i] = pAtm[i].Nair;
+	}
+	for(int i=0; i<iTOP; i++){/* 0からiTOP-1 */
+		Nair_arr[i] = pAtm[iTOP].Nair * std::pow(10, Coef*(pAtm[i].z - pAtm[iTOP].z));/* Coef は対数の直線の傾き */
+	}
+	for(int i=0; i<Nheights; i++){
+		pAtm[i].Nair = Nair_arr[i];
+		pAtm[i].set_p_from_Nair_T();
+	}
+	delete[] Nair_arr;
+}
 

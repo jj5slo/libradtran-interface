@@ -4,6 +4,10 @@
  *
  */
 
+#ifndef __WRAPPER_H__
+#define __WRAPPER_H__
+
+
 #include <nlopt.hpp>
 
 #include <iostream>
@@ -196,3 +200,5 @@ ParamAtmosphere* Nair_to_atmosphere(
 	const double PRESSURE_AT_TOA//,
 //	double* gm_e_arr 
 );
+
+#endif

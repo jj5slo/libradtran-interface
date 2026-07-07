@@ -67,7 +67,7 @@ double read_mystic_rad_sd(const std::string DIR_UVSPEC){
 	int Nfiles = 0;
 	listMatchingFiles(DIR_UVSPEC, std::regex(R"(mc.*\.rad\.std)"), paths_list, Nfiles);
 
-	if(Nfiles != 1){ throw std::runtime_error("read_mystic_rad_NN: number of files is not 1!!"); }/* ERROR */
+	if(Nfiles != 1){ throw std::runtime_error("read_mystic_rad_sd: number of files is not 1!!"); }/* ERROR */
 	
 	std::string path = DIR_UVSPEC+paths_list[0];
 

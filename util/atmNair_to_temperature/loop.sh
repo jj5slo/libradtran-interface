@@ -16,8 +16,8 @@
 #for file in ~/SANO/research/estimate-profile/2026/2026-05w4/merged_brdf_cam/brdf_*/b22.1/*538*.dat; do
 #for file in ~/SANO/research/estimate-profile/2026/2026-06w1/2021-09-05_ret_1Mp/02/process/*.dat; do
 #for file in ~/SANO/research/estimate-profile/2026/2026-06w4/2021-09-05_ret_2021_1Mp/01/0910/process/*.dat; do
-#for file in ~/SANO/research/estimate-profile/2026/2026-06w4/2021-09-05_ret_b2021_1Mp/01/0910/temp/1*.dat; do
-for file in ~/SANO/research/estimate-profile/2026/2026-06w4/2021-09-05_ret_49-40_b2020-2022_std1.0e-2_BO_30/01/0910/temp/1*.dat; do
+for file in ~/SANO/research/estimate-profile/2026/2026-06w4/ret_1Mp/2021-09-10_ret_1Mp/85/2240/temp/1*.dat; do
+#for file in ~/SANO/research/estimate-profile/2026/2026-06w4/*ret*BO*/*/*/*/*/optim*remaked.dat; do
 	# ファイルが実際に存在するか確認（ディレクトリが空の場合のエラー防止）
     if [ -f "$file" ]; then
         echo "実行中: ./prog \"$file\""

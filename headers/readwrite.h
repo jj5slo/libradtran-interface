@@ -1,11 +1,12 @@
+#ifndef __READWRITE_H__
+#define __READWRITE_H__
+
 #include <memory_allocate.h> /* AndoLab */
 #include <iostream>
 #include <string>
 #include <fstream>
 #include <sstream>
 
-#ifndef __READWRITE_H__
-#define __READWRITE_H__
 
 namespace readwrite{
 	std::string* read_list(std::string path, int &Nelements);

@@ -45,11 +45,11 @@ double wrapper(const std::vector<double> &Coef, std::vector<double> &grad, void*
 //	const int i_bottom_rad = args->fit_i_bottom - running_mean_extra;
 //	const int i_top_rad = args->fit_i_top + running_mean_extra;
 	
-	std::cerr << args->secid <<" Iteration " << args->number_of_iteration << "th time, Coef:" << Coef[0] << std::endl;
+	std::cerr << args->secid <<" Iteration " << args->number_of_iteration << "th time" << std::endl;
 
 	/* ==== setting atmosphere ==== */
 	std::cout << "setting atmosphere..." << std::endl;
-	double* Nair_arr = new double[args->atm_Nheights];
+//	double* Nair_arr = new double[args->atm_Nheights];
 /* -- 各点 -- */
 //	for(int i=0; i<args->atm_i_bottom; i++){
 //		Nair_arr[i] = args->pAtm[i].Nair;
@@ -61,15 +61,15 @@ double wrapper(const std::vector<double> &Coef, std::vector<double> &grad, void*
 //		Nair_arr[i] = args->pAtm[i].Nair;
 //	}
 /* -- 直線1つのみ -- */
-	for(int i=args->atm_i_top+1; i<args->atm_Nheights; i++){
-		Nair_arr[i] = args->pAtm[i].Nair;
-	}
-	for(int i=args->atm_i_bottom; i<=args->atm_i_top; i++){
-		Nair_arr[i] = args->pAtm[args->atm_i_top+1].Nair * std::pow(10, Coef[0]*(args->pAtm[i].z - args->pAtm[args->atm_i_top+1].z));/* Coef は対数の直線の傾き */
-	}
-	for(int i=0; i<args->atm_i_bottom; i++){
-		Nair_arr[i] = args->pAtm[i].Nair;
-	}
+//	for(int i=args->atm_i_top+1; i<args->atm_Nheights; i++){
+//		Nair_arr[i] = args->pAtm[i].Nair;
+//	}
+//	for(int i=args->atm_i_bottom; i<=args->atm_i_top; i++){
+//		Nair_arr[i] = args->pAtm[args->atm_i_top+1].Nair * std::pow(10, Coef[0]*(args->pAtm[i].z - args->pAtm[args->atm_i_top+1].z));/* Coef は対数の直線の傾き */
+//	}
+//	for(int i=0; i<args->atm_i_bottom; i++){
+//		Nair_arr[i] = args->pAtm[i].Nair;
+//	}
 /* -- 各点(下限を直上の層とする) -- */
 //	for(int i=0; i<args->atm_i_bottom; i++){
 //		Nair_arr[i] = args->pAtm[i].Nair;
@@ -82,10 +82,10 @@ double wrapper(const std::vector<double> &Coef, std::vector<double> &grad, void*
 //	}
 
 
-	for(int i=0; i<args->atm_Nheights; i++){
-		args->pAtm[i].Nair = Nair_arr[i];
-		args->pAtm[i].set_p_from_Nair_T();
-	}
+//	for(int i=0; i<args->atm_Nheights; i++){
+//		args->pAtm[i].Nair = Nair_arr[i];
+//		args->pAtm[i].set_p_from_Nair_T();
+//	}
 //	args->pAtm = Nair_to_atmosphere(
 //		args->atm_Nheights,
 //		args->dt,
@@ -94,7 +94,8 @@ double wrapper(const std::vector<double> &Coef, std::vector<double> &grad, void*
 //		Nair_arr,
 //		0.0
 //		);	
-		saveParamAtmosphere(args->PATH_ATMOSPHERE, args->pAtm, args->atm_Nheights, args->atmosphere_precision);
+	set_Nair_10_exponentially(args->atm_Nheights, args->pAtm, args->atm_i_top+1, Coef[0]);
+	saveParamAtmosphere(args->PATH_ATMOSPHERE, args->pAtm, args->atm_Nheights, args->atmosphere_precision);
 	/* ==== */
 
 	double log_square_error = core(raw_Args);
