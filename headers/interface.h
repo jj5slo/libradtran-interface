@@ -70,14 +70,19 @@ public:
 	void set_p_from_Nair_T(void);/* Nair, T から状態方程式で p を設定し直す */
 	void set_T_from_Nair_p(void);/* Nair, T から状態方程式で p を設定し直す */
 
+	void set_T_p_from_Nair_hydrostatic(void);
+
 };
 ParamAtmosphere* readParamAtmosphere(std::string filename, int& Nlines);
+
+void set_Nair_10_exponentially(int Nheights, ParamAtmosphere*& pAtm, int iTOP, double Coef);
+
+/* set_T_p_from_Nair_hydrostatic.cpp */
 
 
 /* interface_stdin.cpp */
 int save_stdin(std::string path_stdin, ParamStdin param);
 	/* 0:問題なし, 1:Error */
-
 
 /* interface-atmosphere.cpp */
 void saveParamAtmosphere(std::string filename, ParamAtmosphere *params, int Nlines, int Ndecimal = 6);/* 保存先、パラメータの配列、高度の総数、有効数字 */
