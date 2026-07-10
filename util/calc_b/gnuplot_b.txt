@@ -1,0 +1,94 @@
+reset
+set terminal pdfcairo enhanced color \
+	font "Helvetica,18"\
+	size 12cm, 9cm\
+	lw 1.5\
+	ps 0.5
+#epslatex standalone
+set lmargin at screen 0.15
+set rmargin at screen 0.95
+set tmargin at screen 0.95
+set bmargin at screen 0.17
+
+set yrange [30:60]
+set xrange [21.5:22.5]
+set ytics 5
+set mytics 5
+set xtics 0.5
+set mxtics 5
+	set grid xtics ytics mxtics mytics
+
+	unset label
+	set xlabel "Background light [count]"
+	set ylabel "Lower altitude [km]"
+#	set label sprintf("Fitted result", pho) left at graph 0.05, 0.40 font ",32"
+
+set label sprintf("\
+10{/Symbol \264}10^6 photons\n\
+2021-09-05\n\
+09:10 UT\n\
+38.0 N\n\
+61.8 E\n\
+SZA 35.99\n\
+azimuth 214.56\n\
+\n\
+distance of 5 km\n\
+") left at graph 0.02, 0.95
+
+#set key noopaque top left reverse Left font ",16"
+set key noopaque bottom right font ",16"
+unset colorbox
+
+
+#plot "../../MSIS00_20190101_0750_atm.dat" u 3:1 w l title "MSIS",
+
+#set palette defined ( 0 '#352a87',1 '#2053d4',2 '#0d75dc',3 '#0c93d2',4 '#07a9c2',5 '#38b99e',6 '#7cbf7b',7 '#b7bd64',8 '#f1b94a',9 '#fad32a',10 '#f9fb0e')
+
+set output "b_30-60.pdf"
+plot "b.dat"      u 3:1     w lp pt 7 lw 1 lc "dark-red"  title "b",\
+     "b.dat"      u 4:1     w lp pt 7 lw 1 lc "blue" title "b (using regression line)",\
+
+set key bottom right
+unset label 
+set label sprintf("\
+																								 10{/Symbol \264}10^6 photons\n\
+																																	 2021-09-05\n\
+																																		 09:10 UT\n\
+																																			 38.0 N\n\
+																																			 61.8 E\n\
+																																		SZA 35.99\n\
+																															 azimuth 214.56\n\
+																																						 \n\
+																														 distance of 5 km\n\
+") right at graph 0.95, 0.95
+
+set yrange [30:95]
+set ytics 10
+set mytics 5
+set output "b_30-95.pdf"
+plot "b.dat"      u 3:1     w lp pt 7 lw 1 lc "dark-red"  title "b",\
+     "b.dat"      u 4:1     w lp pt 7 lw 1 lc "blue" title "b (using regression line)",\
+
+set key top right
+unset label 
+set label sprintf("\
+																								 10{/Symbol \264}10^6 photons\n\
+																																	 2021-09-05\n\
+																																		 09:10 UT\n\
+																																			 38.0 N\n\
+																																			 61.8 E\n\
+																																		SZA 35.99\n\
+																															 azimuth 214.56\n\
+																																						 \n\
+																														 distance of 5 km\n\
+") right at graph 0.95, 0.8
+
+set yrange [0:95]
+set xrange [-10:200]
+set xtics 50
+set mxtics 5
+set ytics 10
+set output "b_all.pdf"
+plot "b.dat"      u 3:1     w l lw 2 lc "dark-red"  title "b",\
+     "b.dat"      u 4:1     w l lw 1 lc "blue" title "b (using regression line)",\
+
