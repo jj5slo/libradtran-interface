@@ -50,6 +50,10 @@ int main(int argc, char *argv[]){
 	int Ncolumns;
 
 	double** data = readwrite::read_data(PATH, header, Nlines, Ncolumns);
+	if(Nlines == 0 || Ncolumns == 0){
+		std::cerr << "No data!" << std::endl;
+		return 1;
+	}
 	std::cout << "h\tobs\tsim" << std::endl;
 	for(int i=0; i<Nlines; i++){
 		std::cout << data[0][i] <<"\t"<< data[1][i] <<"\t"<< data[3][i] << std::endl;
