@@ -27,7 +27,7 @@ for lineno in 7; do
 			read -r r_year r_month r_day r_hour r_min <<< "$(date -d "${YYYY}-${MM}-${DD} ${hh}:${mm}:00 5 minutes" +"%Y %m %d %H %M" 2>/dev/null)"
 			# 日付パースに失敗した場合はスキップ
 			if [ -z "$r_year" ]; then
-				echo "Warning: Failed to parse date from $filename"
+				echo "Warning: Failed to parse date from $aurafilename"
 				continue
 			fi
 			# 5分足した状態の「分」の一の位を 0 に書き換える（＝10分単位への切り捨て）
@@ -44,89 +44,39 @@ for lineno in 7; do
 			
 			echo "target: ${year}-${month}-${day} ${hour}:${minute}"
 			orig_yeardate=$(printf "%04d-%02d-%02d" "$year" "$month" "$day")
+
+			offsets=("2 day ago:2da" "1 day ago:1da" "1 day hence:1dh" "2 day hence:2dh")
+			for item in "${offsets[@]}"; do
+				offset="${item%:*}"
+				suffix="${item#*:}"
 			
-			read -r temp_year temp_month temp_day <<< "$(date -d "${year}-${month}-${day} 2day ago" +"%-Y %-m %-d")"
-			echo "${temp_year}-${temp_month}-${temp_day} ${hour}:${minute}"
+				read -r temp_year temp_month temp_day <<< "$(date -d "${year}-${month}-${day} ${offset}" +"%-Y %-m %-d")"
+				echo "${temp_year}-${temp_month}-${temp_day} ${hour}:${minute}"
 				cp CONFIGS/shot.conf config.conf
 				linenumber=$(printf "%02d" "$lineno")
 				yeardate=$(printf "%04d-%02d-%02d" "$temp_year" "$temp_month" "$temp_day")
 				hourminute=$(printf "%02d%02d" "$hour" "$minute")
-	
-					mkdir -p "/lhome/sano2/SANO/research/estimate-profile/2026/2026-07w1/shot_std0.5e-2/${linenumber}/${orig_yeardate}/${hourminute}"
-					sed -i "11s|.*|DIR_RESULT=/lhome/sano2/SANO/research/estimate-profile/2026/2026-07w1/shot_std0.5e-2/${linenumber}/${orig_yeardate}/${hourminute}/|" config.conf
-					mkdir -p "/lhome/sano2/SANO/research/estimate-profile/2026/2026-07w1/msis/${linenumber}/${yeardate}/${hourminute}/"
-					sed -i "17s|.*|FLAG_USE_ATMOSPHERE_INIT=0|" config.conf
-					sed -i "18s|.*|PATH_ATMOSPHERE_INIT=/lhome/sano2/SANO/research/estimate-profile/2026/2026-07w1/msis/${linenumber}/${yeardate}/${hourminute}/msis_${yeardate}_${hourminute}_${linenumber}.dat|" config.conf
-					sed -i "25s|.*|i_top=55|" config.conf
-					sed -i "26s|.*|i_bottom=35|" config.conf
-					sed -i "32s|.*|PATH_OBS_BACKGROUND_INTENSITY=/lhome/sano2/SANO/research/estimate-profile/2026/2026-07w1/b_0.dat|" config.conf
-					sed -i '36s|.*|additional_option=aerosol_default\\nmc_vroom on\\nmc_std 0.5e-2\\nverbose\\nmol_abs_param crs\\n|' config.conf
-					sed -i "37s|.*|SURFACE_TYPE=ABSORB|" config.conf
-					sed -i "43s|.*|mc_photons=100000000|" config.conf
-					./main "$temp_year" "$temp_month" "$temp_day" "$hour" "$minute" "$lineno"  1> /tmp/TEMPORARY/libr0/libradtran-interface.log
 
-			read -r temp_year temp_month temp_day <<< "$(date -d "${year}-${month}-${day} 1day ago" +"%-Y %-m %-d")"
-			echo "${temp_year}-${temp_month}-${temp_day} ${hour}:${minute}"
-				cp CONFIGS/shot.conf config.conf
-				linenumber=$(printf "%02d" "$lineno")
-				yeardate=$(printf "%04d-%02d-%02d" "$temp_year" "$temp_month" "$temp_day")
-				hourminute=$(printf "%02d%02d" "$hour" "$minute")
+				DIR_RESULT="/lhome/sano2/SANO/research/estimate-profile/2026/2026-07w1/shot_std0.5e-2/${linenumber}/${orig_yeardate}/${hourminute}/"
+				DIR_MSIS="/lhome/sano2/SANO/research/estimate-profile/2026/2026-07w1/msis/${linenumber}/${yeardate}/${hourminute}/"
 	
-					mkdir -p "/lhome/sano2/SANO/research/estimate-profile/2026/2026-07w1/shot_std0.5e-2/${linenumber}/${orig_yeardate}/${hourminute}"
-					sed -i "11s|.*|DIR_RESULT=/lhome/sano2/SANO/research/estimate-profile/2026/2026-07w1/shot_std0.5e-2/${linenumber}/${orig_yeardate}/${hourminute}/|" config.conf
-					mkdir -p "/lhome/sano2/SANO/research/estimate-profile/2026/2026-07w1/msis/${linenumber}/${yeardate}/${hourminute}/"
-					sed -i "17s|.*|FLAG_USE_ATMOSPHERE_INIT=0|" config.conf
-					sed -i "18s|.*|PATH_ATMOSPHERE_INIT=/lhome/sano2/SANO/research/estimate-profile/2026/2026-07w1/msis/${linenumber}/${yeardate}/${hourminute}/msis_${yeardate}_${hourminute}_${linenumber}.dat|" config.conf
-					sed -i "25s|.*|i_top=55|" config.conf
-					sed -i "26s|.*|i_bottom=35|" config.conf
-					sed -i "32s|.*|PATH_OBS_BACKGROUND_INTENSITY=/lhome/sano2/SANO/research/estimate-profile/2026/2026-07w1/b_0.dat|" config.conf
-					sed -i '36s|.*|additional_option=aerosol_default\\nmc_vroom on\\nmc_std 0.5e-2\\nverbose\\nmol_abs_param crs\\n|' config.conf
-					sed -i "37s|.*|SURFACE_TYPE=ABSORB|" config.conf
-					sed -i "43s|.*|mc_photons=100000000|" config.conf
-					./main "$temp_year" "$temp_month" "$temp_day" "$hour" "$minute" "$lineno"  1> /tmp/TEMPORARY/libr0/libradtran-interface.log
-
-			read -r temp_year temp_month temp_day <<< "$(date -d "${year}-${month}-${day} 1day" +"%-Y %-m %-d")"
-			echo "${temp_year}-${temp_month}-${temp_day} ${hour}:${minute}"
-				cp CONFIGS/shot.conf config.conf
-				linenumber=$(printf "%02d" "$lineno")
-				yeardate=$(printf "%04d-%02d-%02d" "$temp_year" "$temp_month" "$temp_day")
-				hourminute=$(printf "%02d%02d" "$hour" "$minute")
-	
-					mkdir -p "/lhome/sano2/SANO/research/estimate-profile/2026/2026-07w1/shot_std0.5e-2/${linenumber}/${orig_yeardate}/${hourminute}"
-					sed -i "11s|.*|DIR_RESULT=/lhome/sano2/SANO/research/estimate-profile/2026/2026-07w1/shot_std0.5e-2/${linenumber}/${orig_yeardate}/${hourminute}/|" config.conf
-					mkdir -p "/lhome/sano2/SANO/research/estimate-profile/2026/2026-07w1/msis/${linenumber}/${yeardate}/${hourminute}/"
-					sed -i "17s|.*|FLAG_USE_ATMOSPHERE_INIT=0|" config.conf
-					sed -i "18s|.*|PATH_ATMOSPHERE_INIT=/lhome/sano2/SANO/research/estimate-profile/2026/2026-07w1/msis/${linenumber}/${yeardate}/${hourminute}/msis_${yeardate}_${hourminute}_${linenumber}.dat|" config.conf
-					sed -i "25s|.*|i_top=55|" config.conf
-					sed -i "26s|.*|i_bottom=35|" config.conf
-					sed -i "32s|.*|PATH_OBS_BACKGROUND_INTENSITY=/lhome/sano2/SANO/research/estimate-profile/2026/2026-07w1/b_0.dat|" config.conf
-					sed -i '36s|.*|additional_option=aerosol_default\\nmc_vroom on\\nmc_std 0.5e-2\\nverbose\\nmol_abs_param crs\\n|' config.conf
-					sed -i "37s|.*|SURFACE_TYPE=ABSORB|" config.conf
-					sed -i "43s|.*|mc_photons=100000000|" config.conf
-					./main "$temp_year" "$temp_month" "$temp_day" "$hour" "$minute" "$lineno"  1> /tmp/TEMPORARY/libr0/libradtran-interface.log
-
-			read -r temp_year temp_month temp_day <<< "$(date -d "${year}-${month}-${day} 2day" +"%-Y %-m %-d")"
-			echo "${temp_year}-${temp_month}-${temp_day} ${hour}:${minute}"
-				cp CONFIGS/shot.conf config.conf
-				linenumber=$(printf "%02d" "$lineno")
-				yeardate=$(printf "%04d-%02d-%02d" "$temp_year" "$temp_month" "$temp_day")
-				hourminute=$(printf "%02d%02d" "$hour" "$minute")
-	
-					mkdir -p "/lhome/sano2/SANO/research/estimate-profile/2026/2026-07w1/shot_std0.5e-2/${linenumber}/${orig_yeardate}/${hourminute}"
-					sed -i "11s|.*|DIR_RESULT=/lhome/sano2/SANO/research/estimate-profile/2026/2026-07w1/shot_std0.5e-2/${linenumber}/${orig_yeardate}/${hourminute}/|" config.conf
-					mkdir -p "/lhome/sano2/SANO/research/estimate-profile/2026/2026-07w1/msis/${linenumber}/${yeardate}/${hourminute}/"
-					sed -i "17s|.*|FLAG_USE_ATMOSPHERE_INIT=0|" config.conf
-					sed -i "18s|.*|PATH_ATMOSPHERE_INIT=/lhome/sano2/SANO/research/estimate-profile/2026/2026-07w1/msis/${linenumber}/${yeardate}/${hourminute}/msis_${yeardate}_${hourminute}_${linenumber}.dat|" config.conf
-					sed -i "25s|.*|i_top=55|" config.conf
-					sed -i "26s|.*|i_bottom=35|" config.conf
-					sed -i "32s|.*|PATH_OBS_BACKGROUND_INTENSITY=/lhome/sano2/SANO/research/estimate-profile/2026/2026-07w1/b_0.dat|" config.conf
-					sed -i '36s|.*|additional_option=aerosol_default\\nmc_vroom on\\nmc_std 0.5e-2\\nverbose\\nmol_abs_param crs\\n|' config.conf
-					sed -i "37s|.*|SURFACE_TYPE=ABSORB|" config.conf
-					sed -i "43s|.*|mc_photons=100000000|" config.conf
-					./main "$temp_year" "$temp_month" "$temp_day" "$hour" "$minute" "$lineno"  1> /tmp/TEMPORARY/libr0/libradtran-interface.log
+				mkdir -p "${DIR_RESULT}"
+				mkdir -p "${DIR_MSIS}"
+				sed -i "11s|.*|DIR_RESULT=${DIR_RESULT}/|" config.conf
+				sed -i "17s|.*|FLAG_USE_ATMOSPHERE_INIT=0|" config.conf
+				sed -i "18s|.*|PATH_ATMOSPHERE_INIT=${DIR_MSIS}/msis_${yeardate}_${hourminute}_${linenumber}.dat|" config.conf
+				sed -i "25s|.*|i_top=55|" config.conf
+				sed -i "26s|.*|i_bottom=35|" config.conf
+				sed -i "32s|.*|PATH_OBS_BACKGROUND_INTENSITY=/lhome/sano2/SANO/research/estimate-profile/2026/2026-07w1/b_0.dat|" config.conf
+				sed -i '36s|.*|additional_option=aerosol_default\\nmc_vroom on\\nmc_std 0.5e-2\\nverbose\\nmol_abs_param crs\\n|' config.conf
+				sed -i "37s|.*|SURFACE_TYPE=ABSORB|" config.conf
+				sed -i "43s|.*|mc_photons=100000000|" config.conf
+				./main "$temp_year" "$temp_month" "$temp_day" "$hour" "$minute" "$lineno"  1> /tmp/TEMPORARY/libr0/libradtran-interface.log
+				cp /tmp/TEMPORARY/libr0/libradtran-interface.log "${DIR_RESULT}${suffix}_libradtran-interface.log"
+			done
 			
 			for shot_file in /lhome/sano2/SANO/research/estimate-profile/2026/2026-07w1/shot_std0.5e-2/${linenumber}/${orig_yeardate}/${hourminute}/*/*/result*.dat; do
-				./util/calc_b/calc_b ${b_file}
+				./util/calc_b/calc_b ${shot_file}
 			done
 			mkdir -p "/lhome/sano2/SANO/research/estimate-profile/2026/2026-07w1/b_4days/${linenumber}/${orig_yeardate}/${hourminute}"
 			./util/mean/mean /lhome/sano2/SANO/research/estimate-profile/2026/2026-07w1/shot_std0.5e-2/${linenumber}/${orig_yeardate}/${hourminute}/*/*/result*_b.dat -o /lhome/sano2/SANO/research/estimate-profile/2026/2026-07w1/b_4days/${linenumber}/${orig_yeardate}/${hourminute}/meaned_b_${orig_yeardate}_${hourminute}_${linenumber}_4days.dat
@@ -137,24 +87,28 @@ for lineno in 7; do
 			linenumber=$(printf "%02d" "$lineno")
 			yeardate=$(printf "%04d-%02d-%02d" "$year" "$month" "$day")
 			hourminute=$(printf "%02d%02d" "$hour" "$minute")
-				mkdir -p "/lhome/sano2/SANO/research/estimate-profile/2026/2026-07w1/ret_std0.5e-2/${linenumber}/${yeardate}/${hourminute}"
-				sed -i "11s|.*|DIR_RESULT=/lhome/sano2/SANO/research/estimate-profile/2026/2026-07w1/ret_std0.5e-2/${linenumber}/${yeardate}/${hourminute}/|" config.conf
-				mkdir -p "/lhome/sano2/SANO/research/estimate-profile/2026/2026-07w1/msis/${linenumber}/${yeardate}/${hourminute}/"
-				sed -i "17s|.*|FLAG_USE_ATMOSPHERE_INIT=0|" config.conf
-				sed -i "18s|.*|PATH_ATMOSPHERE_INIT=/lhome/sano2/SANO/research/estimate-profile/2026/2026-07w1/msis/${linenumber}/${yeardate}/${hourminute}/msis_${yeardate}_${hourminute}_${linenumber}.dat|" config.conf
-				sed -i "25s|.*|i_top=49|" config.conf
-				sed -i "26s|.*|i_bottom=40|" config.conf
-				sed -i "32s|.*|PATH_OBS_BACKGROUND_INTENSITY=/lhome/sano2/SANO/research/estimate-profile/2026/2026-07w1/b_4days/${linenumber}/${orig_yeardate}/${hourminute}/meaned_b_${orig_yeardate}_${hourminute}_${linenumber}_4days.dat_b.dat|" config.conf
-				sed -i '36s|.*|additional_option=aerosol_default\\nmc_vroom on\\nmc_std 0.5e-2\\nverbose\\nmol_abs_param crs\\n|' config.conf
-				sed -i "37s|.*|SURFACE_TYPE=ABSORB|" config.conf
-				sed -i "43s|.*|mc_photons=100000000|" config.conf
-				sed -i "48s|.*|OPTIMIZER=BO|" config.conf
-				echo   "48th line replaced(OPTIMIZER=BO)."
-				sed -i "49s|.*|BO_N_ITER=60|" config.conf
-				echo   "49th (BO_N_ITER=60)."
-				sed -i "51s|.*|XTOL=1.0e-6|" config.conf
+
+			DIR_RESULT="/lhome/sano2/SANO/research/estimate-profile/2026/2026-07w1/ret_std0.5e-2/${linenumber}/${yeardate}/${hourminute}/"
+			DIR_MSIS="/lhome/sano2/SANO/research/estimate-profile/2026/2026-07w1/msis/${linenumber}/${yeardate}/${hourminute}/"
+
+			mkdir -p "${DIR_RESULT}"
+			sed -i "11s|.*|DIR_RESULT=${DIR_RESULT}/|" config.conf
+			mkdir -p "${DIR_MSIS}"
+			sed -i "17s|.*|FLAG_USE_ATMOSPHERE_INIT=0|" config.conf
+			sed -i "18s|.*|PATH_ATMOSPHERE_INIT=${DIR_MSIS}/msis_${yeardate}_${hourminute}_${linenumber}.dat|" config.conf
+			sed -i "25s|.*|i_top=49|" config.conf
+			sed -i "26s|.*|i_bottom=40|" config.conf
+			sed -i "32s|.*|PATH_OBS_BACKGROUND_INTENSITY=/lhome/sano2/SANO/research/estimate-profile/2026/2026-07w1/b_4days/${linenumber}/${orig_yeardate}/${hourminute}/meaned_b_${orig_yeardate}_${hourminute}_${linenumber}_4days.dat_b.dat|" config.conf
+			sed -i '36s|.*|additional_option=aerosol_default\\nmc_vroom on\\nmc_std 0.5e-2\\nverbose\\nmol_abs_param crs\\n|' config.conf
+			sed -i "37s|.*|SURFACE_TYPE=ABSORB|" config.conf
+			sed -i "43s|.*|mc_photons=100000000|" config.conf
+			sed -i "48s|.*|OPTIMIZER=BO|" config.conf
+			echo   "48th line replaced(OPTIMIZER=BO)."
+			sed -i "49s|.*|BO_N_ITER=60|" config.conf
+			echo   "49th (BO_N_ITER=60)."
+			sed -i "51s|.*|XTOL=1.0e-6|" config.conf
 			echo "started $yeardate $hourminute $linenumber"
-				./main "$year" "$month" "$day" "$hour" "$minute" "$lineno"  1> /tmp/TEMPORARY/libr0/libradtran-interface.log
+			./main "$year" "$month" "$day" "$hour" "$minute" "$lineno"  1> /tmp/TEMPORARY/libr0/libradtran-interface.log
 			cp /tmp/TEMPORARY/libr0/libradtran-interface.log /lhome/sano2/SANO/research/estimate-profile/2026/2026-07w1/ret_std0.5e-2/${linenumber}/${yeardate}/${hourminute}/libradtran-interface.log
 			echo "finished"
 		fi
