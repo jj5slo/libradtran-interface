@@ -11,3 +11,4 @@ DaemonExec.sh
 CONFIGS/*
 config.conf
 __config.conf
+UNKNOWNFILES/*

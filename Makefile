@@ -4,10 +4,10 @@ OBJ_PATHS = $(addprefix obj/, $(OBJS))
 HEADERS = coordinate.h interface.h solar_direction.h execute.h obsDateTime.h Observed.h save.h get_msis.h read_config.h fit.h wrapper.h golden_section_search.h avoid_dupe.h atmNair_to_temperature.h
 HEADER_PATHS = $(addprefix headers/, $(HEADERS))
 
-INC_DIR = /lhome/sano2/include headers
+INC_DIR = /home/sano/include headers
 INC_PATHS = $(addprefix -I, $(INC_DIR))
 
-LIB_DIR = /lhome/sano2/lib
+LIB_DIR = /home/sano/lib
 LIB_PATHS = $(addprefix -L, $(LIB_DIR))
 LIB_OPTS = -lnrlmsise00 -lnlopt -lm -lbayesopt -lboost_system -lblas -llapack -Wl,-rpath,$(LIB_DIR)
 OPTS = -Wall -O3
