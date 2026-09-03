@@ -11,7 +11,7 @@ LIB_DIR = /home/sano/lib /home/sano/.local/lib
 LIB_PATHS = $(addprefix -L, $(LIB_DIR))
 comma := ,
 RPATH_PATHS = $(addprefix -Wl$(comma)-rpath$(comma), $(LIB_DIR))
-LIB_OPTS = -lnrlmsise00 -lnlopt -lm -lbayesopt -lblas -llapack $(RPATH_PATHS)
+LIB_OPTS = -lnrlmsise00 -lnlopt -lm -lbayesopt $(RPATH_PATHS)
 OPTS = -Wall -O3
 
 	vpath %.cpp src:src/Observed:src/coordinate:src/execute:src/interface:src/fit:src/wrapper:src/golden_section_search:src/readwrite:src/SpectralResponse:src/filematch
