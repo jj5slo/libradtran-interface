@@ -1,0 +1,31 @@
+# =========================================================
+                        # ▼ ここから追加: 4日分の shot 結果が全て揃っているか確認 ▼
+                        # =========================================================
+			all_shots_exist=true
+			for item in "${offsets[@]}"; do
+				offset="${item%:*}"
+				# 確認する日付を再計算
+				read -r chk_year chk_month chk_day <<< "$(date -d "${year}-${month}-${day} ${offset}" +"%-Y %-m %-d")"
+				
+				DIR_RESULT_CHK="/lhome/sano2/SANO/research/estimate-profile/2026/2026-07w1/shot_std0.5e-2/${linenumber}/${orig_yeardate}/${hourminute}"
+				
+				shopt -s nullglob
+				chk_files=("${DIR_RESULT_CHK}"/*/*/result*$(printf "%04d%02d%02d" ${chk_year} ${chk_month} ${chk_day})*$(printf "%02d%02d00" ${hour} ${minute})*.dat)
+				shopt -u nullglob
+
+				# ファイルが見つからなかった場合
+				if [ ${#chk_files[@]} -eq 0 ]; then
+					echo "Missing shot data for ${chk_year}-${chk_month}-${chk_day}. Skipping make_b and ret."
+					all_shots_exist=false
+					break # 1つでも欠けていたらループを抜ける
+				fi
+			done
+
+			# 4日分揃っていなければ、現在の aurafile の処理を中断し、次の aurafile へ進む
+			if [ "$all_shots_exist" = false ]; then
+				continue
+			fi
+			echo "All 4 shot files exist. Proceeding to make_b and ret..."
+                        # =========================================================
+                        # ▲ ここまで追加 ▲
+                        # =========================================================
