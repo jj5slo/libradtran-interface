@@ -80,7 +80,7 @@ for lineno in 76; do
 			sed -i "37s|.*|SURFACE_TYPE=ABSORB|" config.conf
 			sed -i "43s|.*|mc_photons=100000000|" config.conf
 			./main "$year" "$month" "$day" "$hour" "$minute" "$lineno"  1> /tmp/TEMPORARY/libr0/libradtran-interface.log
-			cp /tmp/TEMPORARY/libr0/libradtran-interface.log "${DIR_RESULT}/${suffix}_libradtran-interface.log"
+			cp /tmp/TEMPORARY/libr0/libradtran-interface.log "${DIR_RESULT}/shot_libradtran-interface.log"
 			
 			for shot_file in /lhome/sano2/SANO/research/estimate-profile/2026/2026-09w1/const_b/shot_std0.5e-2/${linenumber}/${orig_yeardate}/${hourminute}/*/*/result*.dat; do
 				./util/calc_b/calc_b ${shot_file}
@@ -105,7 +105,7 @@ for lineno in 76; do
 			sed -i "18s|.*|PATH_ATMOSPHERE_INIT=${DIR_MSIS}/msis_${yeardate}_${hourminute}_${linenumber}.dat|" config.conf
 			sed -i "25s|.*|i_top=49|" config.conf
 			sed -i "26s|.*|i_bottom=40|" config.conf
-			sed -i "32s|.*|PATH_OBS_BACKGROUND_INTENSITY=/lhome/sano2/SANO/research/estimate-profile/2026/2026-09w1/const_b/b_50-54/${linenumber}/${orig_yeardate}/${hourminute}/b_50-54_${orig_yeardate}_${hourminute}_${linenumber}.dat" config.conf
+			sed -i "32s|.*|PATH_OBS_BACKGROUND_INTENSITY=/lhome/sano2/SANO/research/estimate-profile/2026/2026-09w1/const_b/b_50-54/${linenumber}/${orig_yeardate}/${hourminute}/b_50-54_${orig_yeardate}_${hourminute}_${linenumber}.dat|" config.conf
 			sed -i '36s|.*|additional_option=aerosol_default\\nmc_vroom on\\nmc_std 0.5e-2\\nverbose\\nmol_abs_param crs\\n|' config.conf
 			sed -i "37s|.*|SURFACE_TYPE=ABSORB|" config.conf
 			sed -i "43s|.*|mc_photons=100000000|" config.conf
@@ -134,7 +134,7 @@ for lineno in 76; do
 			sed -i "18s|.*|PATH_ATMOSPHERE_INIT=${DIR_MSIS}/msis_${yeardate}_${hourminute}_${linenumber}.dat|" config.conf
 			sed -i "25s|.*|i_top=49|" config.conf
 			sed -i "26s|.*|i_bottom=40|" config.conf
-			sed -i "32s|.*|PATH_OBS_BACKGROUND_INTENSITY=/lhome/sano2/SANO/research/estimate-profile/2026/2026-09w1/const_b/b_55-59/${linenumber}/${orig_yeardate}/${hourminute}/b_55-59_${orig_yeardate}_${hourminute}_${linenumber}.dat" config.conf
+			sed -i "32s|.*|PATH_OBS_BACKGROUND_INTENSITY=/lhome/sano2/SANO/research/estimate-profile/2026/2026-09w1/const_b/b_55-59/${linenumber}/${orig_yeardate}/${hourminute}/b_55-59_${orig_yeardate}_${hourminute}_${linenumber}.dat|" config.conf
 			sed -i '36s|.*|additional_option=aerosol_default\\nmc_vroom on\\nmc_std 0.5e-2\\nverbose\\nmol_abs_param crs\\n|' config.conf
 			sed -i "37s|.*|SURFACE_TYPE=ABSORB|" config.conf
 			sed -i "43s|.*|mc_photons=100000000|" config.conf
