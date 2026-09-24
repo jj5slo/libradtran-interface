@@ -30,6 +30,11 @@ int main(int argc, char *argv[]){
 	int Ncolumns = 0;
 
 	double** data = readwrite::read_data(PATH, header, Nlines, Ncolumns);
+	if(Nlines == 0){
+		std::cerr << "No data!" << std::endl;
+		AndoLab::deallocate_memory2d(data);
+		return 1;
+	}
 	double** b_data = new double* [2];
 	for(int i=0; i<2; ++i){
 		b_data[i] = new double [101];
