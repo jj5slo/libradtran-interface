@@ -53,18 +53,18 @@ int main(int argc, char *argv[]){
 //		obs_index = atoi(argv[4]) - 1;/* 観測データの何行目を読むか */
 //	}
 //	else
-if(argc == 7){
-		YEAR      = atoi(argv[1]);
-		MONTH     = atoi(argv[2]);
-		DAY       = atoi(argv[3]);
-		HOUR      = atoi(argv[4]);
-		MINUTE    = atoi(argv[5]);
-		obs_index = atoi(argv[6]) - 1;/* 観測データの何行目を読むか */
-	}
-	else{
-		std::cerr << "Usage: ./main YEAR MONTH DAY HOUR MINUTE OBS_INDEX\n" << std::endl;
-		return 0;
-	}
+	if(argc == 7){
+			YEAR      = atoi(argv[1]);
+			MONTH     = atoi(argv[2]);
+			DAY       = atoi(argv[3]);
+			HOUR      = atoi(argv[4]);
+			MINUTE    = atoi(argv[5]);
+			obs_index = atoi(argv[6]) - 1;/* 観測データの何行目を読むか */
+		}
+		else{
+			std::cerr << "Usage: ./main YEAR MONTH DAY HOUR MINUTE OBS_INDEX\n" << std::endl;
+			return 0;
+		}
 
 /* ==== */
 
