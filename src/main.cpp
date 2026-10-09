@@ -414,7 +414,7 @@ if(argc == 7){
 
 
 /* ==== 上から求める ==== */
-	int N_repeating_optimization = ((i_top - i_bottom) + N_exp_decay_atm-1) / N_exp_decay_atm;/* 切り上げ除算 *//* 最適化を走らせる回数 */
+	int N_repeating_optimization = ((i_top - i_bottom) + N_exp_decay_atm/*+1-1*/) / N_exp_decay_atm;/* 切り上げ除算 *//* 最適化を走らせる回数 */
 	double* inv_10_scaleheights = new double[N_repeating_optimization];/* 最適化して求めた係数を保存する */
 	//double* x_lower_arr = new double[N_repeating_optimization];
 	//double* x_upper_arr = new double[N_repeating_optimization];
