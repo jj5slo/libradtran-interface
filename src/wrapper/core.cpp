@@ -121,9 +121,9 @@ double core(void* raw_Args){
 
 
 			if(args->pStdin.solver == "mystic" || args->pStdin.solver == "mystic_plainparallel"){
-				rad_wavelength_NN     = read_mystic_rad_NN(args->DIR_UVSPEC);
-				rad_wavelength_NN_sd  = read_mystic_rad_sd(args->DIR_UVSPEC);
-				rad_wavelength_spc    = read_mystic_rad_spc(args->DIR_UVSPEC);
+				rad_wavelength_NN     =  read_mystic_rad_NN(args->DIR_UVSPEC, args->pStdin.mc_basename);
+				rad_wavelength_NN_sd  =  read_mystic_rad_sd(args->DIR_UVSPEC, args->pStdin.mc_basename);
+				rad_wavelength_spc    = read_mystic_rad_spc(args->DIR_UVSPEC, args->pStdin.mc_basename);
 				rad_wavelength = rad_wavelength_spc;
 				std::cout << "rad_NN: " << std::setprecision(7) << rad_wavelength_NN << " ratio: " << rad_wavelength_spc/rad_wavelength_NN << std::endl;
 				std::cout << "rad_NN_sd: " << std::setprecision(7) << rad_wavelength_NN_sd << " sd/rad_NN:" << rad_wavelength_NN_sd/rad_wavelength_NN << std::endl;

@@ -22,12 +22,9 @@ void execute_uvspec(const std::string DIR_UVSPEC, const std::string path_stdin, 
 /* read.cpp */
 const int MYSTIC_RADIANCE_COLUMN = 7;/* radiance は7列目に出力される */
 
-double read_mystic_rad(const std::string DIR_UVSPEC, int NN);
-
-double read_mystic_rad_NN(const std::string DIR_UVSPEC);
-double read_mystic_rad_sd(const std::string DIR_UVSPEC);
-
-double read_mystic_rad_spc(const std::string DIR_UVSPEC);
+double read_mystic_rad_NN(const std::string DIR_UVSPEC, std::string mc_basename);
+double read_mystic_rad_sd(const std::string DIR_UVSPEC, std::string mc_basename);
+double read_mystic_rad_spc(const std::string DIR_UVSPEC, std::string mc_basename);
 double read_stdout(std::string path_stdout, int number_of_column);
 
 int getLastPhotonCountFromLog(const std::string& filename);
