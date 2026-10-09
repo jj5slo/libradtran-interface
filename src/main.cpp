@@ -53,18 +53,18 @@ int main(int argc, char *argv[]){
 //		obs_index = atoi(argv[4]) - 1;/* 観測データの何行目を読むか */
 //	}
 //	else
-if(argc == 7){
-		YEAR      = atoi(argv[1]);
-		MONTH     = atoi(argv[2]);
-		DAY       = atoi(argv[3]);
-		HOUR      = atoi(argv[4]);
-		MINUTE    = atoi(argv[5]);
-		obs_index = atoi(argv[6]) - 1;/* 観測データの何行目を読むか */
-	}
-	else{
-		std::cerr << "Usage: ./main YEAR MONTH DAY HOUR MINUTE OBS_INDEX\n" << std::endl;
-		return 0;
-	}
+	if(argc == 7){
+			YEAR      = atoi(argv[1]);
+			MONTH     = atoi(argv[2]);
+			DAY       = atoi(argv[3]);
+			HOUR      = atoi(argv[4]);
+			MINUTE    = atoi(argv[5]);
+			obs_index = atoi(argv[6]) - 1;/* 観測データの何行目を読むか */
+		}
+		else{
+			std::cerr << "Usage: ./main YEAR MONTH DAY HOUR MINUTE OBS_INDEX\n" << std::endl;
+			return 0;
+		}
 
 /* ==== */
 
@@ -414,7 +414,7 @@ if(argc == 7){
 
 
 /* ==== 上から求める ==== */
-	int N_repeating_optimization = ((i_top - i_bottom) + N_exp_decay_atm-1) / N_exp_decay_atm;/* 切り上げ除算 *//* 最適化を走らせる回数 */
+	int N_repeating_optimization = ((i_top - i_bottom) + N_exp_decay_atm/*+1-1*/) / N_exp_decay_atm;/* 切り上げ除算 *//* 最適化を走らせる回数 */
 	double* inv_10_scaleheights = new double[N_repeating_optimization];/* 最適化して求めた係数を保存する */
 	//double* x_lower_arr = new double[N_repeating_optimization];
 	//double* x_upper_arr = new double[N_repeating_optimization];
