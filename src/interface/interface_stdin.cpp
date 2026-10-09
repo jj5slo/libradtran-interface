@@ -26,12 +26,14 @@ int save_stdin(std::string path, ParamStdin param){
 		ofs << "mc_spherical 1D\n";
 		ofs << "mc_photons " << param.mc_photons << "\n";
 		ofs << "mc_backward\n";
+		ofs << "mc_basename " << param.mc_basename << "\n";
 		ofs << "#mc_backward_output eup\nmc_escape on\n\n";
 	}
 	if(param.solver == "mystic_plainparallel"){
 		ofs << "rte_solver " << "mystic" <<"\n";
 		ofs << "mc_photons " << param.mc_photons << "\n";
 		ofs << "mc_backward\n";
+		ofs << "mc_basename " << param.mc_basename << "\n";
 		ofs << "#mc_backward_output eup\n#mc_escape on\n\n";
 	}
 	ofs << "wavelength " << param.wavelength << " " << param.wavelength << "\n\n";
