@@ -106,9 +106,9 @@ double core(void* raw_Args){
 			save_stdin(args->PATH_STDIN, args->pStdin);/* 座標情報を入力ファイルにセーブ */
 			/* ==== */
 			/* ==== acquiring radiance from libRadtran ==== */
-			const std::regex TARGET_PATTERN(R"(mc.*\.rad(\.std)?$)");
+			const std::regex TARGET_PATTERN(args->pStdin.mc_basename + R"(.*\.rad(\.std)?$)");
 			deleteMatchingFiles(args->DIR_UVSPEC, TARGET_PATTERN);
-			deleteMatchingFiles(args->DIR_UVSPEC, std::regex(R"(mc.*\.spc$)"));
+			deleteMatchingFiles(args->DIR_UVSPEC, std::regex(args->pStdin.mc_basename + R"(.*\.spc$)"));
 			std::filesystem::remove(args->DIR_LOG+"libRadtran.log");
 			auto starttime = std::chrono::system_clock::now();
 
