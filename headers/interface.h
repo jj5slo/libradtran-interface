@@ -41,6 +41,7 @@ public:
 	int mc_photons {1000000};
 
 	std::string solver = "mystic";
+	std::string mc_basename = "mc";
 	std::string additional = "";
 
 };

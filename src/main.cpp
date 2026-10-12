@@ -44,6 +44,7 @@ int main(int argc, char *argv[]){
 	int HOUR;
 	int MINUTE;
 	int obs_index;
+	std::string PATH_CONFIG = "./config.conf";
 //	if(argc == 5){
 //		YEAR = atoi(argv[1]);
 //		MONTH = atoi(argv[2]);
@@ -54,17 +55,24 @@ int main(int argc, char *argv[]){
 //	}
 //	else
 	if(argc == 7){
-			YEAR      = atoi(argv[1]);
-			MONTH     = atoi(argv[2]);
-			DAY       = atoi(argv[3]);
-			HOUR      = atoi(argv[4]);
-			MINUTE    = atoi(argv[5]);
-			obs_index = atoi(argv[6]) - 1;/* 観測データの何行目を読むか */
-		}
-		else{
-			std::cerr << "Usage: ./main YEAR MONTH DAY HOUR MINUTE OBS_INDEX\n" << std::endl;
-			return 0;
-		}
+		YEAR      = atoi(argv[1]);
+		MONTH     = atoi(argv[2]);
+		DAY       = atoi(argv[3]);
+		HOUR      = atoi(argv[4]);
+		MINUTE    = atoi(argv[5]);
+		obs_index = atoi(argv[6]) - 1;/* 観測データの何行目を読むか */
+	}else if(argc == 8){
+		YEAR      = atoi(argv[1]);
+		MONTH     = atoi(argv[2]);
+		DAY       = atoi(argv[3]);
+		HOUR      = atoi(argv[4]);
+		MINUTE    = atoi(argv[5]);
+		obs_index = atoi(argv[6]) - 1;/* 観測データの何行目を読むか */
+		PATH_CONFIG = std::string(argv[7]);
+	}else{
+		std::cerr << "Usage: ./main YEAR MONTH DAY HOUR MINUTE OBS_INDEX\n" << std::endl;
+		return 0;
+	}
 
 /* ==== */
 
@@ -80,7 +88,6 @@ int main(int argc, char *argv[]){
 /* ==== */
 /* ==== ファイルから設定読込 ==== */
 
-	std::string PATH_CONFIG = "./config.conf";
 	std::map<std::string, std::string> configs = readConfigFile(PATH_CONFIG);
 	
 	const int FORCESTOP = getConfig(configs, "FORCESTOP", 0);
@@ -118,6 +125,7 @@ int main(int argc, char *argv[]){
 //	double OBS_BACKGROUND_INTENSITY  = getConfig(configs, "OBS_BACKGROUND_INTENSITY", 22.0);
 
 	std::string solver = getConfig(configs, "solver", "mystic");/* libRadtranのソルバ */
+	std::string mc_basename = getConfig(configs, "mc_basename", "mc");/* mc.rad.spc などのmcの部分（並列実行時に変更） */
 
 	std::string SURFACE_TYPE = getConfig(configs, "SURFACE_TYPE", "ABSORB");/* 表面反射のタイプを指定 */
 	double albedo = getConfig(configs, "albedo", 0.3);/* LAMBERT の反射率 */
@@ -254,6 +262,7 @@ int main(int argc, char *argv[]){
 	args.pStdin.mc_photons = mc_photons;/* default is 300000 */
 	args.FLAG_adapt_mc_photons = FLAG_adapt_mc_photons;
 	args.pStdin.solver = solver;
+	args.pStdin.mc_basename = mc_basename;
 	args.pStdin.additional = additional_option;//\npseudospherical";
 	/*
 		std::cout << &args.pStdin << " " << &args.pStdin.sza << std::endl;
