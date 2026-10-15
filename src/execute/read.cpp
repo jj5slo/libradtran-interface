@@ -126,7 +126,7 @@ double read_stdout(std::string path_stdout, int number_of_column){
 int getLastPhotonCountFromLog(const std::string& filename) {
 	std::ifstream file(filename);
 	if (!file) {
-		std::cerr << "エラー: ファイルを開けませんでした。" << std::endl;
+		std::cerr << "エラー: getLastPhotonCountFromLog: ファイルを開けませんでした。" << std::endl;
 		return -1;
 	}
 
