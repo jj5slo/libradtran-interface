@@ -11,8 +11,8 @@ double read_mystic_rad_NN(const std::string DIR_UVSPEC, std::string mc_basename)
 	std::string* paths_list = nullptr;
 	int Nfiles = 0;
 	listMatchingFiles(DIR_UVSPEC, std::regex(mc_basename + R"(.*\.rad)"), paths_list, Nfiles);
-
-	if(Nfiles != 1){ throw std::runtime_error("read_mystic_rad_NN: number of files is not 1!!"); }/* ERROR */
+	
+	if(Nfiles != 1){ throw std::runtime_error("read_mystic_rad_NN: number of files is not 1 (is "+std::to_string(Nfiles)+")!!"); }/* ERROR */
 	
 	std::string path = DIR_UVSPEC+paths_list[0];
 
@@ -42,7 +42,7 @@ double read_mystic_rad_sd(const std::string DIR_UVSPEC, std::string mc_basename)
 	int Nfiles = 0;
 	listMatchingFiles(DIR_UVSPEC, std::regex(mc_basename + R"(.*\.rad\.std)"), paths_list, Nfiles);
 
-	if(Nfiles != 1){ throw std::runtime_error("read_mystic_rad_sd: number of files is not 1!!"); }/* ERROR */
+	if(Nfiles != 1){ throw std::runtime_error("read_mystic_rad_sd: number of files is not 1 (is "+std::to_string(Nfiles)+")!!"); }/* ERROR */
 	
 	std::string path = DIR_UVSPEC+paths_list[0];
 
@@ -126,7 +126,7 @@ double read_stdout(std::string path_stdout, int number_of_column){
 int getLastPhotonCountFromLog(const std::string& filename) {
 	std::ifstream file(filename);
 	if (!file) {
-		std::cerr << "エラー: ファイルを開けませんでした。" << std::endl;
+		std::cerr << "エラー: getLastPhotonCountFromLog: ファイルを開けませんでした。" << std::endl;
 		return -1;
 	}
 
