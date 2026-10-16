@@ -100,7 +100,7 @@ double read_mystic_rad_spc(const std::string DIR_UVSPEC, std::string mc_basename
 	return 0.0;
 }
 double read_mystic_rad_spc_sd(const std::string DIR_UVSPEC, std::string mc_basename, double wavelength){
-	std::string path = (DIR_UVSPEC+mc_basename+".rad.spc");
+	std::string path = (DIR_UVSPEC+mc_basename+".rad.std.spc");
 	std::ifstream ifs(path);
 
 	if(!ifs){
