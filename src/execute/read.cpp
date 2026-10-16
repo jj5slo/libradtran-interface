@@ -37,7 +37,7 @@ double read_mystic_rad_NN(const std::string DIR_UVSPEC, std::string mc_basename)
 	}
 	return 0.0;
 }
-double read_mystic_rad_sd(const std::string DIR_UVSPEC, std::string mc_basename){
+double read_mystic_rad_NN_sd(const std::string DIR_UVSPEC, std::string mc_basename){
 	std::string* paths_list = nullptr;
 	int Nfiles = 0;
 	listMatchingFiles(DIR_UVSPEC, std::regex(mc_basename + R"(.*\.rad\.std)"), paths_list, Nfiles);
@@ -68,12 +68,13 @@ double read_mystic_rad_sd(const std::string DIR_UVSPEC, std::string mc_basename)
 	return 0.0;
 }
 
-double read_mystic_rad_spc(const std::string DIR_UVSPEC, std::string mc_basename){
+double read_mystic_rad_spc(const std::string DIR_UVSPEC, std::string mc_basename, double wavelength){
 	std::string path = (DIR_UVSPEC+mc_basename+".rad.spc");
 	std::ifstream ifs(path);
-
 	if(!ifs){
-		std::cerr << "Failed to open file '" << path << "'" << std::endl;
+	}
+	if(!ifs){
+		std::cerr << "read_mystic_rad_spc: Failed to open file '" << path << "'" << std::endl;
 		return 0.0;
 	}
 
@@ -85,11 +86,47 @@ double read_mystic_rad_spc(const std::string DIR_UVSPEC, std::string mc_basename
 	
 	int col_index = 0;
 	while(iss >> token){
+		if(col_index == 0){
+			if(std::abs(std::stod(token) - wavelength) > 0.1){
+				continue;
+			}
+		}
 		if(col_index == 4){/* wl ix iy iz rad */
 			return std::stod(token);
 		}
 		col_index++;
 	}
+	std::cerr << "read_mystic_rad_spc: Failed to read " << wavelength << " nm !!" << std::endl;
+	return 0.0;
+}
+double read_mystic_rad_spc_sd(const std::string DIR_UVSPEC, std::string mc_basename, double wavelength){
+	std::string path = (DIR_UVSPEC+mc_basename+".rad.spc");
+	std::ifstream ifs(path);
+
+	if(!ifs){
+		std::cerr << "read_mystic_rad_spc_sd: Failed to open file '" << path << "'" << std::endl;
+		return 0.0;
+	}
+
+	std::string line;
+
+	std::getline(ifs, line);
+	std::istringstream iss(line);
+	std::string token;
+	
+	int col_index = 0;
+	while(iss >> token){
+		if(col_index == 0){
+			if(std::abs(std::stod(token) - wavelength) > 0.1){
+				continue;
+			}
+		}
+		if(col_index == 4){/* wl ix iy iz rad */
+			return std::stod(token);
+		}
+		col_index++;
+	}
+	std::cerr << "read_mystic_rad_spc_sd: Failed to read " << wavelength << " nm !!" << std::endl;
 	return 0.0;
 }
 
