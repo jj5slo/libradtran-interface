@@ -127,10 +127,10 @@ double core(void* raw_Args){
 				rad_wavelength_NN     =  read_mystic_rad_NN(args->DIR_UVSPEC, args->pStdin.mc_basename);
 				rad_wavelength_NN_sd  =  read_mystic_rad_NN_sd(args->DIR_UVSPEC, args->pStdin.mc_basename);
 				rad_wavelength_spc    =  read_mystic_rad_spc(args->DIR_UVSPEC, args->pStdin.mc_basename, args->pStdin.wavelength);
-				rad_wavelength_spc_sd =  read_mystic_rad_spc(args->DIR_UVSPEC, args->pStdin.mc_basename, args->pStdin.wavelength);
+				rad_wavelength_spc_sd =  read_mystic_rad_spc_sd(args->DIR_UVSPEC, args->pStdin.mc_basename, args->pStdin.wavelength);
 				rad_wavelength = rad_wavelength_spc;
 				std::cout << "rad_NN: " << std::setprecision(7) << rad_wavelength_NN << " ratio: " << rad_wavelength_spc/rad_wavelength_NN << std::endl;
-				std::cout << "rad_NN_sd: " << std::setprecision(7) << rad_wavelength_NN_sd << " sd/rad_NN: " << rad_wavelength_NN_sd/rad_wavelength_NN << " sd/rad_spc: "<< rad_wavelength_spc/rad_wavelength_spc_sd << std::endl;
+				std::cout << "rad_NN_sd: " << std::setprecision(7) << rad_wavelength_NN_sd << " sd/rad_NN: " << rad_wavelength_NN_sd/rad_wavelength_NN << " sd/rad_spc: "<< rad_wavelength_spc_sd/rad_wavelength_spc << std::endl;
 				std::cout << "photons: " << photons  << std::endl;
 			}else{
 				rad_wavelength = read_stdout(args->PATH_STDOUT, 0);
