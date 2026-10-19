@@ -125,7 +125,7 @@ int main(int argc, char *argv[]){
 //	double OBS_BACKGROUND_INTENSITY  = getConfig(configs, "OBS_BACKGROUND_INTENSITY", 22.0);
 
 	std::string solver = getConfig(configs, "solver", "mystic");/* libRadtranのソルバ */
-	std::string mc_basename = getConfig(configs, "mc_basename", "mc");/* mc.rad.spc などのmcの部分（並列実行時に変更） */
+	std::string mc_basename = getConfig(configs, "mc_basename", "mc_");/* mc.rad.spc などのmcの部分（並列実行時に変更） */
 
 	std::string SURFACE_TYPE = getConfig(configs, "SURFACE_TYPE", "ABSORB");/* 表面反射のタイプを指定 */
 	double albedo = getConfig(configs, "albedo", 0.3);/* LAMBERT の反射率 */
