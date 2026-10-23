@@ -312,7 +312,7 @@ int main(int argc, char *argv[]){
 	}
 	else{
 		std::cout << "calling msis..." << std::endl;
-		pAtm = get_msis(dt, tparr, Nheights);/* tangential point でのMSIS大気から求めたパラメタを取得 */
+		pAtm = get_msis21(dt, tparr, Nheights);/* tangential point でのMSIS大気から求めたパラメタを取得 */
 		for(int i=0; i<Nheights; i++){
 			if(1.0 < std::abs(pAtm[i].z - molAtm[i].z)){
 				std::cerr << "MOLECULE_FILE HEIGHT IS NOT CONSISTENT WITH ATMOSPHERE_FILE !! PLEASE CHECK YOUR INPUT!!" << std::endl;
