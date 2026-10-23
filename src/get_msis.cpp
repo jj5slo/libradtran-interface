@@ -113,7 +113,7 @@ ParamAtmosphere* get_msis21(obsDateTime dt, Geocoordinate* coord, int N){
 	for(int i=0; i<N; ++i){
 		patm[i].z = coord[i].altitude() / 1.0e3; /* [km] */
 		atmosphere.calc_at(coord[i].altitude()/*[m]*/, coord[i].latitude(), coord[i].longitude());
-		patm[i].Nair = atmosphere.N();
+		patm[i].Nair = atmosphere.N()/* [/m3] */ / 1.0e6 /* [/cm3] */;
 		patm[i].T    = atmosphere.T();
 		patm[i].set_p_from_Nair_T();
 	}
