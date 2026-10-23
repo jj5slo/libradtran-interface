@@ -18,6 +18,7 @@
 constexpr double NA {6.02214076e23};
 
 ParamAtmosphere* get_msis(obsDateTime dt, Geocoordinate* coord, int N);/* 日時、各点の座標、coordがいくつあるか */
+ParamAtmosphere* get_msis21(obsDateTime dt, Geocoordinate* coord, int N);
 
 double get_msis_total_mass_density(/* 全質量密度を返す */
 	obsDateTime dt, Geocoordinate coord);
