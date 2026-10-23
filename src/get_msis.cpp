@@ -108,9 +108,10 @@ ParamAtmosphere* get_msis21(obsDateTime dt, Geocoordinate* coord, int N){
 	ParamAtmosphere* patm = new ParamAtmosphere[N];
 	AndoLab::Msis21 atmosphere;
 	atmosphere.date(dt.Year(), dt.Month(), dt.Date(), dt.Hour()*60 + dt.Minute());
-	atmosphere.space_weather(145.0f, 145.0f, 6.0f);// TODO 仮の値
+	//atmosphere.space_weather(145.0f, 145.0f, 6.0f);// TODO 仮の値
+	atmosphere.space_weather(150.0f, 150.0f, 4.0f);// TODO 仮の値
 	for(int i=0; i<N; ++i){
-		patm[i].z = 1e3*coord[i].altitude();
+		patm[i].z = coord[i].altitude() / 1.0e3; /* [km] */
 		atmosphere.calc_at(coord[i].altitude()/*[m]*/, coord[i].latitude(), coord[i].longitude());
 		patm[i].Nair = atmosphere.N();
 		patm[i].T    = atmosphere.T();
