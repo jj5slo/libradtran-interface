@@ -16,7 +16,15 @@ ParamAtmosphere* call_temperatures(
 	ParamAtmosphere*& rawAtm,
 	const int Nheights,
 	const int iTOP,
-	const double COEF);
+	const double COEF
+);
+
+ParamAtmosphere* Nair_to_Temperature(
+	int         atm_Nheights,
+	PlanetParam earth,
+	ParamAtmosphere* rawatm,/* Nair以外はMSIS */
+	int         iTOP
+);
 
 ParamAtmosphere* Nair_to_atmosphere_new(
 	int atm_Nheights,

@@ -46,10 +46,10 @@ public:
 
 };
 
-
 class ParamAtmosphere{/* libRadtranの大気プロファイルに設定できる諸量。配列にして使う。 */
 private:
 	int p_NoPs = 9; /* パラメタの数 */
+
 public:
 	double z;/* [km] */
 	double p;/* 圧力[hPa] */
@@ -60,8 +60,27 @@ public:
 	double Nh2o;
 	double Nco2;
 	double Nno2;
-	
-	ParamAtmosphere(void) : z(0.0), p(0.0), T(0.0), Nair(0.0), No3(0.0), No2(0.0), Nh2o(0.0), Nco2(0.0), Nno2(0.0) {}
+
+	// デフォルトコンストラクタ
+	ParamAtmosphere()
+		: z(0.0), p(0.0), T(0.0), Nair(0.0),
+		  No3(0.0), No2(0.0), Nh2o(0.0),
+		  Nco2(0.0), Nno2(0.0) {}
+
+	// コピーコンストラクタ
+	ParamAtmosphere(const ParamAtmosphere&) = default;
+
+	// コピー代入演算子
+	ParamAtmosphere& operator=(const ParamAtmosphere&) = default;
+
+	// ムーブコンストラクタ
+	ParamAtmosphere(ParamAtmosphere&&) = default;
+
+	// ムーブ代入演算子
+	ParamAtmosphere& operator=(ParamAtmosphere&&) = default;
+
+	// デストラクタ
+	~ParamAtmosphere() = default;
 
 	/* interface-atmosphere.cpp */
 	double* returnvector(void);
@@ -70,10 +89,9 @@ public:
 	}
 	void set_p_from_Nair_T(void);/* Nair, T から状態方程式で p を設定し直す */
 	void set_T_from_Nair_p(void);/* Nair, T から状態方程式で p を設定し直す */
-
 	void set_T_p_from_Nair_hydrostatic(void);
-
 };
+
 ParamAtmosphere* readParamAtmosphere(std::string filename, int& Nlines);
 
 void set_Nair_10_exponentially(int Nheights, ParamAtmosphere*& pAtm, int iTOP, double Coef);
