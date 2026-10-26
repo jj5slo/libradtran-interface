@@ -30,12 +30,11 @@ ParamAtmosphere* call_temperatures(PlanetParam earth, ParamAtmosphere*& rawAtm, 
 }
 
 
-
-ParamAtmosphere* Nair_to_Temperature(
+void Nair_to_Temperature(
 	int         atm_Nheights,
-	PlanetParam earth,
-	ParamAtmosphere* rawatm,/* Nair以外はMSIS */
-	int         iTOP
+	ParamAtmosphere*& atm,/* Nair以外はMSIS */
+	int         iTOP,/* 固定する点!! */
+	PlanetParam earth
 ){
 	constexpr double GM_E {3.986004356e14};/* 理科年表プレミアム 2025 */
 	constexpr double KB { 1.380649e-23 };
@@ -44,12 +43,7 @@ ParamAtmosphere* Nair_to_Temperature(
 	const double m = ATM_MOL_W * 1.0e-3 / NA;
 	const double R = earth.radius();/* [m] */
 	
-	ParamAtmosphere* atm = new ParamAtmosphere[atm_Nheights];/* will be returned */
-	for(int i=0; i<atm_Nheights; ++i){
-		atm[i] = rawatm[i];
-	}
-	
-	for(int i=iTOP; i>=0; --i){
+	for(int i=iTOP-1; i>=0; --i){
 		const double z1 = atm[i].z * 1.0e3;
 		const double z0 = atm[i+1].z * 1.0e3;
 		const double dz = z0 - z1;
@@ -66,13 +60,13 @@ ParamAtmosphere* Nair_to_Temperature(
 			const double weight = (j == 0 || j == NSUB) ? 0.5 : 1.0;/* 端は重み0.5 */
 			integral += weight * f;
 		}
+		integral *= dx;
 
 		/* T_i = T_{i+1}\exp (-k_i \Delta z_i) + \frac{mGM_E}{k_B} \int_0^{\Delta z_i} \frac{\exp(-k_i x)}{(R_E + z_i + x)^2} dx */
 		atm[i].T = atm[i+1].T * std::exp(-k*dz) + (m*GM_E / KB)*integral;
 
 		atm[i].set_p_from_Nair_T();
 	}
-	return atm;
 }
 
 	

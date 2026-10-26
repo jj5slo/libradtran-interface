@@ -50,6 +50,7 @@ int save_result(
 	double* radiance
 );/* 結果保存 */
 
+/* save_params.cpp */
 int save_params(std::string dir, std::string secid, std::string path_stdin, std::string suffix);/* パラメータ保存(inファイルをコピーするだけ) */
 
 #endif

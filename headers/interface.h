@@ -92,7 +92,7 @@ public:
 	void set_T_p_from_Nair_hydrostatic(void);
 };
 
-ParamAtmosphere* readParamAtmosphere(std::string filename, int& Nlines);
+ParamAtmosphere* readParamAtmosphere(std::string filename, int& Nlines);// zが小さい順
 
 void set_Nair_10_exponentially(int Nheights, ParamAtmosphere*& pAtm, int iTOP, double Coef);
 
@@ -104,7 +104,7 @@ int save_stdin(std::string path_stdin, ParamStdin param);
 	/* 0:問題なし, 1:Error */
 
 /* interface-atmosphere.cpp */
-void saveParamAtmosphere(std::string filename, ParamAtmosphere *params, int Nlines, int Ndecimal = 6);/* 保存先、パラメータの配列、高度の総数、有効数字 */
+void saveParamAtmosphere(std::string filename, ParamAtmosphere *params, int Nlines, int Ndecimal = 7);/* 保存先、パラメータの配列、高度の総数、有効数字 */
 
 #endif /* __INTERFACE_H__ */
 

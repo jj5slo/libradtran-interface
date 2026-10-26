@@ -1,7 +1,7 @@
 #include <iostream>
 #include <cfloat>  // DBL_MAX
 
-double linear_interpolation(double** data, int N, double x) {
+double linear_interpolation(const double** data, const int N, const double x) {
 	int x_minus_i = -1;
 	int x_plus_i = -1;
 	

@@ -19,11 +19,11 @@ ParamAtmosphere* call_temperatures(
 	const double COEF
 );
 
-ParamAtmosphere* Nair_to_Temperature(
+void Nair_to_Temperature(
 	int         atm_Nheights,
-	PlanetParam earth,
-	ParamAtmosphere* rawatm,/* Nair以外はMSIS */
-	int         iTOP
+	ParamAtmosphere*& rawatm,/* Nair以外はMSIS */
+	int         iTOP,
+	PlanetParam earth
 );
 
 ParamAtmosphere* Nair_to_atmosphere_new(
