@@ -96,9 +96,6 @@ double core(void* raw_Args){
 		sensor_theta = acos(args->pStdin.umu) * Rad2deg;
 		std::cout << "sonsor_direction:\n\tsensor_theta:" << sensor_theta <<"\n\tphi:" << args->pStdin.phi << std::endl;
 		std::cout << "cos(sensor_theta) = umu = " << args->pStdin.umu << std::endl;
-		if(args->FLAG_adapt_mc_photons == 1){
-//			args->pStdin.mc_photons = ;/* TODO */
-		}
 
 		for(int j=0; j<args->SRWeights.N(); j++){
 			double rad_wavelength        = 0.0;
