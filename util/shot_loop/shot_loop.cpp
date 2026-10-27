@@ -25,14 +25,15 @@
 
 
 int main(int argc, char *argv[]){
-	if(argc != 5){
-		std::cerr << "Usage: ./shot_loop SZA PHI PATH_ATM DIR_RESULT" << std::endl;
+	if(argc != 6){
+		std::cerr << "Usage: ./shot_loop SZA PHI PATH_ATM DIR_RESULT identifier" << std::endl;
 		return 1;
 	}
 	const double SZA = std::stod(argv[1]);
 	const double PHI = std::stod(argv[2]);
 	const std::string PATH_ATM = std::filesystem::canonical(std::string(argv[3]));
 	const std::string DIR_RESULT_RAW = std::string(argv[4]);
+	const std::string IDENTIFIER = std::string(argv[5]);
 	
 	std::cout << "SZA: " << SZA << std::endl;
 	std::cout << "PHI: " << PHI << std::endl;
@@ -79,7 +80,7 @@ int main(int argc, char *argv[]){
 	Geocoordinate *tparr = new Geocoordinate[Nheights];
 	LookingDirection ld;
 	for(int i=0; i<Nheights; i++){
-		ld.set( ld_alpha, heights[i] );/* 見る場所決め */
+		ld.set( ld_alpha, heights[i]*1e3 );/* 見る場所決め */
 		tparr[i] = ld.tangential_point( earth, himawari);/* tangential point の配列 */
 	}
 	/* ==== */
@@ -87,10 +88,10 @@ int main(int argc, char *argv[]){
 	std::cerr << "ATMOSPHERE " << PATH_ATM << " IS USED." << std::endl;
 	/* ==== */
 	
-	const std::string PATH_STDIN = "/tmp/TEMPORARY/shot_loop/stdin";
-	const std::string PATH_STDOUT = "/tmp/TEMPORARY/shot_loop/stdout";
-	const std::string DIR_LOG    = "/tmp/TEMPORARY/shot_loop/";
-	const std::string DIR_UVSPEC = "/lhome/sano2/SANO/research/LIBRARIES/libradtran/libr0/libRadtran-2.0.6/bin/";
+	const std::string PATH_STDIN  = "/home/sano/sano1/temporary1/shot_loop/"+IDENTIFIER+"/stdin";
+	const std::string PATH_STDOUT = "/home/sano/sano1/temporary1/shot_loop/"+IDENTIFIER+"/stdout";
+	const std::string DIR_LOG     = "/home/sano/sano1/temporary1/shot_loop/"+IDENTIFIER+"/";
+	const std::string DIR_UVSPEC  = "/home/sano/sano1/research1/LIBRARIES1/libradtran/1libr0/libRadtran-2.0.6/bin/";
 
 	/* ==== 輝度計算の設定 ==== */
 	const double TOA_height = 100.0e3;
@@ -120,7 +121,7 @@ int main(int argc, char *argv[]){
 		AndoLab::Vector3d <double> *crosspts = new AndoLab::Vector3d <double> [2];
 		crosspts = Across_point_atmosphere(earth, himawari, tp.r(), TOA_height/1.0e3); 
 		Geocoordinate crosspt(earth, himawari, crosspts[0]);/* TOAと視線の交点を求める */
-		std::cout << "crosspoint_of_atmosphere:\n\tlat:" << crosspt.latitude() << "\n\tlon:" << crosspt.longitude() << "\n\taltitude:" << crosspt.altitude() << "\n\t theta from z: " << crosspt.r().theta() << std::endl;
+		std::cout << "crosspoint_of_atmosphere:\n\tlat:" << crosspt.latitude() << "\n\tlon:" << crosspt.longitude() << "\n\taltitude:" << crosspt.altitude() << "\n\t theta from z: " << crosspt.r().theta()*AndoLab::RAD2DEG << std::endl;
 		
 		double umu = 0.0;
 		double phi = 0.0;
@@ -137,12 +138,12 @@ int main(int argc, char *argv[]){
 		ParamStdin pStdin;
 		pStdin.atmosphere_file = PATH_ATM;
 		pStdin.wavelength = 470.0;
-		pStdin.sza = SZA + crosspt.r().theta(); /* solar */
+		pStdin.sza = SZA + crosspt.r().theta()*AndoLab::RAD2DEG; /* solar */
 		pStdin.phi0 = PHI;/* solar */
 		pStdin.umu = umu;
 		pStdin.phi = phi;/* sensor */
 		pStdin.mc_photons   = 100000000;
-		pStdin.mc_basename = "mc_shot_loop_";
+		pStdin.mc_basename = "mc_shot_loop_"+IDENTIFIER;
 		pStdin.additional  = "aerosol_default\nmc_vroom on\nmc_std 0.5e-2\nverbose\nmol_abs_param crs\n";
 
 		save_stdin(PATH_STDIN, pStdin);/* 座標情報を入力ファイルにセーブ */
