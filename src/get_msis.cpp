@@ -111,8 +111,10 @@ ParamAtmosphere* get_msis21(obsDateTime dt, Geocoordinate* coord, int N){
 	//atmosphere.space_weather(145.0f, 145.0f, 6.0f);// TODO 仮の値
 	atmosphere.space_weather(150.0f, 150.0f, 4.0f);// TODO 仮の値
 	for(int i=0; i<N; ++i){
-		patm[i].z = coord[i].altitude() / 1.0e3; /* [km] */
-		atmosphere.calc_at(coord[i].altitude()/*[m]*/, coord[i].latitude(), coord[i].longitude());
+		double altitude = coord[i].altitude();
+		if(altitude < 0.0 && -1.0e-6 <= altitude){ altitude = 0.0; }
+		patm[i].z = altitude / 1.0e3; /* [km] */
+		atmosphere.calc_at(altitude/*[m]*/, coord[i].latitude(), coord[i].longitude());
 		patm[i].Nair = atmosphere.N()/* [/m3] */ / 1.0e6 /* [/cm3] */;
 		patm[i].T    = atmosphere.T();
 		patm[i].set_p_from_Nair_T();
