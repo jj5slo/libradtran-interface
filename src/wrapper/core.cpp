@@ -165,15 +165,15 @@ double core(void* raw_Args){
 	}
 	RawEachWL_header += "[nm]\n";
 	RawEachWL_header += "#        rad rad(NN.rad) sd(NN)\n";
-	double** height_radiance_each_wl = new double* [3*(args->SRWeights.N())+1];
+	double** height_radiance_each_wl = new double* [4*(args->SRWeights.N())+1];
 	height_radiance_each_wl[0] = args->heights;
 	for(int ii=0; ii<args->SRWeights.N(); ii++){
-		height_radiance_each_wl[3*ii+1] = radiance_each_wl[ii];
-		height_radiance_each_wl[3*ii+2] = radiance_sd_each_wl[ii];
-		height_radiance_each_wl[3*ii+3] = rad_NN_each_wl[ii];
-		height_radiance_each_wl[3*ii+4] = rad_NN_sd_each_wl[ii];
+		height_radiance_each_wl[4*ii+1] = radiance_each_wl[ii];
+		height_radiance_each_wl[4*ii+2] = radiance_sd_each_wl[ii];
+		height_radiance_each_wl[4*ii+3] = rad_NN_each_wl[ii];
+		height_radiance_each_wl[4*ii+4] = rad_NN_sd_each_wl[ii];
 	}
-	readwrite::save_data(args->DIR_RESULT+"/"+identifier+"_RawEachWL.dat", RawEachWL_header, args->Nheights, 3*args->SRWeights.N()+1, height_radiance_each_wl, 8);
+	readwrite::save_data(args->DIR_RESULT+"/"+identifier+"_RawEachWL.dat", RawEachWL_header, args->Nheights, 4*args->SRWeights.N()+1, height_radiance_each_wl, 8);
 
 	std::string PhotonsEachWL_header = "# height ";
 	for(int ii=0; ii<args->SRWeights.N(); ii++){
