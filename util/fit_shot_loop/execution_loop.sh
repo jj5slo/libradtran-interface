@@ -2,7 +2,7 @@
 set -euo pipefail
 shopt -s nullglob
 
-BASE="../../../2026/2026-10w4/plusminusDT/result"
+BASE="../../../2026/2026-11w1/plusminusDT/result"
 
 REF="$BASE/afglus_log_101"
 M10="$BASE/afglus_50_45_254.2K"
@@ -11,7 +11,7 @@ ZERO="$BASE/afglus_50_45_264.2K"
 P5="$BASE/afglus_50_45_269.2K"
 P10="$BASE/afglus_50_45_274.2K"
 
-OUTPUT="result.dat"
+OUTPUT="$BASE/result.dat"
 
 # 最大の数値名ディレクトリからファイルを取得
 get_latest_file() {

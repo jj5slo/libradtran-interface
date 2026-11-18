@@ -3,7 +3,7 @@ shopt -s nullglob
 mkdir -p "/home/sano/sano1/temporary1/shot_loop/PARA1_"
 
 #for SZA in {45..60..15}; do
-for SZA in 65 70 80 75; do
+for SZA in 0 15 30 60 65 70 75 80 85 90; do
   # SZAに応じてPHIのステップ幅（度）を変更
   if [ "$SZA" -eq 0 ]; then
     PHI_STEP=185     # 天頂（0度）では方位角依存が無いため 0 のみ

@@ -76,12 +76,15 @@ int main(int argc, char *argv[]){
 	for(int i=0; i<Nheights; ++i){
 		heights[i] = 1.0*(double)(i+i_BOTTOM);
 	}
-	double ld_alpha = 0.0;/* 北極 */
+	double ld_alpha = 0.0;/* 北極方向 */
+	Geocoordinate on_ground;
 	Geocoordinate *tparr = new Geocoordinate[Nheights];
 	LookingDirection ld;
+	ld.set( ld_alpha, 0.0 );/* 地表 */
+	on_ground = ld.tangential_point(earth, himawari);/* tangential point の配列 */
 	for(int i=0; i<Nheights; i++){
 		ld.set( ld_alpha, heights[i]*1e3 );/* 見る場所決め */
-		tparr[i] = ld.tangential_point( earth, himawari);/* tangential point の配列 */
+		tparr[i] = ld.tangential_point(earth, himawari);/* tangential point の配列 */
 	}
 	/* ==== */
 	/* ==== 大気設定 ==== */
@@ -118,7 +121,7 @@ int main(int argc, char *argv[]){
 		std::cout << "Tangential point:\n";
 		std::cout << "\tlat:" << tp.latitude() << "\n\tlon:" << tp.longitude() << "\nt\taltitude:" << tp.altitude() << "\n\talpha:" << tp.alpha()*Rad2deg << std::endl;
 
-		AndoLab::Vector3d <double> *crosspts = new AndoLab::Vector3d <double> [2];
+		AndoLab::Vector3d <double> *crosspts;
 		crosspts = Across_point_atmosphere(earth, himawari, tp.r(), TOA_height/1.0e3); 
 		Geocoordinate crosspt(earth, himawari, crosspts[0]);/* TOAと視線の交点を求める */
 		std::cout << "crosspoint_of_atmosphere:\n\tlat:" << crosspt.latitude() << "\n\tlon:" << crosspt.longitude() << "\n\taltitude:" << crosspt.altitude() << "\n\t theta from z: " << crosspt.r().theta()*AndoLab::RAD2DEG << std::endl;
@@ -134,12 +137,28 @@ int main(int argc, char *argv[]){
 			return 1;
 		}
 		
+
 		/* ==== stdin を生成 ==== */
 		ParamStdin pStdin;
+		const double latitude_difference = (on_ground.latitude() - crosspt.latitude()) / AndoLab::RAD2DEG;
+		const double SZA_rad = SZA / AndoLab::RAD2DEG;
+		const double PHI_rad = PHI / AndoLab::RAD2DEG;
+		// SZA
+		const double cos_sza = cos(SZA_rad) * cos(latitude_difference) - sin(SZA_rad) * cos(PHI_rad) * sin(latitude_difference);
+		pStdin.sza = acos(std::clamp(cos_sza, -1.0, 1.0)) * AndoLab::RAD2DEG;
+		// Solar azimuth
+		pStdin.phi0 = atan2(
+			sin(SZA_rad) * sin(PHI_rad),
+			sin(SZA_rad) * cos(PHI_rad) * cos(latitude_difference)
+			+ cos(SZA_rad) * sin(latitude_difference)
+		) * AndoLab::RAD2DEG;
+		// 0～360度に正規化
+		if (pStdin.phi0 < 0.0) {
+		    pStdin.phi0 += 360.0;
+		}
+
 		pStdin.atmosphere_file = PATH_ATM;
 		pStdin.wavelength = 470.0;
-		pStdin.sza = SZA + crosspt.r().theta()*AndoLab::RAD2DEG; /* solar */
-		pStdin.phi0 = PHI;/* solar */
 		pStdin.umu = umu;
 		pStdin.phi = phi;/* sensor */
 		pStdin.mc_photons   = 100000000;
@@ -170,6 +189,8 @@ int main(int argc, char *argv[]){
 		std::cout << "photons: " << photons[i]  << std::endl;
 		std::cout << "Tangential height: " << tp.altitude() << " [m]\nWavelength: " << pStdin.wavelength << "[nm]" << ", Radiance: " << radiance[i] << "\n----" << std::endl;
 		/* ==== */
+
+		delete[] crosspts;
 	}
 
 	/* ==== saving parameters ==== */
@@ -220,5 +241,6 @@ int main(int argc, char *argv[]){
 		delete[] processed_results[i];
 	}
 	delete[] processed_results;
+	delete[] tparr;
 	return 0;
 }
